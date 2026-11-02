@@ -1,0 +1,18 @@
+{
+  "brand": "SmartJoy",
+  "asset": "res/drawable-nodpi/mika_launcher_art.png",
+  "sha256": "ca1607be42b54cd5e4eadc9fe7770e331e28feb793da5a8be8f9da9ed06f09b6",
+  "format": "RGBA PNG",
+  "size": [
+    1254,
+    1254
+  ],
+  "source": "User-provided SmartJoy screenshot; high-resolution brand original visually cross-checked",
+  "processing": "Built-in imagegen; symbol extraction, transparent background and clean edges",
+  "constraints": "Symbol only; no Chinese or English lettering; preserve dark navy silhouette",
+  "launcher_background": "white",
+  "launcher_inset": "10% per side",
+  "notification": "Use the same alpha silhouette, tinted white",
+  "compiled_png_sha256": "a26b3af287ef7dc9a49572de455b33c0de0cb8a4fd8c22b2f928e4286bc0608b",
+  "compiled_png_note": "AAPT removes invisible RGB values from fully transparent pixels; alpha and all visible pixels verified identical."
+}

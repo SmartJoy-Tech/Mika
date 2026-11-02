@@ -33,7 +33,7 @@ try {
             -storepass:env TINYFOX_LOCAL_PASSWORD -keypass:env TINYFOX_LOCAL_PASSWORD
         if ($LASTEXITCODE -ne 0) { throw 'Key generation failed. Existing material was retained for diagnosis.' }
     } else {
-        $secure = Get-Content -Raw -LiteralPath $passwordFile | ConvertTo-SecureString
+        $secure = (Get-Content -Raw -LiteralPath $passwordFile).Trim() | ConvertTo-SecureString
         $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
         try { $env:TINYFOX_LOCAL_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr) }
         finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr) }

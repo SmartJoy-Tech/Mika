@@ -13,7 +13,10 @@ val gitHash: String = runCatching {
 val tinyFoxRevision = rootProject.file("tinyfox/revision.txt").readText().trim().toInt()
 require(tinyFoxRevision in 1..99)
 val tinyFoxResources by tasks.registering(Sync::class) {
-    from("src/main/res")
+    from("src/main/res") {
+        exclude("drawable-nodpi/mika_launcher_art.png", "drawable/ic_notification.xml", "mipmap-anydpi-v26/ic_launcher.xml")
+    }
+    from(rootProject.file("tinyfox/res"))
     into(layout.buildDirectory.dir("generated/tinyfox/res"))
     filteringCharset = "UTF-8"
     filesMatching("values*/strings*.xml") {

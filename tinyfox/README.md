@@ -20,6 +20,10 @@ resources are branded at build time, so new translations are picked up on the
 next build. The accessibility entry class, recovery code, state checks and computer
 CLI point at TinyFox; the underlying phone-control implementation follows upstream.
 
+## SmartJoy icon
+
+The personal build uses the owner-provided SmartJoy symbol without Chinese or English lettering. `tinyfox/res` supplies the launcher artwork, a white adaptive-icon background, a monochrome launcher layer and the notification silhouette. The same symbol is used in the welcome/about screens and capsule/drawer entry points. The UI tile stays white for contrast in both themes. `tinyfox/branding.json` records the asset fingerprint. These resources override the upstream artwork at build time so upstream icon updates do not replace the personal branding.
+
 ## Automatic upstream sync
 
 `tinyfox` is the product branch and the intended default branch. The original `main` branch is kept as an

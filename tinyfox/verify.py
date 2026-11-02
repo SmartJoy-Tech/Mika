@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import subprocess
 import xml.etree.ElementTree as ET
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 APP_ID = 'io.github.smartjoytech.tinyfox'
@@ -35,6 +36,10 @@ def versions():
 
 
 def verify_sources():
+    branding = json.loads(read('tinyfox/branding.json'))
+    brand_asset = ROOT / 'tinyfox' / branding['asset']
+    require(hashlib.sha256(brand_asset.read_bytes()).hexdigest() == branding['sha256'],
+            'SmartJoy artwork differs from the reviewed asset')
     require(f'applicationId = "{APP_ID}"' in read('app/build.gradle.kts'), 'Wrong applicationId')
     manifest = ET.fromstring(read('app/src/main/AndroidManifest.xml'))
     permissions = {e.get(ANDROID + 'name') for e in manifest.findall('uses-permission')}
@@ -75,6 +80,13 @@ def verify_apk(apk, aapt, certificate=None, apksigner=None):
     permissions = set(re.findall(r"uses-permission: name='([^']+)'", badging))
     allowed = set(json.loads(read('tinyfox/permissions.json'))) | {APP_ID + '.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'}
     require(permissions == allowed, 'Merged APK permissions differ from the reviewed baseline')
+    branding = json.loads(read('tinyfox/branding.json'))
+    resources = run_tool(aapt, 'dump', '--values', 'resources', apk.name, cwd=apk.parent)
+    icon = re.search(r'(?m)^\s+resource [^\n]+:drawable/mika_launcher_art:[^\n]*\n\s+\(string8\) "([^"]+)"', resources)
+    require(icon is not None, 'Cannot locate the packaged SmartJoy artwork')
+    with zipfile.ZipFile(apk) as archive:
+        icon_hash = hashlib.sha256(archive.read(icon[1])).hexdigest()
+    require(icon_hash == branding['compiled_png_sha256'], 'APK contains unexpected logo artwork')
     signature = None
     if certificate:
         require(apksigner is not None, 'apksigner required for signed APK verification')
@@ -84,7 +96,8 @@ def verify_apk(apk, aapt, certificate=None, apksigner=None):
         signature = actual
     return {'package': APP_ID, 'service': SERVICE, 'versionCode': code, 'versionName': name,
             'apk': apk.name, 'sha256': hashlib.sha256(apk.read_bytes()).hexdigest(),
-            'bytes': apk.stat().st_size, 'certificate_sha256': signature}
+            'bytes': apk.stat().st_size, 'certificate_sha256': signature,
+            'brand': branding['brand'], 'compiled_icon_sha256': icon_hash}
 
 
 if __name__ == '__main__':
