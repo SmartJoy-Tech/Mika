@@ -9,16 +9,31 @@ val gitHash: String = runCatching {
     providers.exec { commandLine("git", "rev-parse", "--short=7", "HEAD") }.standardOutput.asText.get().trim()
 }.getOrNull()?.takeIf { it.isNotEmpty() } ?: "dev"
 
+// TinyFox customization: keep upstream source namespaces to make future merges small.
+val tinyFoxRevision = rootProject.file("tinyfox/revision.txt").readText().trim().toInt()
+require(tinyFoxRevision in 1..99)
+val tinyFoxResources by tasks.registering(Sync::class) {
+    from("src/main/res")
+    into(layout.buildDirectory.dir("generated/tinyfox/res"))
+    filteringCharset = "UTF-8"
+    filesMatching("values*/strings*.xml") {
+        filter { line: String -> line.replace("Mika", "TinyFox") }
+    }
+}
+
 android {
     namespace = "com.wangzan101.mika"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.wangzan101.mika"
+        applicationId = "io.github.smartjoytech.tinyfox"
         minSdk = 30
         targetSdk = 35
         versionCode = 34
         versionName = "0.1.33"
+        // 100 local revisions per upstream version; never reuse a versionCode.
+        versionCode = versionCode!! * 100 + tinyFoxRevision
+        versionName = "$versionName-tinyfox.$tinyFoxRevision"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
         // 关于页版本号后的 Beta 标记;出正式版时改成 false
@@ -51,12 +66,25 @@ android {
 
     // 评测任务集(仓库根目录 eval/tasks)打进测试包的 assets,真机评测跑器从那里读题
     sourceSets.getByName("androidTest").assets.srcDir(rootProject.file("eval/tasks"))
+    sourceSets.getByName("main").res.setSrcDirs(listOf(tinyFoxResources))
+
+    // Secrets are supplied only to a trusted signing run, never committed to Git.
+    val tinyFoxKeystore = System.getenv("TINYFOX_KEYSTORE")
+    if (!tinyFoxKeystore.isNullOrBlank()) {
+        signingConfigs.create("tinyfox") {
+            storeFile = file(tinyFoxKeystore)
+            storePassword = requireNotNull(System.getenv("TINYFOX_STORE_PASSWORD"))
+            keyAlias = requireNotNull(System.getenv("TINYFOX_KEY_ALIAS"))
+            keyPassword = requireNotNull(System.getenv("TINYFOX_KEY_PASSWORD"))
+        }
+        buildTypes.getByName("release").signingConfig = signingConfigs.getByName("tinyfox")
+    }
 
     buildTypes {
         // 真机验收时并排安装,保留发行版和用户数据;默认构建标识不变。
         if (providers.gradleProperty("devInstall").isPresent) getByName("debug") {
             applicationIdSuffix = ".dev"
-            resValue("string", "app_name", "Mika Dev")
+            resValue("string", "app_name", "TinyFox Dev")
         }
         // 看流畅度用的包:和发布版一样不可调试(调试包不做预先编译,界面慢好几倍,手感不作数),
         // 用本机调试签名,能直接覆盖调试包、保留数据;可被性能工具采样。./gradlew :app:assemblePerf
@@ -78,6 +106,8 @@ android {
 kotlin {
     jvmToolchain(17)
 }
+
+tasks.named("preBuild") { dependsOn(tinyFoxResources) }
 
 dependencies {
     implementation(project(":core"))

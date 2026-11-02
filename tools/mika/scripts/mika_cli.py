@@ -18,7 +18,8 @@ import urllib.request
 
 VERSION = "0.1.0"
 API = "/api/v1"
-PHONE_FILES = "/sdcard/Android/data/com.wangzan101.mika/files"
+# TinyFox customization: the installed package has its own external files directory.
+PHONE_FILES = "/sdcard/Android/data/io.github.smartjoytech.tinyfox/files"
 INFO_FILE = PHONE_FILES + "/mcp-usb.json"
 CONNECT_SCRIPT = PHONE_FILES + "/connect-computer.sh"
 MAX_RESPONSE = 4 * 1024 * 1024

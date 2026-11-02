@@ -27,7 +27,7 @@ import org.junit.Assert.assertTrue
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.wangzan101.mika.a11y.MikaAccessibilityService
+import io.github.smartjoytech.tinyfox.a11y.TinyFoxAccessibilityService
 
 /** 真机测试:需要内置助手在运行(已配对、无线调试开着),且 Mika 无障碍服务已开启。 */
 @RunWith(AndroidJUnit4::class)
@@ -59,7 +59,7 @@ class A11yOnDisplayTest {
         private fun rebindAccessibility() {
             if (ScreenAccessibility.instance.value != null) return
             val key = "enabled_accessibility_services"
-            val mika = "com.wangzan101.mika/${MikaAccessibilityService::class.java.name}"
+            val mika = "com.wangzan101.mika/${TinyFoxAccessibilityService::class.java.name}"
             val enabled = shellCommand("settings get secure $key").trim().split(':')
             if (mika !in enabled) return
             try {

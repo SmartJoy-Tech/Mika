@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
-import com.wangzan101.mika.a11y.MikaAccessibilityService
+import io.github.smartjoytech.tinyfox.a11y.TinyFoxAccessibilityService
 
 /** 真机测试共用:shell 连接、无障碍服务、虚拟屏上的 AndroidScreen。需要内置助手在运行(已配对、无线调试开着)且 Mika 无障碍服务已开启。 */
 object DeviceSupport {
@@ -70,7 +70,7 @@ object DeviceSupport {
     private fun rebindAccessibility() {
         if (ScreenAccessibility.instance.value != null) return
         val key = "enabled_accessibility_services"
-        val mika = "${InstrumentationRegistry.getInstrumentation().targetContext.packageName}/${MikaAccessibilityService::class.java.name}"
+        val mika = "${InstrumentationRegistry.getInstrumentation().targetContext.packageName}/${TinyFoxAccessibilityService::class.java.name}"
         val enabled = sh("settings get secure $key").trim().split(':')
         if (mika !in enabled) return
         try {

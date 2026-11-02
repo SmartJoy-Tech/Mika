@@ -1,0 +1,62 @@
+name: TinyFox build and verify
+
+on:
+  push:
+    branches: [tinyfox]
+  pull_request:
+    branches: [tinyfox]
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Source identity checks
+        run: |
+          python3 tinyfox/verify.py
+          python3 -m unittest discover -s tinyfox -p 'test_*.py' -v
+      - name: Android SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Tests and unsigned release APK
+        run: bash gradlew :core:test :app:testReleaseUnitTest :app:assembleRelease --no-daemon --console=plain
+      - name: Inspect the actual APK
+        run: |
+          python3 tinyfox/verify.py \
+            --apk app/build/outputs/apk/release/app-arm64-v8a-release-unsigned.apk \
+            --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" \
+            --output app/build/outputs/apk/release/tinyfox-verification.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: tinyfox-unsigned-${{ github.run_id }}
+          path: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/release/tinyfox-verification.json
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: tinyfox-test-reports-${{ github.run_id }}
+          path: |
+            core/build/reports/tests/
+            app/build/reports/tests/
+          if-no-files-found: ignore
+          retention-days: 14

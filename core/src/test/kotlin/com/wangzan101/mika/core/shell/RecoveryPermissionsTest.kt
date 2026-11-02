@@ -39,10 +39,10 @@ class RecoveryPermissionsTest {
 
     @Test
     fun accessibilityComponentKeepsTheClassNamespaceWithAnApplicationIdSuffix() {
-        assertEquals("com.wangzan101.mika/.a11y.MikaAccessibilityService", PermissionCommands.accessibilityService("com.wangzan101.mika"))
+        assertEquals("io.github.smartjoytech.tinyfox/.a11y.TinyFoxAccessibilityService", PermissionCommands.accessibilityService("io.github.smartjoytech.tinyfox"))
         assertEquals(
-            "com.wangzan101.mika.compat/com.wangzan101.mika.a11y.MikaAccessibilityService",
-            PermissionCommands.accessibilityService("com.wangzan101.mika.compat"),
+            "io.github.smartjoytech.tinyfox.compat/io.github.smartjoytech.tinyfox.a11y.TinyFoxAccessibilityService",
+            PermissionCommands.accessibilityService("io.github.smartjoytech.tinyfox.compat"),
         )
     }
 

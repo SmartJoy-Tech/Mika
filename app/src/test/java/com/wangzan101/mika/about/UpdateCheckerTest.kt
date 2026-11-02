@@ -62,7 +62,7 @@ class UpdateCheckerTest {
         assertEquals(listOf("/api"), hits)
         val req = server.takeRequest()
         assertEquals("application/vnd.github+json", req.getHeader("Accept"))
-        assertTrue(req.getHeader("User-Agent")!!.startsWith("Mika/"))
+        assertTrue(req.getHeader("User-Agent")!!.startsWith("TinyFox/"))
     }
 
     @Test

@@ -21,3 +21,11 @@ CLAUDE.md
 __pycache__/
 *.py[cod]
 *.egg-info/
+
+# TinyFox signing material must stay outside the repository.
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.password
+tinyfox-secrets/

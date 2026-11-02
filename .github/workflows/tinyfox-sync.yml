@@ -1,0 +1,68 @@
+name: TinyFox upstream sync
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [upstream-release]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tinyfox-upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.repository == 'SmartJoy-Tech/Mika'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      changed: ${{ steps.sync.outputs.changed }}
+      sha: ${{ steps.sync.outputs.sha }}
+      base: ${{ steps.sync.outputs.base }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: tinyfox
+          fetch-depth: 0
+      - name: Prepare upstream candidate without building it
+        id: sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tinyfox/sync_upstream.py
+
+  verify:
+    needs: prepare
+    if: needs.prepare.outputs.changed == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/tinyfox-build.yml
+    with:
+      ref: ${{ needs.prepare.outputs.sha }}
+
+  promote:
+    needs: [prepare, verify]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: tinyfox
+          fetch-depth: 0
+      - name: Advance TinyFox only after tests pass
+        env:
+          EXPECTED_BASE: ${{ needs.prepare.outputs.base }}
+          VERIFIED_SHA: ${{ needs.prepare.outputs.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_BASE"
+          git fetch origin "$VERIFIED_SHA"
+          git merge-base --is-ancestor "$EXPECTED_BASE" "$VERIFIED_SHA"
+          git push origin "$VERIFIED_SHA:refs/heads/tinyfox"
+          echo 'TinyFox source synchronized. The verified unsigned APK is in workflow artifacts.' >> "$GITHUB_STEP_SUMMARY"

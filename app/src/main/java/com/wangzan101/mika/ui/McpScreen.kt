@@ -290,6 +290,6 @@ private fun clock(ms: Long): String =
     DateTimeFormatter.ofPattern("HH:mm:ss").format(Instant.ofEpochMilli(ms).atZone(ZoneId.systemDefault()))
 
 private fun copy(context: Context, text: String) {
-    context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("Mika", text))
+    context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("TinyFox", text))
     Toast.makeText(context, context.getString(R.string.mcp_copied), Toast.LENGTH_SHORT).show()
 }

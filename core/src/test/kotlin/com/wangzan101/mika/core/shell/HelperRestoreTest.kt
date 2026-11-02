@@ -7,7 +7,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HelperRestoreTest {
-    private val mika = PermissionCommands.accessibilityService("com.wangzan101.mika")
+    private val mika = PermissionCommands.accessibilityService("io.github.smartjoytech.tinyfox")
     private val other = "com.example.reader/.ReaderService"
     private val yes = RestoreWish(revive = true, accessibility = true)
 
@@ -115,7 +115,7 @@ class HelperRestoreTest {
         assertEquals(listOf(RestoreCommands.ENABLE_ACCESSIBILITY), RestoreCommands.accessibility("$mika:$other", mika))
         assertEquals(
             listOf(RestoreCommands.ENABLE_ACCESSIBILITY),
-            RestoreCommands.accessibility("com.wangzan101.mika/com.wangzan101.mika.a11y.MikaAccessibilityService", mika),
+            RestoreCommands.accessibility("io.github.smartjoytech.tinyfox/io.github.smartjoytech.tinyfox.a11y.TinyFoxAccessibilityService", mika),
         )
     }
 

@@ -6,8 +6,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AccessibilityListTest {
-    private val mika = PermissionCommands.accessibilityService("com.wangzan101.mika")
-    private val mikaLong = "com.wangzan101.mika/com.wangzan101.mika.a11y.MikaAccessibilityService"
+    private val mika = PermissionCommands.accessibilityService("io.github.smartjoytech.tinyfox")
+    private val mikaLong = "io.github.smartjoytech.tinyfox/io.github.smartjoytech.tinyfox.a11y.TinyFoxAccessibilityService"
     private val other = "com.example.reader/.ReaderService"
     private val other2 = "org.sample.keys/org.sample.keys.KeyService"
 
@@ -51,7 +51,7 @@ class AccessibilityListTest {
 
     @Test
     fun differentServiceOfSamePackageIsNotConfused() {
-        val sibling = "com.wangzan101.mika/.a11y.OtherService"
+        val sibling = "io.github.smartjoytech.tinyfox/.a11y.OtherService"
         assertFalse(AccessibilityList.contains(sibling, mika))
         assertEquals(sibling, AccessibilityList.without("$sibling:$mika", mika))
     }
