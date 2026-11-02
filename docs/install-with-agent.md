@@ -1,27 +1,27 @@
 > TinyFox fork: use your locally signed TinyFox APK; upstream Mika APKs have a different application identity. See [TinyFox build instructions](../tinyfox/README.md).
 
-# 用电脑上的 AI 助手安装 Mika
+# 用电脑上的 AI 助手安装 TinyFox
 
 简体中文 | [English](install-with-agent.en.md)
 
-这份文档是写给**电脑上能执行命令的 AI 助手**看的：手机用 USB 连着电脑，助手照着下面的步骤，用 adb 把 Mika 装到手机上并做好设置。人也可以照着做，每条命令都能直接复制。
+这份文档是写给**电脑上能执行命令的 AI 助手**看的：手机用 USB 连着电脑，助手照着下面的步骤，用 adb 把 TinyFox 装到手机上并做好设置。人也可以照着做，每条命令都能直接复制。
 
 本指南首先处理手机 APK。手机已经设置好、只需电脑接入时，直接按 [CLI / Skill 安装指南](computer-install.md)或 [MCP 指南](mcp.md)配置所选入口，无需重做手机安装和授权。下面第 10 步也只在用户要求电脑访问时执行。
 
 如果你是用户：把手机用数据线连上电脑，在手机上打开 USB 调试（开发者选项里，本文没写到的开关不要动，有的会清除手机数据），然后把这句话发给电脑上的 AI 助手：
 
 ```
-请按 https://github.com/wangzan101/Mika/blob/main/docs/install-with-agent.md 的步骤，帮我把 Mika 安装到通过 USB 连着的安卓手机上。
+请按 https://github.com/SmartJoy-Tech/Mika/blob/tinyfox/docs/install-with-agent.md 的步骤，帮我把 TinyFox 安装到通过 USB 连着的安卓手机上。
 ```
 
 如果你是 AI 助手：先读完「规则」，需要安装和设置手机时再从第 1 步开始；仅需电脑接入时按上面的入口执行。
 
 ## 规则
 
-1. **只安装和设置 Mika。** 只做本文写到的事，不顺手做别的。
+1. **只安装和设置 TinyFox。** 只做本文写到的事，不顺手做别的。
 2. **不碰无关的系统设置。** 不改锁屏、屏幕超时、显示、声音、网络、开发者选项里的其他开关等任何本文没写到的设置。
-3. **不卸载任何手机 App，不清除手机应用数据。** 连 Mika 自己也不行。需要卸载时，说明原因，让用户自己决定、自己动手。
-4. **不碰用户的模型 API Key。** 不向用户索要，不替用户输入，不通过 adb 发送。Key 由用户在 Mika 里自己填。
+3. **不卸载任何手机 App，不清除手机应用数据。** 连 TinyFox 自己也不行。需要卸载时，说明原因，让用户自己决定、自己动手。
+4. **不碰用户的模型 API Key。** 不向用户索要，不替用户输入，不通过 adb 发送。Key 由用户在 TinyFox 里自己填。
 5. **需要在手机上点的时候，停下来告诉用户。** 说清楚屏幕上会出现什么、该点哪个按钮，等用户说好了再继续。
 6. **每一步先用用户的语言简短说明要做什么、为什么。** 命令失败时，把错误原文给用户看，再说可能的原因。
 7. 下面的命令按类 Unix 的 shell 写（macOS、Linux、Windows 上的 WSL 或 Git Bash）。在 Windows 的 PowerShell 里，按同样的意思改写即可。
@@ -50,7 +50,7 @@ adb devices
 
 - 状态是 `unauthorized`：请用户看手机屏幕，在「允许 USB 调试吗？」的弹框里点「允许」（可以勾上「一律允许这台计算机」），然后重新运行 `adb devices`。
 - 列表是空的：请用户确认数据线能传数据（有的线只能充电），手机上已经打开「开发者选项」和「USB 调试」，并把 USB 用途选成「文件传输」再试。打开 USB 调试的方法见[手机操作设置指南](setup-guide.md)的第 1、2 步。
-- 有多台设备：请用户只留要装 Mika 的那一台，或者问清是哪一台，之后每条命令都写成 `adb -s <序列号> ...`。
+- 有多台设备：请用户只留要装 TinyFox 的那一台，或者问清是哪一台，之后每条命令都写成 `adb -s <序列号> ...`。
 
 ### 1.3 安卓版本
 
@@ -69,46 +69,32 @@ adb shell getprop ro.product.cpu.abi
 ```
 
 - `arm64-v8a`：Linux 沙箱可用。
-- 其他值：Mika 照常能装能用，只是没有 Linux 沙箱（设置里会显示「此设备不支持」）。告诉用户一声即可，继续。
+- 其他值：TinyFox 照常能装能用，只是没有 Linux 沙箱（设置里会显示「此设备不支持」）。告诉用户一声即可，继续。
 
-## 第 2 步：下载最新的 APK
+## 第 2 步：准备 TinyFox 安装包
 
-从 GitHub 接口取最新版本，选名字形如 `Mika-v0.1.N.apk` 的全架构包，用它的 `browser_download_url` 下载：
+使用按 [TinyFox 构建与签名说明](../tinyfox/README.md)生成、由固定个人密钥签署的 APK，复制为当前目录下的 `TinyFox.apk`。构建工作流中的 unsigned APK 尚不能直接安装。原版 Mika 的 APK 也不能用于 TinyFox。
 
-```
-URL=$(curl -fsSL https://api.github.com/repos/wangzan101/Mika/releases/latest \
-  | grep -o '"browser_download_url": *"[^"]*/Mika-v[0-9.]*\.apk"' \
-  | sed 's/.*"\(https[^"]*\)"/\1/' | head -n 1)
-echo "$URL"
-curl -fL -o Mika.apk "$URL"
-```
-
-成功：`$URL` 形如 `https://github.com/wangzan101/Mika/releases/download/v0.1.N/Mika-v0.1.N.apk`，`curl` 没有报错，当前目录下有下载完的 `Mika.apk`。
-
-电脑上有 jq 的话，用它解析 JSON 更稳；做法一样，取 `assets` 里名字匹配 `Mika-v0.1.N.apk` 的那一项。
-
-第 1.4 步是 `arm64-v8a` 时，也可以改下名字以 `-arm64.apk` 结尾的那个包（把上面的 `[0-9.]*\.apk` 换成 `[0-9.]*-arm64\.apk`）：只带这一种架构的原生库，体积更小，功能一样。
-
-连不上 GitHub：请用户在浏览器里打开 [Releases](https://github.com/wangzan101/Mika/releases/latest)，手动下载 APK，告诉你文件存在哪，再从第 3 步继续。
+安装前使用 `tinyfox/verify.py` 核对包名、Service、权限和证书指纹。已发布的签名版本只从 [本分支的 Releases](https://github.com/SmartJoy-Tech/Mika/releases) 获取；如果尚无签名 Release，使用本地签名包。
 
 ## 第 3 步：安装
 
 ```
-adb install -r Mika.apk
+adb install -r TinyFox.apk
 ```
 
 成功：最后一行是 `Success`。
 
 - 有的手机通过 USB 安装时，会在手机上弹出确认框。请用户看着手机，出现时点「允许」或「安装」。命令会等到用户点完。
 - 失败时把错误原文给用户看。常见的：
-  - `INSTALL_FAILED_UPDATE_INCOMPATIBLE`：手机上已经装了一份签名不同的 Mika（比如自己编译的版本）。要装新的只能先卸载旧的，**旧的里面的对话和设置会丢**。说明这一点，问用户要不要自己去卸载；不要替用户卸载。用户卸载后再运行安装命令。
-  - `INSTALL_FAILED_VERSION_DOWNGRADE`：手机上的 Mika 比要装的更新，不用装了，直接到第 4 步。
+  - `INSTALL_FAILED_UPDATE_INCOMPATIBLE`：手机上已经装了一份签名不同的 TinyFox（比如自己编译的版本）。要装新的只能先卸载旧的，**旧的里面的对话和设置会丢**。说明这一点，问用户要不要自己去卸载；不要替用户卸载。用户卸载后再运行安装命令。
+  - `INSTALL_FAILED_VERSION_DOWNGRADE`：手机上的 TinyFox 比要装的更新，不用装了，直接到第 4 步。
   - `INSTALL_FAILED_USER_RESTRICTED` 或 `INSTALL_FAILED_ABORTED`：用户在手机上拒绝了，或者系统禁止通过 USB 安装。请用户在开发者选项里找「通过 USB 安装」之类的开关并打开（部分手机才有），然后重试。
   - `INSTALL_FAILED_INSUFFICIENT_STORAGE`：手机存储不够，请用户清理一些空间。
 
 ## 第 4 步：通知权限（安卓 13 及以上）
 
-Mika 用通知告诉用户任务进展、请用户接管。SDK 小于 33 时跳过这一步。
+TinyFox 用通知告诉用户任务进展、请用户接管。SDK 小于 33 时跳过这一步。
 
 ```
 adb shell pm grant io.github.smartjoytech.tinyfox android.permission.POST_NOTIFICATIONS
@@ -116,21 +102,21 @@ adb shell pm grant io.github.smartjoytech.tinyfox android.permission.POST_NOTIFI
 
 成功：没有输出。
 
-## 第 5 步：打开 Mika 的无障碍服务
+## 第 5 步：打开 TinyFox 的无障碍服务
 
 只在用户需要手机 App 操作且系统为安卓 12+ 时执行。安卓 11 或只用聊天、网页和文件时跳过，不把无障碍未开启当成安装失败。
 
-Mika 靠无障碍服务读界面、做点按。通过 adb 直接写系统设置来打开它，原因是：不从应用商店安装的 App，用户在系统设置里手动打开无障碍时，常被系统以「受限制的设置」拦下；通过 adb 写入不会遇到这个问题。
+TinyFox 靠无障碍服务读界面、做点按。通过 adb 直接写系统设置来打开它，原因是：不从应用商店安装的 App，用户在系统设置里手动打开无障碍时，常被系统以「受限制的设置」拦下；通过 adb 写入不会遇到这个问题。
 
-Mika 的无障碍服务组件名（来自 `app/src/main/AndroidManifest.xml` 里的 `TinyFoxAccessibilityService`）：
+TinyFox 的无障碍服务组件名（来自 `app/src/main/AndroidManifest.xml` 里的 `TinyFoxAccessibilityService`）：
 
 ```
 io.github.smartjoytech.tinyfox/.a11y.TinyFoxAccessibilityService
 ```
 
-它和完整写法 `io.github.smartjoytech.tinyfox/io.github.smartjoytech.tinyfox.a11y.TinyFoxAccessibilityService` 是同一个；判断列表里有没有 Mika 时，两种写法都要认。
+它和完整写法 `io.github.smartjoytech.tinyfox/io.github.smartjoytech.tinyfox.a11y.TinyFoxAccessibilityService` 是同一个；判断列表里有没有 TinyFox 时，两种写法都要认。
 
-**不要覆盖用户已经开着的其他无障碍服务。** 先读出现有列表，没有 Mika 才在末尾加上（用冒号分隔），再写回去：
+**不要覆盖用户已经开着的其他无障碍服务。** 先读出现有列表，没有 TinyFox 才在末尾加上（用冒号分隔），再写回去：
 
 ```
 ME=io.github.smartjoytech.tinyfox/.a11y.TinyFoxAccessibilityService
@@ -147,13 +133,13 @@ adb shell settings put secure accessibility_enabled 1
 adb shell settings get secure enabled_accessibility_services
 ```
 
-成功：最后一行输出里有 Mika 的组件，原来的那些服务也都还在。
+成功：最后一行输出里有 TinyFox 的组件，原来的那些服务也都还在。
 
 说明：`settings get` 对从没写过的项输出 `null`，要当成空列表；写回时外面加单引号，是因为有的服务名里带 `$` 符号。
 
 ## 第 6 步：电池白名单
 
-把 Mika 加进系统的省电白名单，免得后台任务、定时任务被系统中途掐掉：
+把 TinyFox 加进系统的省电白名单，免得后台任务、定时任务被系统中途掐掉：
 
 ```
 adb shell cmd deviceidle whitelist +io.github.smartjoytech.tinyfox
@@ -168,24 +154,24 @@ adb shell cmd deviceidle whitelist +io.github.smartjoytech.tinyfox
 adb shell cmd deviceidle whitelist | grep io.github.smartjoytech.tinyfox
 ```
 
-## 第 7 步：启动 Mika 的手机助手
+## 第 7 步：启动 TinyFox 的手机助手
 
-先打开一次 Mika（所有用途都需要，用于初始化 App 和连接脚本）：
+先打开一次 TinyFox（所有用途都需要，用于初始化 App 和连接脚本）：
 
 ```
 adb shell am start -n io.github.smartjoytech.tinyfox/com.wangzan101.mika.ui.MainActivity
 ```
 
-也可以用 `adb shell monkey -p io.github.smartjoytech.tinyfox 1`。第一次打开时 Mika 会引导用户添加模型；可以先让用户点「稍后再说」之类的按钮跳过，模型放到第 8 步。
+也可以用 `adb shell monkey -p io.github.smartjoytech.tinyfox 1`。第一次打开时 TinyFox 会引导用户添加模型；可以先让用户点「稍后再说」之类的按钮跳过，模型放到第 8 步。
 
 安卓 11 或只用聊天、网页和文件时，打开 App 后直接到第 8 步；手机助手只用于操作手机 App，不需要把「手机操作」设为就绪。
 
-需要手机 App 操作时，Mika 的内置助手借安卓调试功能启动。有两种方式，沿用用户已选的方式；未选择时说明区别：
+需要手机 App 操作时，TinyFox 的内置助手借安卓调试功能启动。有两种方式，沿用用户已选的方式；未选择时说明区别：
 
 - **A. 配对无线调试（推荐，一次设置）**：在手机上配对；保留相关授权、无线调试和网络条件满足时，可以在重启后自动恢复，不需要电脑。
 - **B. 用 USB 启动**：插线运行一次，不用配对；每次手机重启后需要再连电脑运行（除非 A 已能自动恢复）。
 
-也可以先用 B 启动，再配置 A 方便恢复。这里是 Mika 为启动手机助手而配对，不会自动把电脑配到无线 ADB，也不会开启电脑访问；电脑接入见第 10 步。
+也可以先用 B 启动，再配置 A 方便恢复。这里是 TinyFox 为启动手机助手而配对，不会自动把电脑配到无线 ADB，也不会开启电脑访问；电脑接入见第 10 步。
 
 ### A. 配对无线调试
 
@@ -198,31 +184,31 @@ adb shell am start -n io.github.smartjoytech.tinyfox/com.wangzan101.mika.ui.Main
 
    成功：第二条输出 `1`。手机要连着 Wi-Fi（不用能上网）。如果手机弹出「要允许在此网络上使用无线调试吗？」，请用户点「允许」，并勾上「始终允许在此网络上使用」。如果读回来又变成 `0`，多半是没连 Wi-Fi，或者用户没在弹框里允许。
 
-2. 告诉用户：在 Mika 里打开 设置 › 手机操作，进入「设置手机操作」向导（第一次打开 Mika 时，设置模型之后也会进入它；向导没出现时，点设置页顶上状态卡片里的提示，或者点 设置 › 手机操作 › 重新配对）。向导会自己检查开发者选项、USB 调试和无线调试，已经打开的会自动打勾。
+2. 告诉用户：在 TinyFox 里打开 设置 › 手机操作，进入「设置手机操作」向导（第一次打开 TinyFox 时，设置模型之后也会进入它；向导没出现时，点设置页顶上状态卡片里的提示，或者点 设置 › 手机操作 › 重新配对）。向导会自己检查开发者选项、USB 调试和无线调试，已经打开的会自动打勾。
 
-3. 配对要用户在手机上亲手完成：在系统的「无线调试」页里点「使用配对码配对设备」，把屏幕上的 6 位配对码填进 Mika 的通知里（或者让 Mika 自己读）。你没法替用户配对，等用户说配好了再继续。
+3. 配对要用户在手机上亲手完成：在系统的「无线调试」页里点「使用配对码配对设备」，把屏幕上的 6 位配对码填进 TinyFox 的通知里（或者让 TinyFox 自己读）。你没法替用户配对，等用户说配好了再继续。
 
 4. 每一步怎么点、卡住了怎么办，请用户看[手机操作设置指南](setup-guide.md)。
 
 ### B. 用 USB 启动
 
-前提：Mika 至少打开过一次，它才会把启动脚本写到手机上。插着线时运行：
+前提：TinyFox 至少打开过一次，它才会把启动脚本写到手机上。插着线时运行：
 
 ```
 adb shell sh /sdcard/Android/data/io.github.smartjoytech.tinyfox/files/usb-start.sh
 ```
 
-- 提示文件不存在：先用上面的命令打开一次 Mika，等几秒再试。还是没有的话，手机上的 Mika 版本可能还不带这个功能，改用 A。
+- 提示文件不存在：先用上面的命令打开一次 TinyFox，等几秒再试。还是没有的话，手机上的 TinyFox 版本可能还不带这个功能，改用 A。
 - 拔线后以手机里的助手状态为准；如果手机操作变为未就绪，重连电脑运行本命令，或用已配对的 A 恢复。
 - 重启手机后，若 A 没有成功恢复助手，就需要再连电脑运行一次这条命令。
 
 ### 确认已经启动
 
-请用户打开 Mika 的设置，看顶上的状态卡片：「手机操作」显示可用（模型也配好时显示「模型已配置 · 手机操作可用」）。如果显示「手机操作还没准备好」，按上面的步骤重做，或者看下面的「常见问题」。
+请用户打开 TinyFox 的设置，看顶上的状态卡片：「手机操作」显示可用（模型也配好时显示「模型已配置 · 手机操作可用」）。如果显示「手机操作还没准备好」，按上面的步骤重做，或者看下面的「常见问题」。
 
 ## 第 8 步：添加模型
 
-告诉用户：在 Mika 里打开 设置 › 模型，添加一个服务商并填入自己的 API Key，点「测试并保存」；或者在添加服务商那里点「使用 ChatGPT 继续」，用 ChatGPT 账号登录（需要 Plus 或 Pro）。
+告诉用户：在 TinyFox 里打开 设置 › 模型，添加一个服务商并填入自己的 API Key，点「测试并保存」；或者在添加服务商那里点「使用 ChatGPT 继续」，用 ChatGPT 账号登录（需要 Plus 或 Pro）。
 
 **这一步完全由用户在手机上操作。** 不要索要 Key，不要通过 adb 输入或发送 Key。
 
@@ -233,9 +219,9 @@ adb shell dumpsys package io.github.smartjoytech.tinyfox | grep versionName
 adb shell settings get secure enabled_accessibility_services
 ```
 
-成功：第一条显示当前安装的版本号；执行过第 5 步时，第二条应包含 Mika 的组件。跳过手机操作设置时，不要求第二条出现该组件。
+成功：第一条显示当前安装的版本号；执行过第 5 步时，第二条应包含 TinyFox 的组件。跳过手机操作设置时，不要求第二条出现该组件。
 
-需要验收任务执行时，建议用户在 Mika 里亲自发一条简单任务。已配置手机操作的用户可以试：
+需要验收任务执行时，建议用户在 TinyFox 里亲自发一条简单任务。已配置手机操作的用户可以试：
 
 ```
 打开设置，告诉我安卓版本是多少
@@ -243,9 +229,9 @@ adb shell settings get secure enabled_accessibility_services
 
 只配置聊天、网页和文件的用户可先问一个普通问题。没有执行任务时，结果应写「安装与设置已检查，任务执行未验证」。
 
-## 第 10 步（可选）：从电脑使用 Mika（CLI + Skill 或 MCP）
+## 第 10 步（可选）：从电脑使用 TinyFox（CLI + Skill 或 MCP）
 
-仅在用户要求电脑访问时执行。**CLI + Skill 与 MCP 通常二选一，无需两套都配置。** 沿用用户已指定的入口和 Skill 安装位置；尚未确定时，按[从电脑使用 Mika](computer.md)的选择表明确选择。
+仅在用户要求电脑访问时执行。**CLI + Skill 与 MCP 通常二选一，无需两套都配置。** 沿用用户已指定的入口和 Skill 安装位置；尚未确定时，按[从电脑使用 TinyFox](computer.md)的选择表明确选择。
 
 - **CLI + Skill**：按安装指南的 Skill 部分安装，无需先装 pipx 或全局 CLI；完成连接检查后跳过下面的 MCP 配置。只需终端／脚本时可单独安装 CLI。
 - **MCP**：继续下面的 USB 步骤，无需安装 CLI 或 Skill。手机经 ADB 转发连接；其他连接方式见[电脑连接（MCP）](mcp.md)。
@@ -258,7 +244,7 @@ ADB 操作始终沿用第 1 步选定的手机：CLI / Skill 命令传同一个 
    adb shell sh /sdcard/Android/data/io.github.smartjoytech.tinyfox/files/connect-computer.sh
    ```
 
-   成功：最后说「Computer access over USB is on」，并打印一段带 `url`、`headers`、`token` 的 JSON。提示文件不存在时，先打开一次 Mika（第 7 步里的命令），等几秒再试。
+   成功：最后说「Computer access over USB is on」，并打印一段带 `url`、`headers`、`token` 的 JSON。提示文件不存在时，先打开一次 TinyFox（第 7 步里的命令），等几秒再试。
 
 2. 端口转发：
 
@@ -298,13 +284,13 @@ ADB 操作始终沿用第 1 步选定的手机：CLI / Skill 命令传同一个 
    }
    ```
 
-   按用户指定的客户端和配置范围添加 Mika，保留其他条目；只有用户要配置当前助手时，才写入你自己的 MCP 配置。需要重启或重载时告诉用户，随后确认客户端能发现 Mika 工具；无法完成这项检查时，明确写「客户端加载未验证」。用户没要求时，不要把令牌贴在对话里。
+   按用户指定的客户端和配置范围添加 TinyFox，保留其他条目；只有用户要配置当前助手时，才写入你自己的 MCP 配置。需要重启或重载时告诉用户，随后确认客户端能发现 TinyFox 工具；无法完成这项检查时，明确写「客户端加载未验证」。用户没要求时，不要把令牌贴在对话里。
 
 告诉用户：
 
 - 拔插数据线之后（或者 adb 重启过），要再运行一次 `adb forward tcp:8765 tcp:8765`。令牌不变。
 - 重启手机后 USB 方式会关掉，要再运行一次第 1 条命令；这时令牌会换新的，MCP 配置里的令牌也要换上。
-- 关掉：`adb shell sh /sdcard/Android/data/io.github.smartjoytech.tinyfox/files/connect-computer.sh off`，或者在 Mika 的 设置 › 连接电脑 › 高级设置 里关，或者点通知上的「关闭」。关掉后旧令牌立即作废。
+- 关掉：`adb shell sh /sdcard/Android/data/io.github.smartjoytech.tinyfox/files/connect-computer.sh off`，或者在 TinyFox 的 设置 › 连接电脑 › 高级设置 里关，或者点通知上的「关闭」。关掉后旧令牌立即作废。
 
 ## 常见问题
 
@@ -313,12 +299,12 @@ ADB 操作始终沿用第 1 步选定的手机：CLI / Skill 命令传同一个 
 | `adb devices` 里没有手机 | 换一根能传数据的线；手机上确认开了「USB 调试」；把 USB 用途选成「文件传输」；拔插一次。 |
 | 状态是 `unauthorized` | 请用户在手机上的「允许 USB 调试吗？」弹框里点「允许」。没看到弹框：拔插一次，或者在开发者选项里点「撤销 USB 调试授权」后再插上。 |
 | 安装被拦下 | 请用户看手机上有没有确认框；在开发者选项里打开「通过 USB 安装」之类的开关（如果有）。签名不同的报错见第 3 步，卸载由用户决定。 |
-| 无障碍过一会儿又关了 | 再做一次第 5 步。配对过无线调试的话，Mika 会自己把它重新打开（设置 › 恢复与修复 里默认开着）。 |
-| 重启后手机助手没在运行 | 做过 A：连上 Wi-Fi 等一会儿，Mika 会自己恢复；不行就在 设置 › 手机操作 里点「重新配对」。只做过 B：再连电脑运行一次第 7 步 B 的命令，或者改做 A。 |
+| 无障碍过一会儿又关了 | 再做一次第 5 步。配对过无线调试的话，TinyFox 会自己把它重新打开（设置 › 恢复与修复 里默认开着）。 |
+| 重启后手机助手没在运行 | 做过 A：连上 Wi-Fi 等一会儿，TinyFox 会自己恢复；不行就在 设置 › 手机操作 里点「重新配对」。只做过 B：再连电脑运行一次第 7 步 B 的命令，或者改做 A。 |
 | 连不上 GitHub | 请用户在浏览器里打开 [Releases](https://github.com/wangzan101/Mika/releases/latest) 手动下载 APK，然后 `adb install -r <APK 文件路径>`。 |
 | 无线调试打不开 | 手机要连着 Wi-Fi；在弹框里允许在此网络上使用无线调试。实在不行就用 B。 |
-| MCP 客户端经 USB 连不上 Mika（第 10 步） | 再运行一次 `adb forward tcp:8765 tcp:8765`（每次拔插数据线后都要）。手机重启过的话，再运行一次第 10 步打开的那条命令，并换上新令牌。 |
-| MCP 手工转发报 `cannot bind`，或返回的不是 Mika 的内容（第 10 步） | 电脑上 8765 端口被别的程序占了。换一个空闲端口转发，比如 `adb forward tcp:18765 tcp:8765`，配置里的地址改成 `http://127.0.0.1:18765/mcp`；手机那边不用改。 |
+| MCP 客户端经 USB 连不上 TinyFox（第 10 步） | 再运行一次 `adb forward tcp:8765 tcp:8765`（每次拔插数据线后都要）。手机重启过的话，再运行一次第 10 步打开的那条命令，并换上新令牌。 |
+| MCP 手工转发报 `cannot bind`，或返回的不是 TinyFox 的内容（第 10 步） | 电脑上 8765 端口被别的程序占了。换一个空闲端口转发，比如 `adb forward tcp:18765 tcp:8765`，配置里的地址改成 `http://127.0.0.1:18765/mcp`；手机那边不用改。 |
 
 ## 最后：给用户一份小结
 
