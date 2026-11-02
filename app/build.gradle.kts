@@ -107,6 +107,8 @@ android {
 android.defaultConfig.apply {
     versionCode = versionCode!! * 100 + tinyFoxRevision
     versionName = "$versionName-tinyfox.$tinyFoxRevision"
+    // Keep personal preferences available without making release APKs debuggable.
+    buildConfigField("boolean", "TINYFOX_ADVANCED_SETTINGS", "true")
 }
 
 kotlin {

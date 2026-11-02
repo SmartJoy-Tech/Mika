@@ -87,6 +87,10 @@ Original Mika APKs are not accepted as TinyFox updates.
 
 ## First migration and acceptance
 
+The personal release exposes the advanced preferences page so settings from an
+upstream perf build can be copied, including vision grounding. This does not
+enable Android debugging, profiling, detailed traces, or autonomous mode.
+
 TinyFox installs as a separate app. Existing Mika data, Magpie credentials, Android
 Keystore keys, wireless-debugging pairing, accessibility and other permissions do
 not automatically transfer. Keep the original installation until a separately

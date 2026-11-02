@@ -41,6 +41,9 @@ def verify_sources():
     require(hashlib.sha256(brand_asset.read_bytes()).hexdigest() == branding['sha256'],
             'SmartJoy artwork differs from the reviewed asset')
     require(f'applicationId = "{APP_ID}"' in read('app/build.gradle.kts'), 'Wrong applicationId')
+    require('buildConfigField("boolean", "TINYFOX_ADVANCED_SETTINGS", "true")' in read('app/build.gradle.kts')
+            and 'BuildConfig.TINYFOX_ADVANCED_SETTINGS' in read('app/src/main/java/com/wangzan101/mika/ui/SettingsScreen.kt'),
+            'Personal advanced preferences are not exposed')
     manifest = ET.fromstring(read('app/src/main/AndroidManifest.xml'))
     permissions = {e.get(ANDROID + 'name') for e in manifest.findall('uses-permission')}
     require(permissions == set(json.loads(read('tinyfox/permissions.json'))),
