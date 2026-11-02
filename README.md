@@ -1,11 +1,3 @@
-# TinyFox
-
-Personal Mika fork maintained by SmartJoy-Tech. Android package:
-`io.github.smartjoytech.tinyfox`. See [TinyFox build, signing and automatic upstream
-sync](tinyfox/README.md). The upstream README and attribution follow below.
-
----
-
 <div align="center">
 
 <img src="docs/media/logo.png" alt="Mika" width="88" />
