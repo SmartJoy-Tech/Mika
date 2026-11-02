@@ -1,3 +1,5 @@
+> TinyFox fork: use your locally signed TinyFox APK; upstream Mika APKs have a different application identity. See [TinyFox build instructions](../tinyfox/README.md).
+
 # 用电脑上的 AI 助手安装 Mika
 
 简体中文 | [English](install-with-agent.en.md)
@@ -24,7 +26,7 @@
 6. **每一步先用用户的语言简短说明要做什么、为什么。** 命令失败时，把错误原文给用户看，再说可能的原因。
 7. 下面的命令按类 Unix 的 shell 写（macOS、Linux、Windows 上的 WSL 或 Git Bash）。在 Windows 的 PowerShell 里，按同样的意思改写即可。
 
-下文把包名写作 `com.wangzan101.mika`。
+下文把包名写作 `io.github.smartjoytech.tinyfox`。
 
 ## 第 1 步：检查前提条件
 
@@ -109,7 +111,7 @@ adb install -r Mika.apk
 Mika 用通知告诉用户任务进展、请用户接管。SDK 小于 33 时跳过这一步。
 
 ```
-adb shell pm grant com.wangzan101.mika android.permission.POST_NOTIFICATIONS
+adb shell pm grant io.github.smartjoytech.tinyfox android.permission.POST_NOTIFICATIONS
 ```
 
 成功：没有输出。
@@ -120,22 +122,22 @@ adb shell pm grant com.wangzan101.mika android.permission.POST_NOTIFICATIONS
 
 Mika 靠无障碍服务读界面、做点按。通过 adb 直接写系统设置来打开它，原因是：不从应用商店安装的 App，用户在系统设置里手动打开无障碍时，常被系统以「受限制的设置」拦下；通过 adb 写入不会遇到这个问题。
 
-Mika 的无障碍服务组件名（来自 `app/src/main/AndroidManifest.xml` 里的 `MikaAccessibilityService`）：
+Mika 的无障碍服务组件名（来自 `app/src/main/AndroidManifest.xml` 里的 `TinyFoxAccessibilityService`）：
 
 ```
-com.wangzan101.mika/.a11y.MikaAccessibilityService
+io.github.smartjoytech.tinyfox/.a11y.TinyFoxAccessibilityService
 ```
 
-它和完整写法 `com.wangzan101.mika/com.wangzan101.mika.a11y.MikaAccessibilityService` 是同一个；判断列表里有没有 Mika 时，两种写法都要认。
+它和完整写法 `io.github.smartjoytech.tinyfox/io.github.smartjoytech.tinyfox.a11y.TinyFoxAccessibilityService` 是同一个；判断列表里有没有 Mika 时，两种写法都要认。
 
 **不要覆盖用户已经开着的其他无障碍服务。** 先读出现有列表，没有 Mika 才在末尾加上（用冒号分隔），再写回去：
 
 ```
-ME=com.wangzan101.mika/.a11y.MikaAccessibilityService
+ME=io.github.smartjoytech.tinyfox/.a11y.TinyFoxAccessibilityService
 CUR=$(adb shell settings get secure enabled_accessibility_services | tr -d '\r')
 echo "现有：$CUR"
 case ":$CUR:" in
-  *":$ME:"*|*":com.wangzan101.mika/com.wangzan101.mika.a11y.MikaAccessibilityService:"*)
+  *":$ME:"*|*":io.github.smartjoytech.tinyfox/io.github.smartjoytech.tinyfox.a11y.TinyFoxAccessibilityService:"*)
     NEW="$CUR" ;;
   *)
     if [ -z "$CUR" ] || [ "$CUR" = "null" ]; then NEW="$ME"; else NEW="$CUR:$ME"; fi ;;
@@ -154,16 +156,16 @@ adb shell settings get secure enabled_accessibility_services
 把 Mika 加进系统的省电白名单，免得后台任务、定时任务被系统中途掐掉：
 
 ```
-adb shell cmd deviceidle whitelist +com.wangzan101.mika
+adb shell cmd deviceidle whitelist +io.github.smartjoytech.tinyfox
 ```
 
-成功：输出 `Added: com.wangzan101.mika`（已经在里面时也一样）。
-如果这台手机不认 `cmd`，改用 `adb shell dumpsys deviceidle whitelist +com.wangzan101.mika`，效果相同。
+成功：输出 `Added: io.github.smartjoytech.tinyfox`（已经在里面时也一样）。
+如果这台手机不认 `cmd`，改用 `adb shell dumpsys deviceidle whitelist +io.github.smartjoytech.tinyfox`，效果相同。
 
 检查：
 
 ```
-adb shell cmd deviceidle whitelist | grep com.wangzan101.mika
+adb shell cmd deviceidle whitelist | grep io.github.smartjoytech.tinyfox
 ```
 
 ## 第 7 步：启动 Mika 的手机助手
@@ -171,10 +173,10 @@ adb shell cmd deviceidle whitelist | grep com.wangzan101.mika
 先打开一次 Mika（所有用途都需要，用于初始化 App 和连接脚本）：
 
 ```
-adb shell am start -n com.wangzan101.mika/.ui.MainActivity
+adb shell am start -n io.github.smartjoytech.tinyfox/com.wangzan101.mika.ui.MainActivity
 ```
 
-也可以用 `adb shell monkey -p com.wangzan101.mika 1`。第一次打开时 Mika 会引导用户添加模型；可以先让用户点「稍后再说」之类的按钮跳过，模型放到第 8 步。
+也可以用 `adb shell monkey -p io.github.smartjoytech.tinyfox 1`。第一次打开时 Mika 会引导用户添加模型；可以先让用户点「稍后再说」之类的按钮跳过，模型放到第 8 步。
 
 安卓 11 或只用聊天、网页和文件时，打开 App 后直接到第 8 步；手机助手只用于操作手机 App，不需要把「手机操作」设为就绪。
 
@@ -207,7 +209,7 @@ adb shell am start -n com.wangzan101.mika/.ui.MainActivity
 前提：Mika 至少打开过一次，它才会把启动脚本写到手机上。插着线时运行：
 
 ```
-adb shell sh /sdcard/Android/data/com.wangzan101.mika/files/usb-start.sh
+adb shell sh /sdcard/Android/data/io.github.smartjoytech.tinyfox/files/usb-start.sh
 ```
 
 - 提示文件不存在：先用上面的命令打开一次 Mika，等几秒再试。还是没有的话，手机上的 Mika 版本可能还不带这个功能，改用 A。
@@ -227,7 +229,7 @@ adb shell sh /sdcard/Android/data/com.wangzan101.mika/files/usb-start.sh
 ## 第 9 步：检查结果
 
 ```
-adb shell dumpsys package com.wangzan101.mika | grep versionName
+adb shell dumpsys package io.github.smartjoytech.tinyfox | grep versionName
 adb shell settings get secure enabled_accessibility_services
 ```
 
@@ -253,7 +255,7 @@ ADB 操作始终沿用第 1 步选定的手机：CLI / Skill 命令传同一个 
 1. 打开。这条命令也会在需要时尝试启动第 7 步的手机助手：
 
    ```
-   adb shell sh /sdcard/Android/data/com.wangzan101.mika/files/connect-computer.sh
+   adb shell sh /sdcard/Android/data/io.github.smartjoytech.tinyfox/files/connect-computer.sh
    ```
 
    成功：最后说「Computer access over USB is on」，并打印一段带 `url`、`headers`、`token` 的 JSON。提示文件不存在时，先打开一次 Mika（第 7 步里的命令），等几秒再试。
@@ -267,7 +269,7 @@ ADB 操作始终沿用第 1 步选定的手机：CLI / Skill 命令传同一个 
 3. 需要时随时再读令牌（`token` 那一项）：
 
    ```
-   adb shell cat /sdcard/Android/data/com.wangzan101.mika/files/mcp-usb.json
+   adb shell cat /sdcard/Android/data/io.github.smartjoytech.tinyfox/files/mcp-usb.json
    ```
 
 4. 试一下能不能连上（把令牌填进去）：
@@ -302,7 +304,7 @@ ADB 操作始终沿用第 1 步选定的手机：CLI / Skill 命令传同一个 
 
 - 拔插数据线之后（或者 adb 重启过），要再运行一次 `adb forward tcp:8765 tcp:8765`。令牌不变。
 - 重启手机后 USB 方式会关掉，要再运行一次第 1 条命令；这时令牌会换新的，MCP 配置里的令牌也要换上。
-- 关掉：`adb shell sh /sdcard/Android/data/com.wangzan101.mika/files/connect-computer.sh off`，或者在 Mika 的 设置 › 连接电脑 › 高级设置 里关，或者点通知上的「关闭」。关掉后旧令牌立即作废。
+- 关掉：`adb shell sh /sdcard/Android/data/io.github.smartjoytech.tinyfox/files/connect-computer.sh off`，或者在 Mika 的 设置 › 连接电脑 › 高级设置 里关，或者点通知上的「关闭」。关掉后旧令牌立即作废。
 
 ## 常见问题
 

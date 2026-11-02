@@ -22,7 +22,7 @@ CLI point at TinyFox; the underlying phone-control implementation follows upstre
 
 ## Automatic upstream sync
 
-`tinyfox` is the product/default branch. The original `main` branch is kept as an
+`tinyfox` is the product branch and the intended default branch. The original `main` branch is kept as an
 upstream reference. `.github/workflows/tinyfox-sync.yml` checks the latest stable
 upstream release every hour at minute 17 (GitHub schedules can be delayed).
 The workflow must be on the default branch and Actions must be enabled.
@@ -59,7 +59,7 @@ python3 -m unittest discover -s tinyfox -p 'test_*.py' -v
 ./gradlew :core:test :app:testReleaseUnitTest :app:assembleRelease
 ```
 
-On Windows use an ASCII-only build path. The arm64 artifact is
+On Windows use an ASCII-only build path and LF line endings. Run the full test suite on Linux; filesystem security tests require POSIX semantics. The arm64 artifact is
 `app/build/outputs/apk/release/app-arm64-v8a-release-unsigned.apk`.
 CI artifacts are unsigned build results, not installable phone updates.
 

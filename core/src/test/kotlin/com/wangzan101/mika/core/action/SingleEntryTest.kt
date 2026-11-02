@@ -23,7 +23,9 @@ class SingleEntryTest {
         }.toList()
     }
 
-    private fun outsideAction(f: File) = !f.canonicalPath.startsWith(action)
+    // Canonicalizing every source line repeatedly is very slow on Windows.
+    private val outsideActionCache = mutableMapOf<File, Boolean>()
+    private fun outsideAction(f: File) = outsideActionCache.getOrPut(f) { !f.canonicalPath.startsWith(action) }
 
     private fun offenders(pattern: Regex) = codeLines()
         .filter { (f, _, line) -> outsideAction(f) && pattern.containsMatchIn(line) }
