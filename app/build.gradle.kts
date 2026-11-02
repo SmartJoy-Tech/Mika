@@ -31,9 +31,6 @@ android {
         targetSdk = 35
         versionCode = 34
         versionName = "0.1.33"
-        // 100 local revisions per upstream version; never reuse a versionCode.
-        versionCode = versionCode!! * 100 + tinyFoxRevision
-        versionName = "$versionName-tinyfox.$tinyFoxRevision"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
         // 关于页版本号后的 Beta 标记;出正式版时改成 false
@@ -101,6 +98,12 @@ android {
         aidl = true
         buildConfig = true
     }
+}
+
+// Keep the transform away from upstream's version lines so release bumps merge cleanly.
+android.defaultConfig.apply {
+    versionCode = versionCode!! * 100 + tinyFoxRevision
+    versionName = "$versionName-tinyfox.$tinyFoxRevision"
 }
 
 kotlin {
