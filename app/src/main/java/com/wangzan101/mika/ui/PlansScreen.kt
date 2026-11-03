@@ -8,8 +8,10 @@ import com.wangzan101.mika.ui.components.KeyboardDismissArea
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
+import com.wangzan101.mika.ui.components.MikaDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -26,6 +28,8 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.wangzan101.mika.core.trigger.TriggerDefinition
 import com.wangzan101.mika.core.trigger.TriggerWindow
 import com.wangzan101.mika.core.trigger.TriggerWindowState
+import com.wangzan101.mika.core.trigger.rescheduledTo
+import com.wangzan101.mika.core.trigger.upcoming
 import com.wangzan101.mika.task.ExactAlarmGuide
 import com.wangzan101.mika.task.TriggerRuntime
 import com.wangzan101.mika.ui.components.ActionSheet
@@ -125,19 +129,31 @@ fun PlansScreen(context: Context, onBack: () -> Unit, onOpenConversation: (Strin
 
     editing?.let { plan ->
         var value by remember(plan.id) { mutableStateOf(formatPlanTime(plan.nextAtMs)) }
-        AlertDialog(onDismissRequest = { editing = null }, title = { Text(tr(R.string.plans_edit_title)) },
-            text = { KeyboardDismissArea { OutlinedTextField(value, { value = it }, Modifier.keepsKeyboard(), label = { Text(tr(R.string.plans_edit_label)) },
-                singleLine = true) } },
+        val at = runCatching {
+            LocalDateTime.parse(value, PLAN_TIME).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        }.getOrNull()
+        MikaDialog(onDismissRequest = { editing = null }, title = { Text(tr(R.string.plans_edit_title)) },
+            text = { KeyboardDismissArea {
+                Column {
+                    OutlinedTextField(value, { value = it }, Modifier.keepsKeyboard(), label = { Text(tr(R.string.plans_edit_label)) },
+                        singleLine = true)
+                    if (at != null && at > System.currentTimeMillis()) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(tr(R.string.plans_preview), style = MikaType.Caption, color = MikaTheme.colors.ink3)
+                        upcoming(plan.rescheduledTo(at), at, 3).forEachIndexed { index, t ->
+                            Text("${index + 1}  ${formatPlanTime(t)}", style = MikaType.Caption, color = MikaTheme.colors.ink3)
+                        }
+                    }
+                }
+            } },
             confirmButton = { TextButton(onClick = {
-                val at = runCatching { LocalDateTime.parse(value, PLAN_TIME).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() }
-                    .getOrNull()
                 if (at == null || at <= System.currentTimeMillis()) error = tr(R.string.plans_need_future)
                 else { act { TriggerRuntime.reschedule(context, plan.id, at) }; editing = null }
             }) { Text(tr(R.string.save)) } },
             dismissButton = { TextButton(onClick = { editing = null }) { Text(tr(R.string.cancel)) } })
     }
     deleting?.let { plan ->
-        AlertDialog(onDismissRequest = { deleting = null }, title = { Text(tr(R.string.plans_delete_title)) },
+        MikaDialog(onDismissRequest = { deleting = null }, title = { Text(tr(R.string.plans_delete_title)) },
             text = { Text(plan.goal) },
             confirmButton = { TextButton(onClick = { act { TriggerRuntime.remove(context, plan.id) }; deleting = null }) {
                 Text(tr(R.string.confirm_delete), color = MikaTheme.colors.bad)

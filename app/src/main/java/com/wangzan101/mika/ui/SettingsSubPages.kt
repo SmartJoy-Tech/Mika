@@ -13,7 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
+import com.wangzan101.mika.ui.components.MikaDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -120,7 +120,7 @@ fun PhoneOpsScreen(
         }
     }
     if (confirmUnpair) {
-        AlertDialog(
+        MikaDialog(
             onDismissRequest = { confirmUnpair = false },
             title = { Text(PhoneSetupCopy.UNPAIR_TITLE) },
             text = { Text(PhoneSetupCopy.UNPAIR_BODY) },
@@ -259,7 +259,7 @@ private fun StepLimitDialog(
     onDismiss: () -> Unit,
 ) {
     val customValue = custom.toIntOrNull()?.takeIf { it in 1..FeatureFlags.MAX_TASK_STEP_LIMIT }
-    AlertDialog(
+    MikaDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.settings_step_limit)) },
         text = {
@@ -413,6 +413,7 @@ fun languageLabel(l: AppLanguage): String = stringResource(
         AppLanguage.System -> R.string.language_system
         AppLanguage.SimplifiedChinese -> R.string.language_simplified_chinese
         AppLanguage.TraditionalChinese -> R.string.language_traditional_chinese
+        AppLanguage.Arabic -> R.string.language_arabic
         AppLanguage.English -> R.string.language_english
         AppLanguage.Japanese -> R.string.language_japanese
         AppLanguage.Korean -> R.string.language_korean
@@ -457,7 +458,7 @@ fun RoutesScreen(count: Int?, onClear: () -> Unit, onBack: () -> Unit) {
         }
     }
     if (confirmClear) {
-        AlertDialog(
+        MikaDialog(
             onDismissRequest = { confirmClear = false },
             title = { Text(stringResource(R.string.routes_clear_title)) },
             text = { Text(stringResource(R.string.routes_clear_body)) },

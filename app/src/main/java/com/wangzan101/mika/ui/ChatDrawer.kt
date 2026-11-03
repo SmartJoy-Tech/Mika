@@ -2,6 +2,7 @@ package com.wangzan101.mika.ui
 
 import com.wangzan101.mika.R
 import com.wangzan101.mika.i18n.tr
+import com.wangzan101.mika.ui.components.DirectionalIcon
 import androidx.compose.ui.res.stringResource
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.geometry.Offset
@@ -13,7 +14,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material3.AlertDialog
+import com.wangzan101.mika.ui.components.MikaDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.mutableStateOf
 import com.wangzan101.mika.chat.DeleteImpact
@@ -330,7 +331,7 @@ private fun RunningLabel(onScreens: () -> Unit) {
         ) {
             Icon(MikaIcons.Screens, null, Modifier.size(14.dp), tint = c.ink3)
             Text(stringResource(R.string.drawer_screens), style = MikaType.Hint, color = c.ink2)
-            Icon(MikaIcons.Chevron, null, Modifier.size(10.dp), tint = c.ink3)
+            DirectionalIcon(MikaIcons.Chevron, null, Modifier.size(10.dp), tint = c.ink3)
         }
     }
 }
@@ -412,7 +413,7 @@ internal fun RenameConversationDialog(title: String, onSave: (String) -> Unit, o
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
     val ok = value.text.isNotBlank()
-    AlertDialog(
+    MikaDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.drawer_rename_title)) },
         text = {
@@ -445,7 +446,7 @@ internal fun DeleteConversationDialog(title: String, impact: DeleteImpact, onCon
         if (impact.runningTask) stringResource(R.string.drawer_delete_running) else null,
         if (impact.schedules > 0) trPlural(R.plurals.drawer_delete_schedules, impact.schedules) else null,
     ).joinToString("\n")
-    AlertDialog(
+    MikaDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.drawer_delete_title)) },
         text = { Text(body, Modifier.testTag("delete-conversation-body")) },
