@@ -6,6 +6,7 @@
     <string name="trigger_not_started">لم تبدأ المهمة المجدولة</string>
     <string name="trigger_interrupted_body">توقفت مهمة مجدولة، ولا يمكن تأكيد نتيجتها. تحقق أولًا مما حدث فعليًا؛ لن تكررها Mika تلقائيًا.</string>
     <string name="trigger_unconfirmed">يجب التحقق من نتيجة المهمة المجدولة</string>
+    <string name="trigger_unlock_failed">تعذر على المهمة المجدولة إيقاظ الهاتف أو إلغاء قفله. ألغِ قفله قبل التشغيل التالي، أو تحقق من خيار «السماح بالإيقاظ وإلغاء القفل عن بُعد» وبيانات اعتماد قفل الشاشة المحفوظة ضمن «الإعدادات › توصيل كمبيوتر».</string>
     <string name="trigger_alarm_title">تحتاج المهام المجدولة إلى إذن «المنبهات والتذكيرات»</string>
     <string name="trigger_alarm_body">من دون هذا الإذن، قد تتأخر المهام المجدولة أو لا تعمل إطلاقًا. انقر هنا لتفعيله.</string>
     <string name="op_failed">حدث خطأ ما</string>

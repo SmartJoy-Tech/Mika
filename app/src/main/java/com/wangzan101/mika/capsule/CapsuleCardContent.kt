@@ -56,6 +56,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
@@ -107,7 +108,9 @@ import com.wangzan101.mika.ui.theme.MikaMotion
 import com.wangzan101.mika.ui.theme.MikaShapes
 import com.wangzan101.mika.ui.theme.MikaTheme
 import com.wangzan101.mika.voice.HoldToTalk
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 
 private val CardShape = RoundedCornerShape(22.dp)
 private val ScreenShape = RoundedCornerShape(14.dp)
@@ -266,11 +269,13 @@ fun OverlayMotion(
                 shown.animateTo(1f, tween(CARD_IN_MS, easing = MikaMotion.Decelerate))
             }
         } else {
-            if (!still) {
+            runOverlayClose(still) {
                 shown.animateTo(0f, tween(CARD_OUT_MS, easing = FastOutLinearInEasing))
                 // 让完全看不见的那一帧先画出来,再换内容、挪窗口,不留一帧半透明的卡片
                 withFrameNanos { }
             }
+            // 动画帧停了也不能把中间帧永远留在屏上;收尾回调负责换内容、收回窗口状态。
+            if (!still) shown.snapTo(0f)
             closed()
         }
     }
@@ -287,8 +292,20 @@ fun OverlayMotion(
     ) { content() }
 }
 
+/**
+ * 等收起动画和最后一帧,但浮层拿不到后续帧时也必须收尾。等待时长跟随系统的动画速度;
+ * 极大的慢动作倍率最多按十倍算,避免窗口状态无限期停在 closing。
+ */
+internal suspend fun runOverlayClose(reduceMotion: Boolean, animate: suspend () -> Unit) {
+    if (reduceMotion) return
+    val scale = currentCoroutineContext()[MotionDurationScale]?.scaleFactor
+        ?.takeIf { it.isFinite() && it > 0f }?.coerceAtMost(10f) ?: 1f
+    withTimeoutOrNull((CARD_OUT_MS * scale).toLong() + CLOSE_GRACE_MS) { animate() }
+}
+
 private const val CARD_IN_MS = 240
 private const val CARD_OUT_MS = 180
+private const val CLOSE_GRACE_MS = 500L
 private const val CARD_FROM_SCALE = 0.6f
 private const val SETTLE_FRAMES = 2
 

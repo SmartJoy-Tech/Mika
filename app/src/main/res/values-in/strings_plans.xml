@@ -6,6 +6,7 @@
     <string name="trigger_not_started">Tugas terjadwal tidak dimulai</string>
     <string name="trigger_interrupted_body">Tugas terjadwal terhenti dan hasilnya tidak bisa dipastikan. Periksa dulu apa yang sebenarnya terjadi; Mika tidak akan mengulanginya otomatis.</string>
     <string name="trigger_unconfirmed">Hasil tugas terjadwal perlu diperiksa</string>
+    <string name="trigger_unlock_failed">Tugas terjadwal tidak dapat membangunkan atau membuka kunci ponsel. Buka kunci sebelum eksekusi berikutnya, atau periksa “Izinkan bangun dan buka kunci jarak jauh” serta kredensial kunci layar tersimpan di Setelan › Hubungkan komputer.</string>
     <string name="trigger_alarm_title">Tugas terjadwal memerlukan izin “Alarm &amp; pengingat”</string>
     <string name="trigger_alarm_body">Tanpanya, tugas terjadwal bisa terlambat atau tidak berjalan sama sekali. Ketuk di sini untuk mengaktifkannya.</string>
     <string name="op_failed">Terjadi kesalahan</string>

@@ -600,3 +600,21 @@ Earlier turns in this conversation: {{count}}. turn counts back from the most re
 
 ## history.not_recorded
 No detailed record of this turn is kept any more (only recent tasks keep one); what it ended with is in outcome.
+
+## approval.unavailable
+This step changes or deletes something and needs the user's OK, but this run cannot ask the user, so it was not run. Do it another way that only reads, or tell the user what you would need to do.
+
+## root.denied
+su refused to run the command: root access for Mika was denied or taken back in the root manager. Do not try again; tell the user, or do the task without root.
+
+## root.no_answer
+su did not answer; a permission prompt may be waiting on the phone. Do not try again right away; tell the user, or do the task without root.
+
+## root.unavailable
+This phone no longer has su, so root commands are not available. Do the task without root.
+
+## root.timed_out
+The command hit its time limit and was stopped. Use a larger timeoutSec (up to 300) or do less per command.
+
+## root.truncated
+The output was clipped to its head and tail. Narrow the command (grep, head, tail, a smaller query) to see the part you need.

@@ -6,6 +6,7 @@
     <string name="trigger_not_started">Scheduled task didn’t start</string>
     <string name="trigger_interrupted_body">A scheduled task was interrupted and its result can’t be confirmed. Check what actually happened first; Mika won’t repeat it automatically.</string>
     <string name="trigger_unconfirmed">Scheduled task result needs checking</string>
+    <string name="trigger_unlock_failed">The scheduled task couldn’t wake or unlock the phone. Unlock it before the next run, or check “Allow remote wake and unlock” and the saved screen-lock credential under Settings › Connect a computer.</string>
     <string name="trigger_alarm_title">Scheduled tasks need the “Alarms &amp; reminders” permission</string>
     <string name="trigger_alarm_body">Without it, scheduled tasks may run late or not at all. Tap here to turn it on.</string>
     <string name="op_failed">Something went wrong</string>

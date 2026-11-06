@@ -567,7 +567,7 @@ Run an Android shell command through this task's connected shell helper, with sh
 {"type":"object","properties":{"command":{"type":"string","description":"Android shell command. MIKA_DISPLAY_ID is the current task's virtual display ID."},"reason":{"type":"string","description":"Optional short note on why you are calling this, in the user's language; shown to the user as the step label."}},"required":["command"],"additionalProperties":false}
 
 ## phone_list_apps
-List apps installed for the current user as package + label. Use an exact returned package with phone_launch_app. An app also installed in another user or profile (such as an app clone or a work profile) gets one more entry per copy, with the same package, a label naming the copy, and user: pass that user to phone_launch_app to open that copy.
+List apps installed for the current user as package + label. Use an exact returned package with phone_launch_app. blocked and screenShareAllowed are present only when true; omission means false. An app also installed in another user or profile (such as an app clone or a work profile) gets one more entry per copy, with the same package, a label naming the copy, and user: pass that user to phone_launch_app to open that copy.
 {"type":"object","properties":{"reason":{"type":"string","description":"Optional short note on why you are calling this, in the user's language; shown to the user as the step label."}},"required":[],"additionalProperties":false}
 
 ## phone_launch_app

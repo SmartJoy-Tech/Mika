@@ -37,6 +37,8 @@ data class SystemStatus(
     val developerSettingsMissing: Boolean = false,
     /** 系统「USB 调试」开着:开着时 Wi-Fi 断开助手也不停。 */
     val usbDebugging: Boolean = true,
+    /** 用户打开了「用 root 启动手机助手」且此刻能用:看门狗经 su 起助手(不靠 Wi-Fi 和无线调试)。 */
+    val rootStart: Boolean = false,
     /** 系统可能拦着不让打开无障碍(安卓 13 起,没从应用商店装的 App 要先允许受限制的设置)。 */
     val restrictedSettings: Boolean = false,
     /** 助手停了以后靠什么再起来:只用 USB 启动命令起过时,各处都不往无线调试引,说清要再运行命令。 */

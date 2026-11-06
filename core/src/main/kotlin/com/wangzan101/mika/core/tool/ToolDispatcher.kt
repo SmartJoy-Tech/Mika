@@ -335,7 +335,9 @@ class ToolDispatcher internal constructor(
 
     /** 工具声明的风险;不认识的名字为 null。 */
     fun declaredRisk(name: String): Risk? = registry.declared(name)?.risk
-    fun approvalRisk(name: String): com.wangzan101.mika.core.action.Risk? = registry.declared(name)?.approvalRisk
+    /** 工具按这次的参数声明的审批风险(不在屏上的工具才有);没声明为 null。 */
+    fun approvalRisk(name: String, args: JsonObject = JsonObject(emptyMap())): com.wangzan101.mika.core.action.Risk? =
+        registry.declared(name)?.approvalRisk(args)
 
     /** ask_user 拿到的用户回答;核查器按用户给的事实对照。 */
     /** 用户发来的一屏(屏上的字)也是依据:回答里说的屏上内容从这里来。 */

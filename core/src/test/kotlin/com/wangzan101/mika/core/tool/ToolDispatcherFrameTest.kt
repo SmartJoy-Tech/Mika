@@ -86,7 +86,16 @@ class ToolDispatcherFrameTest {
             val r = d.execute(call("phone_tap", """{"ref":"@e1","snapshotId":$sid}""")).content
             assertEquals("ref_expired", r.s("error"))
             assertTrue(r.s("message"), "is a screenshotId" in r.s("message") && "screen field" in r.s("message"))
+            assertEquals("screenshot_id", r.s("cause"))
         }
+    }
+
+    @Test fun retiredRefSaysWhyItExpired() = runTest {
+        val d = toolDispatcher(FrameScreen(), inlineScreen = true)
+        val sid = d.execute(call("phone_observe")).content.s("snapshotId")
+        val r = d.execute(call("phone_tap", """{"ref":"@e99","snapshotId":"$sid"}""")).content
+        assertEquals("ref_expired", r.s("error"))
+        assertEquals("ref_retired", r.s("cause"))
     }
 
     @Test fun unknownArgumentSaysWhatIsAllowed() = runTest {

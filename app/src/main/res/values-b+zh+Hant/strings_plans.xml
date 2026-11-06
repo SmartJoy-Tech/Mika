@@ -6,6 +6,7 @@
     <string name="trigger_not_started">定時任務未啟動</string>
     <string name="trigger_interrupted_body">定時任務執行中斷，結果還不能確認。請先檢視實際情況；Mika 不會自動重複操作。</string>
     <string name="trigger_unconfirmed">定時任務結果待確認</string>
+    <string name="trigger_unlock_failed">定時任務無法喚醒或解鎖手機。請在下次執行先手動解鎖，或在「設定 › 連接電腦」中檢查「允許遠端喚醒螢幕與解鎖」及已儲存的螢幕鎖定憑證。</string>
     <string name="trigger_alarm_title">定時任務需要「鬧鐘和提醒」權限</string>
     <string name="trigger_alarm_body">沒有這個權限,定時任務到點可能不準時,甚至不會啟動。點這裡去開啟。</string>
     <string name="op_failed">操作失敗</string>

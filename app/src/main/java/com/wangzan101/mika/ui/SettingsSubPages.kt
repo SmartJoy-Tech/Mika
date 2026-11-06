@@ -52,7 +52,7 @@ import com.wangzan101.mika.core.cap.phone.OperatingPace
 
 // ---------- 手机操作 ----------
 
-/** 设置 › 手机操作:权限与配对的状态,以及重新配对、解除配对。点哪一项的处理方式和从前一样,交给 [onProblem]。 */
+/** 设置 › 手机操作:权限与配对的状态,重新配对、解除配对。Root 能力集中在高级与其他的独立页面。 */
 @Composable
 fun PhoneOpsScreen(
     status: SystemStatus,
@@ -80,7 +80,7 @@ fun PhoneOpsScreen(
                 ListRow(
                     MikaIcons.Link, PhoneSetupCopy.ROW_TITLE,
                     if (reconnect && helper is BuiltinShellStatus.Failed) PhoneSetupCopy.failure(helper.reason).title
-                    else PhoneSetupCopy.statusLine(helper, status.usbDebugging),
+                    else PhoneSetupCopy.statusLine(helper, status.usbDebugging, status.rootStart),
                     onClick = { onProblem(Problem.PhoneHelper(helper)) },
                 ) { if (reconnect) RowValue(PhoneSetupCopy.RECONNECT, ValueTone.Link) else RowValue(hText, hTone) }
             }

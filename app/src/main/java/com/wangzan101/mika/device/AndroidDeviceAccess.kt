@@ -41,6 +41,9 @@ internal class AndroidDeviceAccessPort(context: Context, private val helper: () 
 
     override suspend fun wake(): Boolean = withContext(Dispatchers.IO) { runCatching { helper()?.wakeDevice() == true }.getOrDefault(false) }
     override suspend fun dismiss(): Boolean = withContext(Dispatchers.IO) { runCatching { helper()?.dismissDeviceKeyguard() == true }.getOrDefault(false) }
+    override suspend fun revealCredential(): Boolean = withContext(Dispatchers.IO) {
+        runCatching { helper()?.revealDeviceCredential() == true }.getOrDefault(false)
+    }
 
     /**
      * 只认主屏 SystemUI 中唯一、类型匹配的密码框。SIM PIN/无法识别的厂商页不尝试。

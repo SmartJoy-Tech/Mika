@@ -1,7 +1,9 @@
 package com.wangzan101.mika.core.tool
 
 import com.wangzan101.mika.core.prompt.Feedback
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -11,6 +13,13 @@ internal fun ok(b: JsonObjectBuilder.() -> Unit) = ToolExecution(okObj(b))
 internal fun fail(error: String, message: String, recoverable: Boolean = true) = ToolExecution(buildJsonObject {
     put("ok", false); put("error", error); put("message", message); put("recoverable", recoverable)
 })
+
+/**
+ * 编号用不了:动作没做。[cause] 说清是哪一种,运行记录和模型都看得到:[com.wangzan101.mika.core.uistate.StaleCause] 的几种,
+ * 端口找不回元素的 element_lost,看图找到的点过期的 located_stale,把 screenshotId 当 snapshotId 的 screenshot_id。
+ */
+internal fun refExpired(message: String, cause: String) =
+    ToolExecution(JsonObject(fail("ref_expired", message).content + ("cause" to JsonPrimitive(cause))))
 
 internal fun invalid(e: ArgError) = fail("invalid_arguments", e.message ?: "invalid arguments")
 

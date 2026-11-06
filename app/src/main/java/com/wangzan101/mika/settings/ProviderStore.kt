@@ -198,6 +198,12 @@ data class RoleChoices(
         RoleChoice.Off, null -> null
     }
 
+    /** 两个用途是否解析到同一条配置;任一用途没配时不算相同。 */
+    fun sameModel(first: ModelRole, second: ModelRole): Boolean {
+        val a = resolve(first) ?: return false
+        return a == resolve(second)
+    }
+
     /** 有用途在用的配置 id;其余的配置没人用,会被删掉。 */
     val referenced: Set<String> get() = ModelRole.entries.mapNotNull(::resolve).toSet()
 

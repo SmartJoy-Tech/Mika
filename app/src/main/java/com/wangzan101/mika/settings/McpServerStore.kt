@@ -300,18 +300,18 @@ class McpServerStore(
                 StdioMcpEndpoint.connect(
                     serverId = config.id, command = argv, launcher = launcher, workspace = workspace,
                     timeoutSec = config.timeoutSec,
-                    clientName = "Mika", clientVersion = BuildConfig.VERSION_NAME,
+                    clientName = "TinyFox", clientVersion = BuildConfig.VERSION_NAME,
                 ).map { it as com.wangzan101.mika.core.cap.mcp.McpEndpoint }
             }
             "http-sse" -> LegacySseMcpEndpoint.connect(
                 serverId = config.id, url = config.url, http = http,
                 headers = headers, timeoutSec = config.timeoutSec,
-                clientName = "Mika", clientVersion = BuildConfig.VERSION_NAME,
+                clientName = "TinyFox", clientVersion = BuildConfig.VERSION_NAME,
             ).map { it as com.wangzan101.mika.core.cap.mcp.McpEndpoint }
             else -> HttpMcpEndpoint.connect(
                 serverId = config.id, url = config.url, http = http,
                 headers = headers, timeoutSec = config.timeoutSec,
-                clientName = "Mika", clientVersion = BuildConfig.VERSION_NAME,
+                clientName = "TinyFox", clientVersion = BuildConfig.VERSION_NAME,
             ).map { it as com.wangzan101.mika.core.cap.mcp.McpEndpoint }
         }
     } catch (e: CancellationException) {

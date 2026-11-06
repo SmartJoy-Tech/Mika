@@ -79,6 +79,7 @@ class ChatViewModelTest {
         override fun resumeIn(conversationId: String) { calls += "resume@$conversationId" }
         override fun answerIn(conversationId: String, text: String) { calls += "answer@$conversationId:$text" }
         override fun approveIn(conversationId: String, key: Int) { calls += "approve@$conversationId:$key" }
+        override fun unmuteIn(conversationId: String) { calls += "unmute@$conversationId" }
     }
 
     private val ready = SystemStatus(34, BuiltinShellStatus.Running, AccessibilityState.On, notificationsAllowed = true)
@@ -1902,6 +1903,18 @@ class ChatViewModelTest {
 
         vm.reopenPip()
         assertFalse("点小按钮再打开", vm.ui.value.pip.closed)
+    }
+
+    @Test fun pipUnmuteIsOneShotAndRepeatedClicksDoNotInventToggleState() = runTest {
+        val vm = vm()
+        vm.send("打开视频", ok)
+        val id = vm.ui.value.conversationId!!
+        calls.clear()
+        val before = vm.ui.value.pip
+        vm.unmutePip()
+        vm.unmutePip()
+        assertEquals(listOf("unmute@$id", "unmute@$id"), calls)
+        assertEquals(before, vm.ui.value.pip)
     }
 
     /** 关着小画面时要你接管:不自己弹开,但小按钮进入「要你处理」的样子,要你做的事照样在对话卡片里。 */

@@ -85,6 +85,8 @@ interface TaskActions {
     fun answerIn(conversationId: String, text: String) = answer(text)
     fun approveIn(conversationId: String, key: Int) = approve(key)
     fun declineIn(conversationId: String, key: Int) = decline(key)
+    /** 恢复这个对话任务当前 App 的声音;没有任务就不动。 */
+    fun unmuteIn(conversationId: String) {}
 }
 
 enum class StepState { Ok, Run, Wait, Dim }
@@ -977,6 +979,12 @@ class ChatViewModel(
         _ui.update { it.copy(pip = gated(it.pip)) }
     }
 
+    /** 浮层的一次性「恢复声音」:只发真实音频动作,不在界面伪造一个静音开关状态。 */
+    fun unmutePip() {
+        val id = _ui.value.conversationId ?: return
+        actions.unmuteIn(id)
+    }
+
     /** 切到某个对话;任务在跑时不切。 */
     fun openConversation(id: String) {
         refreshParallel()
@@ -1456,6 +1464,7 @@ class ToolLabels(private val tools: ToolIndex, private val legacy: LegacyNames =
             "检查弹窗" to R.string.tool_check_dialog,
             "多点手势" to R.string.tool_gesture,
             "系统命令" to R.string.tool_shell,
+            "root 命令" to R.string.tool_root,
             "查找界面控件" to R.string.tool_find_element,
             "采集多屏内容" to R.string.tool_collect,
             "连续操作手机" to R.string.tool_phone_run,
