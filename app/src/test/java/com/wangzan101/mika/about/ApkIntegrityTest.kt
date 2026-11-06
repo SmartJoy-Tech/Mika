@@ -15,7 +15,8 @@ class ApkIntegrityTest {
 
     @Test fun rejectsUntrustedDownloads() {
         for (url in listOf(
-            "https://github.com/SmartJoy-Tech/Mika/releases/download/v0.2.0/Mika.apk",
+            // Upstream APKs are outside this personal fork's update channel.
+            "https://github.com/wangzan101/Mika/releases/download/v0.2.0/Mika.apk",
             "http://github.com/SmartJoy-Tech/Mika/releases/download/v0.2.0/Mika.apk",
             "https://github.com.evil.test/wangzan101/Mika/releases/download/v0.2.0/Mika.apk",
             "https://github.com/other/Mika/releases/download/v0.2.0/Mika.apk",
