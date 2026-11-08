@@ -81,10 +81,10 @@ fun toolDispatcher(
     adaptiveVision: Boolean = false,
     /** 提速开关 deepLinks:提供打开链接的工具。 */
     deepLinks: Boolean = false,
-    /** 记忆;和 [utterances] 都给了才提供 memory_search / memory_save。 */
+    /** 记忆;和 [utterances] 都给了才提供 memory_search / memory_save / memory_edit。 */
     memory: MemoryStore? = null,
     profile: ProfileStore? = null,
-    /** 用户本次说过的话,memory_save 的引文据此校验;AgentLoop 往里加。 */
+    /** 用户本次说过的话,memory_save / memory_edit 的引文据此校验;AgentLoop 往里加。 */
     utterances: UserUtterances? = null,
     /** 本次任务所在的对话;记进记忆的出处。 */
     conversationId: String? = null,
@@ -120,9 +120,11 @@ fun toolDispatcher(
     runRecords: RunRecords? = null,
     /** 以 root 跑命令(已 root 的手机上用户打开了「允许 Mika 执行 root 命令」才给);为空时 root 工具不登记。 */
     root: RootPort? = null,
+    /** 用户配置并启用的通用网页搜索;为空时保持原有浏览器搜索路径。 */
+    webSearch: com.wangzan101.mika.core.search.WebSearch? = null,
 ): ToolDispatcher {
     val config = ToolConfig(visionEnabled, skills, recordFrames, vision, inlineScreen, adaptiveVision, memory, profile, utterances, conversationId,
-        imageOps, scheduleTrigger, scheduleAdmin, runSpec, childHost, userScreens, personalSkills, selfConfig, runRecords)
+        imageOps, scheduleTrigger, scheduleAdmin, runSpec, childHost, userScreens, personalSkills, selfConfig, runRecords, webSearch)
     val providers: List<CapabilityProvider> = listOf(
         object : CapabilityProvider {
             override val id = PHONE

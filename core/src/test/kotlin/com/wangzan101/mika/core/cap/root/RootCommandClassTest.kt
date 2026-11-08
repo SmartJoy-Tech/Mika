@@ -84,6 +84,18 @@ class RootCommandClassTest {
     )
 
     @Test
+    fun unknownExecutablePathsAndEnvironmentOverridesNeedApproval() = changes(
+        "/data/local/tmp/cat /data/local/tmp/input",
+        "./ls /data",
+        "/system/bin/../../data/local/tmp/cat",
+        "/data/local/tmp/toybox ls /data",
+        "toybox /data/local/tmp/cat",
+        "PATH=/data/local/tmp cat /data/local/tmp/input",
+        "PATH=/data/local/tmp; cat /data/local/tmp/input",
+        "LD_PRELOAD=/data/local/tmp/custom.so ls /data",
+    )
+
+    @Test
     fun sqliteWritesNeedTheUsersOk() = changes(
         "sqlite3 notes.db 'DELETE FROM notes'",
         "sqlite3 notes.db \"UPDATE notes SET title='x'\"",
@@ -95,6 +107,23 @@ class RootCommandClassTest {
         "sqlite3 notes.db 'WITH x AS (SELECT 1) DELETE FROM notes'",
         "sqlite3 -cmd '.shell rm x' notes.db 'select 1'",
         "sqlite3 -unknownflag notes.db 'select 1'",
+    )
+
+    @Test
+    fun logcatClearAndFileOutputNeedApprovalInAllOptionForms() = changes(
+        "logcat -dc",
+        "logcat -d -f/data/local/tmp/review.log",
+        "logcat -df/data/local/tmp/review.log",
+        "logcat -G16M",
+        "logcat --file=/data/local/tmp/review.log",
+        "logcat -d *",
+    )
+
+    @Test
+    fun logcatReadOptionsRemainAvailableWithoutApproval() = readOnly(
+        "logcat -d -t 100",
+        "logcat -d --pid=123 -b main ActivityManager:I",
+        "logcat -d -- '*:S'",
     )
 
     /** 拿不准的一律当作会改:命令替换、交给另一个 shell、变量当命令、没收尾的引号、here-doc、不认识的命令。 */

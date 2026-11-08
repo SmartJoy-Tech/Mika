@@ -14,6 +14,7 @@
     <string name="chat_example_ai_apps">Find the AI apps installed on my phone, ask each one what it does best, and compare their answers.</string>
     <string name="chat_working_on">Working in %1$s</string>
     <string name="chat_working">Working</string>
+    <string name="share_draft_failed">Couldn’t add this share to a new conversation</string>
     <string name="chat_wait_previous_task">Starts after the previous task finishes</string>
     <string name="chat_wait_unlock">Waiting for you to unlock</string>
     <string name="chat_waiting_for_you">Waiting for you</string>
@@ -61,8 +62,8 @@
     <string name="drawer_delete_body">“%1$s” and the files in it will be deleted.</string>
     <string name="drawer_delete_running">Its running task will be stopped.</string>
     <plurals name="drawer_delete_schedules">
-        <item quantity="one">%1$d scheduled task in this chat will be deleted too.</item>
-        <item quantity="other">%1$d scheduled tasks in this chat will be deleted too.</item>
+        <item quantity="one">%1$d scheduled task in this chat will be kept.</item>
+        <item quantity="other">%1$d scheduled tasks in this chat will be kept.</item>
     </plurals>
     <string name="drawer_actions">Chat options</string>
     <string name="drawer_rename">Rename</string>
@@ -75,10 +76,10 @@
     <string name="chat_unverified_because">Done, but couldn’t verify: %1$s</string>
     <string name="chat_wait_answer">Waiting for your answer</string>
     <string name="chat_wait_approval">Waiting for your OK</string>
-    <string name="steer_received">Got it — next step</string>
+    <string name="steer_received">Got it — the next step will adjust the current task</string>
     <string name="steer_joined">Added to the current task</string>
     <string name="steer_interrupted_reply">Interrupted by your message</string>
-    <string name="steer_next">Queued as the next task</string>
+    <string name="steer_next">The current task has ended; queued as the next one</string>
     <string name="steer_cancelled">Cancelled</string>
     <plurals name="chat_steps_done">
         <item quantity="one">%1$d step</item>
@@ -159,4 +160,19 @@
     <string name="pip_closed_hint">Closed for this task. Tap “Show screen” at the bottom right, or open “Background screens” in the side menu.</string>
     <string name="chat_conversation_tokens">This chat: %1$s</string>
     <string name="chat_conversation_tokens_partial">This chat: at least %1$s</string>
+    <string name="follow_up_steer">Steer</string>
+    <string name="follow_up_queue">Queue</string>
+    <string name="follow_up_steer_hint">The next step will adjust the current task</string>
+    <string name="follow_up_steer_hint_paused">The task is paused; this takes effect when it continues</string>
+    <string name="follow_up_steer_hint_queued">This takes effect when the task starts</string>
+    <string name="follow_up_queue_hint">Starts after the current task finishes</string>
+    <string name="follow_up_count">Queued · %1$d</string>
+    <string name="follow_up_edit">Edit</string>
+    <string name="follow_up_cancel">Cancel</string>
+    <string name="follow_up_start_now">Start now</string>
+    <string name="follow_up_idle_hint">They’ll run one by one when you start a task</string>
+    <string name="follow_up_already_started">This one has already started — stop it directly if needed</string>
+    <string name="chat_placeholder_queue">Write the next task…</string>
+    <string name="voice_placeholder_queue">Say the next task…</string>
+    <string name="steer_received_paused">Got it — it will be used when the task continues</string>
 </resources>

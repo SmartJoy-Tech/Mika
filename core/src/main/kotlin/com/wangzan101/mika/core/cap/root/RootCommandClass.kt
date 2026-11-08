@@ -8,6 +8,9 @@ package com.wangzan101.mika.core.cap.root
 object RootCommandClass {
     enum class Kind { ReadOnly, Changes }
 
+    /** 免确认命令运行时也用这个 PATH，保证裸命令名不会解析到用户目录。 */
+    const val SYSTEM_COMMAND_PATH = "/system/bin"
+
     fun classify(command: String): Kind {
         val commands = split(command) ?: return Kind.Changes
         if (commands.isEmpty()) return Kind.Changes
@@ -49,16 +52,19 @@ object RootCommandClass {
     private val SQLITE_OPTS_WITH_VALUE = setOf("-separator", "-newline", "-nullvalue")
 
     private fun readOnly(words: List<String>): Boolean {
-        // 开头的 NAME=value 只是设变量
-        val rest = words.dropWhile { ASSIGNMENT.matches(it) }
+        val assignments = words.takeWhile(ASSIGNMENT::matches)
+        // PATH、LD_PRELOAD 等变量可以改变实际运行的程序。只允许常见的语言设置。
+        if (assignments.any { it.substringBefore('=') !in LOCALE_ASSIGNMENTS }) return false
+        val rest = words.drop(assignments.size)
         if (rest.isEmpty()) return true
         var name = rest[0]
         var args = rest.drop(1)
         // 命令名是变量、带引号拼出来的:看不清
         if ('$' in name) return false
-        name = name.substringAfterLast('/')
+        name = name.removePrefix("$SYSTEM_COMMAND_PATH/")
+        if ('/' in name) return false
         if ((name == "toybox" || name == "busybox") && args.isNotEmpty()) {
-            name = args[0].substringAfterLast('/')
+            name = args[0]
             args = args.drop(1)
         }
         return when (name) {
@@ -70,7 +76,7 @@ object RootCommandClass {
             "uniq" -> args.count { !it.startsWith("-") } <= 1
             "find" -> args.none { it in FIND_WRITES }
             // sed 脚本可写文件、执行子命令,-f 还会读另一份脚本;不做不完整的事后猜测,一律走确认
-            "logcat" -> args.none { it in LOGCAT_WRITES || it.startsWith("--file") || it.startsWith("--buffer-size") }
+            "logcat" -> logcatReadOnly(args)
             "dmesg" -> args.none { it in DMESG_WRITES }
             "mount" -> args.isEmpty()
             "env" -> args.isEmpty()
@@ -83,9 +89,35 @@ object RootCommandClass {
     }
 
     private val ASSIGNMENT = Regex("[A-Za-z_][A-Za-z0-9_]*=.*")
+    private val LOCALE_ASSIGNMENTS = setOf("LANG", "LC_ALL")
     private val FIND_WRITES = setOf("-delete", "-exec", "-execdir", "-ok", "-okdir", "-fprint", "-fprint0", "-fprintf", "-fls")
-    private val LOGCAT_WRITES = setOf("-c", "--clear", "-G", "-P", "--prune", "-f")
+    private val LOGCAT_READ_FLAGS = setOf("-d", "-D", "-h", "-L", "-g", "-S", "-p", "-s", "-B", "--help", "--last", "--statistics")
+    private val LOGCAT_READ_LONG_VALUES = setOf("--buffer", "--format", "--max-count", "--pid", "--regex", "--tail", "--uid")
+    private val LOGCAT_READ_VALUES = LOGCAT_READ_LONG_VALUES + setOf("-b", "-e", "-m", "-t", "-T", "-v")
+    private val LOGCAT_FILTER = Regex("[A-Za-z0-9_.][A-Za-z0-9_.:-]*")
     private val DMESG_WRITES = setOf("-c", "-C", "-n", "--clear", "--console-level", "--read-clear")
+
+    /** 短选项可组合，参数也可紧跟选项。只接受明确列出的只读写法，其他形式走确认。 */
+    private fun logcatReadOnly(args: List<String>): Boolean {
+        var i = 0
+        while (i < args.size) {
+            val arg = args[i++]
+            when {
+                arg == "--" -> return true // 后面是过滤表达式，getopt 不再解析选项。
+                arg in LOGCAT_READ_FLAGS || LOGCAT_FILTER.matches(arg) -> Unit
+                arg in LOGCAT_READ_VALUES -> {
+                    val value = args.getOrNull(i++) ?: return false
+                    // 参数展开成多个词时，额外的词可能变成新选项。
+                    if (value.isEmpty() || value.any { it in "*?[{" }) return false
+                }
+                '=' in arg && arg.substringBefore('=') in LOGCAT_READ_LONG_VALUES -> {
+                    if (arg.substringAfter('=').any { it in "*?[{" }) return false
+                }
+                else -> return false
+            }
+        }
+        return true
+    }
 
     /** sqlite3 [选项] 库文件 SQL…:SQL 每一句都只读才算。没给 SQL(会从标准输入读)、不认识的选项都算会改。 */
     private fun sqliteReadOnly(args: List<String>): Boolean {

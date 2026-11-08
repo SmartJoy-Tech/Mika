@@ -30,6 +30,7 @@ import com.wangzan101.mika.core.shell.RecoveryPermissions
 import com.wangzan101.mika.core.shell.RecoveryPolicy
 import com.wangzan101.mika.core.shell.RestoreOutcome
 import com.wangzan101.mika.core.shell.ShellCommandRunner
+import com.wangzan101.mika.settings.FeatureFlags
 import com.wangzan101.mika.settings.RecoverySettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +41,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -73,6 +75,7 @@ class BuiltinShellRecovery(
         restart = { gap -> if (canWriteSecure()) restartDirectly(gap) else permissions.restartAccessibility(gap) },
         consent = { settings.consent.value },
         direct = ::canWriteSecure,
+        allowed = { !FeatureFlags.get(app).quitRequested() },
     )
 
     private fun canWriteSecure() =
@@ -121,7 +124,8 @@ class BuiltinShellRecovery(
     fun start() {
         if (started) return
         started = true
-        scope.launch { permissions.applyWhenRunning(control.status) }
+        val active = FeatureFlags.get(app).quitChanges().map { !it }
+        scope.launch { permissions.applyWhenRunning(control.status, active) }
         val service = accessibility
         // 启动时看一眼:被强行停止后系统会把服务从列表里拿掉,或者在列表里却迟迟不绑定;记下来给诊断信息
         val initial = service.value
@@ -133,7 +137,7 @@ class BuiltinShellRecovery(
             }
         }
         scope.launch { service.collect { if (it.connected) settings.accessibilitySeen = true } }
-        scope.launch { accessibilityRepair.watch(service, control.status, userUnlocked) }
+        scope.launch { accessibilityRepair.watch(service, control.status, userUnlocked, active) }
     }
 
     /**

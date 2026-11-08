@@ -27,7 +27,14 @@ sealed interface RunEvent {
     @Serializable @SerialName("prompt_version")
     data class PromptVersion(override val atMs: Long, val hash: String) : RunEvent
 
-    /** [fallback] 表示没能列出标准,[criteria] 只是用户原话。 */
+    /** 数量或边界进度;总数未知时 [total] 为 null,[boundary] 是最新确认的位置、日期或条目。 */
+    @Serializable
+    data class Progress(val name: String, val done: Int? = null, val total: Int? = null, val boundary: String? = null)
+
+    /**
+     * [fallback] 表示没能列出标准,[criteria] 只是用户原话。执行中的进度更新也复用这个事件:
+     * [progress] 是最近确认的数量/边界,[complete] 表示全部判据已满足或数量到达,主循环据此收尾。
+     */
     @Serializable @SerialName("criteria")
     data class Criteria(
         override val atMs: Long,
@@ -35,6 +42,8 @@ sealed interface RunEvent {
         val ambiguities: List<String>,
         val kind: String = "",
         val fallback: Boolean = false,
+        val progress: Progress? = null,
+        val complete: Boolean = false,
     ) : RunEvent
 
     /** [tool]/[argsJson] 是本轮实际执行的那一个调用;参数已脱敏。 */

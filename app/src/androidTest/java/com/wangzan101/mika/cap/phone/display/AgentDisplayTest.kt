@@ -22,6 +22,7 @@ import com.wangzan101.mika.task.AudioMute
 import com.wangzan101.mika.task.MarkerStore
 import com.wangzan101.mika.task.PrefsMarker
 import com.wangzan101.mika.task.ShellAudio
+import com.wangzan101.mika.core.uistate.ActionResult
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -30,6 +31,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -152,6 +154,32 @@ class AgentDisplayTest {
             shellCommand("input -d 0 keyevent KEYCODE_HOME")
             shellCommand("am force-stop $SETTINGS")
         }
+    }
+
+    @Test
+    fun openingAnotherAppNeverScreenshotsThePreviousAppsFrame() {
+        val d = newDisplay()
+        val screen = AndroidScreen(DeviceSupport.service(), shell, DeviceSupport.ready(d))
+        val testPackage = InstrumentationRegistry.getInstrumentation().context.packageName
+        // 先留一张带四个明确色块的旧帧,再通过生产入口冷启动另一个 App。
+        shellCommand("am start -W --display ${d.displayId} -n $testPackage/${RotationTestActivity::class.java.name} --ei orientation ${ActivityInfo.SCREEN_ORIENTATION_PORTRAIT}")
+        val previous = pollUntil(5_000) {
+            d.latestFramePng()?.takeIf { png ->
+                val image = BitmapFactory.decodeByteArray(png, 0, png.size)
+                try { uprightCorners(image) } finally { image.recycle() }
+            }
+        }
+        assertNotNull("the previous app's frame never arrived", previous)
+
+        val opened = runBlocking { screen.openApp(SETTINGS, cold = true) }
+        assertTrue("openApp: $opened", opened is ActionResult.Ok)
+        // 不等另一帧:生产入口返回后,第一次截图就不能还是启动前的色块页。
+        val png = runBlocking { screen.screenshotPng() }
+        assertNotNull("the newly opened app has no servable frame", png)
+        val image = BitmapFactory.decodeByteArray(png, 0, png!!.size)
+        try {
+            assertFalse("screenshot still contains the previous app's color markers", uprightCorners(image))
+        } finally { image.recycle() }
     }
 
     @Test

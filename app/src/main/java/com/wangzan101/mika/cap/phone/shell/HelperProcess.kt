@@ -202,7 +202,7 @@ object HelperProcess {
          */
         private fun maybeRestore() {
             val now = System.currentTimeMillis()
-            when (val d = restorePolicy.decide(wish, appBack = appToken != null || retrying, now)) {
+            when (val d = restorePolicy.decide(wish, appBack = appToken != null || retrying, now, forceStopped = forceStopped())) {
                 HelperRestorePolicy.Decision.Restore -> Unit
                 HelperRestorePolicy.Decision.AppBack -> return
                 else -> {
@@ -214,6 +214,15 @@ object HelperProcess {
             if (wish.accessibility) restoreAccessibility()
             retrying = true
             redeliver(0)
+        }
+
+        /** 强行停止会由系统记下 stopped 标记;读取失败时不猜,维持原有的异常恢复路径。 */
+        private fun forceStopped(): Boolean = runCatching {
+            val info = context.packageManager.getApplicationInfo(packageName, 0)
+            info.flags and android.content.pm.ApplicationInfo.FLAG_STOPPED != 0
+        }.getOrElse { t ->
+            Log.w(TAG, "cannot read stopped state of $packageName", t)
+            false
         }
 
         /** 把 Mika 的无障碍服务追加回系统列表、打开总开关;别的服务不动。失败只记日志,照样去拉 Mika(它起来后自己还会修)。 */

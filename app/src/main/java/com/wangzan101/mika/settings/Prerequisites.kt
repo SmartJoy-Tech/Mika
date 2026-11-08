@@ -56,8 +56,8 @@ sealed interface Problem {
     data object SystemTooOld : Problem
     /** 内置助手没在运行(没设置、无线调试关着、正在连、出错)。 */
     data class PhoneHelper(val status: BuiltinShellStatus) : Problem
-    /** [userLocked] 为真时没在运行是因为开机后还没解锁过,解锁后会自己恢复,不该让用户去关掉再打开。 */
-    data class Accessibility(val state: AccessibilityState, val userLocked: Boolean = false) : Problem
+    /** [userLocked] 为真时没在运行是因为开机后还没解锁过;[restrictedSettings] 为真时系统可能阻止绑定。 */
+    data class Accessibility(val state: AccessibilityState, val userLocked: Boolean = false, val restrictedSettings: Boolean = false) : Problem
     data object NoModel : Problem
     /** 不挡任务,只是看不到进度和「需要你」提醒。 */
     data object NotificationsOff : Problem
@@ -93,7 +93,7 @@ object Prerequisites {
                 add(Problem.PhoneHelper(status.builtinShell))
             }
             if (status.sdkInt >= MIN_SDK && status.accessibility != AccessibilityState.On) {
-                add(Problem.Accessibility(status.accessibility, status.userLocked))
+                add(Problem.Accessibility(status.accessibility, status.userLocked, status.restrictedSettings))
             }
             if (!hasMainModel) add(Problem.NoModel)
             if (!status.notificationsAllowed) add(Problem.NotificationsOff)

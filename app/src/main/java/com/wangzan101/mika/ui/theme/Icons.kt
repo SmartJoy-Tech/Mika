@@ -40,6 +40,8 @@ object MikaIcons {
     val Up = stroke("up", "M12 19 V5 M6 11 l6 -6 l6 6", width = 2.2f)
     val Check = stroke("check", "M5 12.5 l4.5 4.5 L19 7.5", width = 2.2f)
     val Close = stroke("close", "M6 6 l12 12 M18 6 L6 18", width = 2f)
+    /** 完全退出:电源键。 */
+    val Power = stroke("power", "M12 3 v8", "M18.36 6.64 a8 8 0 1 1 -12.73 0")
     val Search = stroke("search", "M4 11 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0", "M20 20 l-4 -4")
     /** 刷新:差一点闭合的圆,右上角一个箭头。 */
     val Refresh = stroke("refresh", "M19.5 12 a7.5 7.5 0 1 1 -2.2 -5.3", "M19.5 4.5 v4 h-4")

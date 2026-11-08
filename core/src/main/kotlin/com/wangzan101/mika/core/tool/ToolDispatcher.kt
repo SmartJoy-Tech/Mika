@@ -124,7 +124,7 @@ class ToolDispatcher internal constructor(
     val seesImages: Boolean get() = ctx.config.visionEnabled
     /** 写操作成功后等界面稳定再读一屏,把与上一屏的差异放进结果的 screen 字段。 */
     val inlineScreen: Boolean get() = ctx.config.inlineScreen
-    /** 用户本次说过的话,memory_save 的引文据此校验;AgentLoop 往里加。 */
+    /** 用户本次说过的话,memory_save / memory_edit 的引文据此校验;AgentLoop 往里加。 */
     val utterances: UserUtterances? get() = ctx.config.utterances
     private val imageOps: ImageOps? get() = ctx.config.imageOps
 
@@ -440,7 +440,7 @@ class ToolDispatcher internal constructor(
         links.forEach { ctx.allowedLinks += it.uri to it.packageName }
     }
 
-    /** 本次任务里 memory_save 存下的(结果卡片显示「记住了」并可撤销)。 */
+    /** 本次任务里 memory_save / memory_edit 写下的(结果卡片显示变更并可撤销)。 */
     val savedChanges: List<Change> get() = ctx.savedChanges
 
     private companion object {

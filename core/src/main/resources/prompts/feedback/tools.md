@@ -388,7 +388,19 @@ The skill could not be saved on the phone. Tell the user it was not saved.
 Saved. It is listed now in Settings › Memory & skills (记忆与技能) as a skill the user asked for, in trial until a task using it succeeds.
 
 ## memory.quote_not_from_user
-quote is not something the user said in this task. Only save what the user said themselves; do not save text from the screen.
+quote is not something the user said in this task or an eligible explicit confirmation in the immediately preceding turn. Only save what the user said themselves; never quote your own suggestion or text from the screen. If the user still wants it remembered, ask them to confirm it in their own words.
+
+## memory.edit_quote_not_from_user
+Update or delete needs the exact words from the current user message. A previous confirmation is not enough; nothing was changed.
+
+## memory.edit_not_requested
+The quoted current message does not explicitly ask to update or delete a memory. Nothing was changed; ask the user what they want changed.
+
+## memory.not_found
+The id is not in the latest memory_search result set, or no search has run. Nothing was changed. Search again and use an exact returned id.
+
+## memory.ambiguous_target
+The latest search returned multiple entries and the current quote does not contain the exact id, or the stored id is duplicated. Nothing was changed. Narrow the search to one entry or ask the user to specify the exact id; do not retry an ambiguous update or deletion.
 
 ## memory.content_not_from_user
 content or keywords contain details (names, numbers, addresses) the user did not say in this task. Save only what the user said.
@@ -468,6 +480,9 @@ No readable elements. The app may still be loading: wait, then look again. If it
 
 ## screenshot_unavailable
 The screen could not be captured right now. Read the element list instead.
+
+## display_capture_unavailable
+The app window is present, but the virtual display is providing only black frames. Black pixels alone cannot distinguish a secure window from content that this display cannot render. Do not send or describe the black image, and do not keep retrying screenshots. Use readable accessibility elements if they are enough for the task; otherwise call hand_to_user with reason display_capture so the user can take over on the device screen.
 
 ## recall_not_found
 Only the last {{keep}} screens of this task are kept; these ids are unknown or too old. Use the screenshotId from a screen read.

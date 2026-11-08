@@ -2,8 +2,10 @@ package com.wangzan101.mika.cap.root
 
 import android.os.SystemClock
 import android.util.Base64
+import com.wangzan101.mika.core.cap.root.RootCommandClass
 import com.wangzan101.mika.core.cap.root.RootPort
 import com.wangzan101.mika.core.cap.root.RootRun
+import com.wangzan101.mika.core.shell.RootCommandSession
 import com.wangzan101.mika.core.shell.SuAnswer
 import com.wangzan101.mika.core.shell.SuProbe
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit
  * Agent 的 root 命令:经 `su -c` 以 root 跑,标准输出、标准错误分开收(各最多 1 MB),到时限结束。
  * 命令先编成 base64 再在 root 的 sh 里解开交给 `sh -c`:外层那一行总是合法的 sh,命令里的引号、换行原样到达,
  * 写错的命令由里层 sh 报错,和「su 拒绝了」分得开(外层先打一行标记,拿不到标记就是 su 没跑)。
- * 有 toybox 的 timeout 就用它在 root 那边掐断,没有就只靠这一侧到点结束 su。
+ * Root 侧独立监督命令进程组。App 到时限或取消时关闭标准输入，通知 Root 侧结束进程组。
  * [allowed] 每次执行前都重新检查:任务装着端口时用户关掉设置,后面的调用也不能再启动 su。
  * [su] 给出 su 的完整路径(找不到为 null);su 没跑这条命令时经 [refused] 报出去(null 是 su 不在了),由设置那边记下并关掉这一项。
  */
@@ -31,22 +33,18 @@ class RootCommands(
         if (!allowed()) return@runInterruptible RootRun.Denied
         val su = su() ?: return@runInterruptible RootRun.Unavailable.also { refused(null) }
         val started = SystemClock.elapsedRealtime()
-        val p = runCatching { ProcessBuilder(SuProbe.rootArgs(su, script(command, timeoutMs))).start() }
+        val p = runCatching { ProcessBuilder(SuProbe.rootArgs(su, script(command))).start() }
             .getOrElse { return@runInterruptible RootRun.Denied.also { refused(SuAnswer.Denied) } }
-        runCatching { p.outputStream.close() }
         val out = onThread { drain(p.inputStream) }
         val err = onThread { drain(p.errorStream) }
-        // 这一侧多等一会儿:root 那边的 timeout 先掐,su 本身卡住(授权框没人点)才由这里结束
         val exited = try {
-            p.waitFor(timeoutMs + GRACE_MS, TimeUnit.MILLISECONDS)
-        } catch (e: InterruptedException) {
-            p.destroyForcibly()
-            throw e
+            p.waitFor(timeoutMs, TimeUnit.MILLISECONDS)
+        } finally {
+            stop(p)
         }
-        if (!exited) p.destroyForcibly()
         val duration = SystemClock.elapsedRealtime() - started
-        val (stdout, outDropped) = runCatching { out.get(2, TimeUnit.SECONDS) }.getOrDefault("" to 0L)
-        val (stderr, errDropped) = runCatching { err.get(2, TimeUnit.SECONDS) }.getOrDefault("" to 0L)
+        val (stdout, outDropped) = awaitOutput(out)
+        val (stderr, errDropped) = awaitOutput(err)
         if (!stdout.startsWith(MARK)) {
             // 标记都没打出来:su 没跑这条命令
             val a = if (!exited) SuAnswer.NoAnswer else SuAnswer.Denied
@@ -54,16 +52,48 @@ class RootCommands(
             return@runInterruptible if (a == SuAnswer.NoAnswer) RootRun.NoAnswer else RootRun.Denied
         }
         val exit = if (exited) p.exitValue() else -1
-        // timeout -s KILL 掐断时退出码是 137(或 124)
-        val timedOut = !exited || (exit == 137 || exit == 124) && duration >= timeoutMs - 500
-        RootRun.Done(exit, timedOut, stdout.removePrefix(MARK).removePrefix("\n"), stderr, outDropped + errDropped, duration)
+        RootRun.Done(exit, !exited, stdout.removePrefix(MARK).removePrefix("\n"), stderr, outDropped + errDropped, duration)
     }
 
-    private fun script(command: String, timeoutMs: Long): String {
+    private fun stop(p: Process) {
+        // 即使 su 是守护进程的客户端，关闭管道也会通知实际执行命令的 Root 端。
+        runCatching { p.outputStream.close() }
+        val deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(STOP_GRACE_MS)
+        var interrupted = false
+        try {
+            while (p.isAlive) {
+                val remaining = deadline - System.nanoTime()
+                if (remaining <= 0) {
+                    p.destroyForcibly()
+                    return
+                }
+                try {
+                    if (p.waitFor(remaining, TimeUnit.NANOSECONDS)) return
+                } catch (_: InterruptedException) {
+                    // 给监督脚本时间处理 EOF，避免先杀掉还没开始监听的 su。
+                    interrupted = true
+                }
+            }
+        } finally {
+            if (interrupted) Thread.currentThread().interrupt()
+        }
+    }
+
+    private fun script(command: String): String {
         val b64 = Base64.encodeToString(command.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
-        val sec = ((timeoutMs + 999) / 1000).coerceAtLeast(1)
-        return "echo $MARK; c=\"\$(echo $b64 | base64 -d)\"; " +
-            "if command -v timeout >/dev/null 2>&1; then exec timeout -s KILL $sec sh -c \"\$c\"; else exec sh -c \"\$c\"; fi"
+        val path = if (RootCommandClass.classify(command) == RootCommandClass.Kind.ReadOnly) {
+            "export PATH=${RootCommandClass.SYSTEM_COMMAND_PATH}; "
+        } else ""
+        return path + "echo $MARK; c=\"\$(echo $b64 | base64 -d)\"; " +
+            RootCommandSession.androidScript
+    }
+
+    private fun awaitOutput(output: CompletableFuture<Pair<String, Long>>): Pair<String, Long> = try {
+        output.get(2, TimeUnit.SECONDS)
+    } catch (e: InterruptedException) {
+        throw e
+    } catch (_: Exception) {
+        "" to 0L
     }
 
     /** 在单独的线程上读(不占公共线程池)。 */
@@ -91,6 +121,6 @@ class RootCommands(
     private companion object {
         const val MARK = "__mika_root_ok__"
         const val MAX_BYTES = 1 shl 20
-        const val GRACE_MS = 5_000L
+        const val STOP_GRACE_MS = 2_000L
     }
 }
