@@ -28,7 +28,7 @@ object PromptSurface {
 
     /** 一种能力组合:系统提示词全文,再列发给模型的工具(名字 + 定义摘要,定义全文在 tools 里)。 */
     fun system(system: String, tools: List<ToolSpec>): String = buildString {
-        appendLine(system)
+        appendLine(SnapshotIdentity.canonical(system))
         appendLine()
         appendLine("==== tools (${tools.size}) ====")
         tools.forEach { appendLine("${it.name} #${hash(spec(it))}") }
@@ -36,7 +36,7 @@ object PromptSurface {
 
     /** 一次请求的全貌:系统提示词全文,再按发给模型的顺序列每个工具的定义全文。 */
     fun layer(system: String, tools: List<ToolSpec>): String = buildString {
-        appendLine(system)
+        appendLine(SnapshotIdentity.canonical(system))
         appendLine()
         appendLine("==== tools (${tools.size}) ====")
         tools.forEach { append(spec(it)); appendLine() }

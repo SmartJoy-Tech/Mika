@@ -43,11 +43,25 @@ the current product branch intact. Review the failed run in Actions; no force
 push or automatic conflict resolution is used. Unchanged results do not send
 additional messages. GitHub's own Actions notification settings apply to failures.
 
+Prompt goldens are kept byte-for-byte compatible with upstream. The test-only
+`SnapshotIdentity` adapter canonicalizes the exact leading system identity
+`You are TinyFox, ` before snapshot rendering and size/hash calculations. It
+does not rewrite messages, tools or other prompt text. Separate tests assert
+that the production identity remains TinyFox and unrelated changes remain visible.
+This avoids brand-derived golden conflicts without regenerating expected output
+during synchronization. Reused candidates must contain both the current product
+base and the claimed upstream commit.
+
 `workflow_dispatch` permits a manual check. `repository_dispatch` with type
 `upstream-release` permits an authenticated webhook integration later; no upstream
 webhook is currently configured. The scheduled workflow does not require this laptop.
 GitHub may disable scheduled workflows on a public repository after prolonged inactivity;
 check Actions if the upstream has been quiet for a long period.
+GitHub can also pause execution on a fork with a notice about the scale of Actions
+usage. Sign in as a repository maintainer and re-enable workflows on the Actions
+page. Repository `enabled: true` and workflow `active` alone do not prove execution
+is allowed: verify that a manual dispatch creates a successful run, then check a
+subsequent scheduled run. A signed-out page will not show maintainer controls.
 
 Build jobs use a read-only token, do not receive signing secrets, and disable
 persisted checkout credentials. Only the prepare/promote jobs can update branches.

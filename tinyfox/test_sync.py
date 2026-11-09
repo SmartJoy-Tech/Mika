@@ -99,6 +99,23 @@ class SyncTests(unittest.TestCase):
             self.run_sync()
         self.assertEqual(command(self.fork, 'rev-parse', 'tinyfox'), current)
 
+    def test_existing_candidate_must_contain_claimed_upstream_commit(self):
+        self.update()
+        target = command(self.upstream, 'rev-parse', 'HEAD')
+        branch = f'sync/upstream-{self.release_tag}-{self.base[:12]}'
+        command(self.work, 'switch', '-c', branch)
+        # A branch can descend from TinyFox and claim the right tag in its
+        # metadata without actually containing that upstream commit.
+        (self.work / 'tinyfox/upstream.json').write_text(json.dumps(
+            {'repository': sync.UPSTREAM, 'tag': self.release_tag, 'commit': target}))
+        command(self.work, 'add', 'tinyfox/upstream.json')
+        command(self.work, 'commit', '-m', 'Claim an update without merging it')
+        command(self.work, 'push', 'origin', branch)
+        command(self.work, 'switch', 'tinyfox')
+        with self.assertRaisesRegex(RuntimeError, 'does not contain the claimed upstream commit'):
+            self.run_sync()
+        self.assertEqual(command(self.fork, 'rev-parse', 'tinyfox'), self.base)
+
     def test_upstream_automation_change_requires_review(self):
         self.update('.github/workflows/untrusted.yml')
         with self.assertRaisesRegex(RuntimeError, 'manual review'):

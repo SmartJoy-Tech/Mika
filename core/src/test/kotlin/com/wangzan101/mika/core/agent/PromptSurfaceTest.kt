@@ -13,6 +13,7 @@ import com.wangzan101.mika.core.model.StopReason
 import com.wangzan101.mika.core.cap.sandbox.FakeSandbox
 import com.wangzan101.mika.core.cap.sandbox.SandboxStatus
 import com.wangzan101.mika.core.testing.PromptSurface
+import com.wangzan101.mika.core.testing.SnapshotIdentity
 import com.wangzan101.mika.core.tool.FakeScreen
 import com.wangzan101.mika.core.tool.ToolDispatcher
 import com.wangzan101.mika.core.vision.JvmTestImageOps
@@ -105,10 +106,11 @@ class PromptSurfaceTest {
             val prior = if (groups.isEmpty()) emptyList() else listOf(Turn("之前", "好", "succeeded", groups = groups))
             runBlocking { AgentLoop(m, c.tools(), SystemPrompt.identity(), flags = c.flags, memory = c.memory, confirmations = null).run("t", prior) }
             PromptSurface.check("layers/$name", PromptSurface.layer(m.system!!, m.tools))
-            val system = m.system!!.toByteArray().size
+            val canonicalSystem = SnapshotIdentity.canonical(m.system!!)
+            val system = canonicalSystem.toByteArray().size
             val tools = m.tools.sumOf { (it.name + it.description + it.parametersJsonSchema).toByteArray().size }
             val tokens = TokenEstimate.of(listOf(com.wangzan101.mika.core.model.Message(com.wangzan101.mika.core.model.Role.User,
-                listOf(Part.Text(m.system!! + m.tools.joinToString("") { it.name + it.description + it.parametersJsonSchema })), com.wangzan101.mika.core.model.Author.Mika)))
+                listOf(Part.Text(canonicalSystem + m.tools.joinToString("") { it.name + it.description + it.parametersJsonSchema })), com.wangzan101.mika.core.model.Author.Mika)))
             sizes.appendLine("$name: system $system bytes, ${m.tools.size} tools $tools bytes, total ${system + tools} bytes, ~$tokens tokens")
         }
         print(sizes)

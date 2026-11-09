@@ -21,6 +21,7 @@ import com.wangzan101.mika.core.assembly.toolDispatcher
 import com.wangzan101.mika.core.cap.sandbox.SandboxCapability
 import com.wangzan101.mika.core.testing.WEB_TOOLS
 import com.wangzan101.mika.core.testing.SANDBOX_TOOLS
+import com.wangzan101.mika.core.testing.SnapshotIdentity
 
 class SystemPromptTest {
     /** 手机一组展开后的几段:L0 身份与总规则 + 交给用户的规矩 + 手机一段。 */
@@ -31,7 +32,7 @@ class SystemPromptTest {
 
     @Test fun loadsIdentityAndPhoneRules() {
         val p = rules()
-        assertTrue(SystemPrompt.identity().startsWith("You are TinyFox"))
+        assertTrue(SystemPrompt.identity().startsWith("You are TinyFox, "))
         assertTrue("virtual display" in p)
         assertTrue("hand_to_user" in p && "ask_user" in p && "end_not_done" in p)
         assertFalse("adb" in p.lowercase())
@@ -218,7 +219,7 @@ class SystemPromptAssemblyTest {
         val drift = mutableListOf<String>()
         for ((name, make) in combos) {
             val (d, flags) = make()
-            val actual = promptOf(d, flags) + "\n"
+            val actual = SnapshotIdentity.canonical(promptOf(d, flags)) + "\n"
             val file = File(dir, "$name.txt")
             if (update) { dir.mkdirs(); file.writeText(actual); continue }
             val expected = javaClass.getResourceAsStream("/prompts/golden/$name.txt")?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }

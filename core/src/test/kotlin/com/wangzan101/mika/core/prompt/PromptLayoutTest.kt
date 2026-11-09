@@ -2,6 +2,7 @@ package com.wangzan101.mika.core.prompt
 
 import com.wangzan101.mika.core.agent.BatchRunner
 import com.wangzan101.mika.core.testing.PromptSurface
+import com.wangzan101.mika.core.testing.SnapshotIdentity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -13,7 +14,11 @@ import com.wangzan101.mika.core.assembly.allTools
 class PromptLayoutTest {
     private val root = File("src/main/resources/prompts")
     private fun files(layer: String) = File(root, layer).listFiles().orEmpty().filter { it.isFile }.map { it.name }.toSet()
-    private fun size(layer: String) = File(root, layer).listFiles().orEmpty().filter { it.isFile }.sumOf { it.readBytes().size }
+    private fun size(layer: String) = File(root, layer).listFiles().orEmpty().filter { it.isFile }.sumOf {
+        if (layer == "system" && it.name == "identity.md")
+            SnapshotIdentity.canonical(it.readText(Charsets.UTF_8)).toByteArray(Charsets.UTF_8).size
+        else it.readBytes().size
+    }
 
     private val toolNames = allTools().map { it.name } + BatchRunner.spec(BATCHABLE).name
     /** 也是普通英文词的工具名:system/ 里照常当词用,不算点名。 */

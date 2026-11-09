@@ -43,7 +43,8 @@ object LoopSnapshot {
                 appendLine()
                 appendLine("## $role #${i + 1}")
                 if (r.system != system) {
-                    appendLine("system: len=${r.system.length} #${hash(r.system)} | ${oneLine(r.system, 80)}")
+                    val canonical = SnapshotIdentity.canonical(r.system)
+                    appendLine("system: len=${canonical.length} #${hash(canonical)} | ${oneLine(canonical, 80)}")
                     system = r.system
                 }
                 if (r.tools != tools) {

@@ -60,6 +60,8 @@ def main():
             raise RuntimeError('Existing candidate branch has unexpected upstream state')
         if git('merge-base', '--is-ancestor', base, sha, check=False).returncode:
             raise RuntimeError('Existing candidate does not descend from the current TinyFox branch')
+        if git('merge-base', '--is-ancestor', target, sha, check=False).returncode:
+            raise RuntimeError('Existing candidate does not contain the claimed upstream commit')
         output(changed='true', sha=sha, base=base, branch=branch, tag=tag)
         return
     git('config', 'user.name', 'github-actions[bot]')
