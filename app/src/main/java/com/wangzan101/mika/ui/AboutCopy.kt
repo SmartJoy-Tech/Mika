@@ -17,6 +17,8 @@ object AboutCopy {
     val CHECK_SUB_NEW: String get() = tr(R.string.about_check_sub_new)
     val UP_TO_DATE: String get() = tr(R.string.about_up_to_date)
     val UP_TO_DATE_TOAST: String get() = tr(R.string.about_up_to_date_toast)
+    val NO_RELEASE: String get() = tr(R.string.about_no_release)
+    val NO_RELEASE_TOAST: String get() = tr(R.string.about_no_release_toast)
     val OFFLINE: String get() = tr(R.string.about_offline)
     val OFFLINE_TOAST: String get() = tr(R.string.about_offline_toast)
     val CHANGELOG: String get() = tr(R.string.about_changelog)
@@ -72,6 +74,7 @@ object AboutCopy {
         s.update != null -> CheckValue(available(s.update.version), dot = true, highlight = true)
         s.status == CheckStatus.Failed -> CheckValue(OFFLINE)
         s.latest != null -> CheckValue(UP_TO_DATE)
+        s.status == CheckStatus.NoRelease -> CheckValue(NO_RELEASE)
         else -> CheckValue(null)
     }
 

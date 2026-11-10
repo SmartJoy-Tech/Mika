@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_no_release">Sem versões</string>
+    <string name="about_no_release_toast">Conexão com o GitHub estabelecida. Ainda não há atualizações publicadas.</string>
     <string name="about_tagline">Seu assistente pessoal no celular, resolvendo as coisas por você</string>
     <string name="about_check">Verificar atualizações</string>
     <string name="about_check_sub">Baixe novas versões pelo GitHub Releases</string>

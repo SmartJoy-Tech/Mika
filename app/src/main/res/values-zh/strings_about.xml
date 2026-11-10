@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_no_release">暂无发布版本</string>
+    <string name="about_no_release_toast">已连接 GitHub，暂无已发布的更新版本</string>
     <string name="about_tagline">你手机上的私人助理，替你把事办成</string>
     <string name="about_check">检查更新</string>
     <string name="about_check_sub">从 GitHub 发布页获取新版本</string>

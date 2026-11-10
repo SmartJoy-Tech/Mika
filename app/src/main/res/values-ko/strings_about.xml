@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_no_release">릴리스 없음</string>
+    <string name="about_no_release_toast">GitHub에 연결되었습니다. 아직 게시된 업데이트가 없습니다.</string>
     <string name="about_tagline">내 휴대전화 속 개인 비서, 일을 대신 해 줘요</string>
     <string name="about_check">업데이트 확인</string>
     <string name="about_check_sub">GitHub Releases에서 새 버전 받기</string>

@@ -101,6 +101,8 @@ fun AboutScreen(
                 update.update != null -> sheet = AboutSheet.Update
                 update.status == CheckStatus.Failed ->
                     Toast.makeText(context, AboutCopy.OFFLINE_TOAST, Toast.LENGTH_SHORT).show()
+                update.status == CheckStatus.NoRelease ->
+                    Toast.makeText(context, AboutCopy.NO_RELEASE_TOAST, Toast.LENGTH_SHORT).show()
                 else -> Toast.makeText(context, AboutCopy.UP_TO_DATE_TOAST, Toast.LENGTH_SHORT).show()
             }
         }

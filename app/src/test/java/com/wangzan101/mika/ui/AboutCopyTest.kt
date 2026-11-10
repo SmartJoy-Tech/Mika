@@ -6,6 +6,7 @@ import com.wangzan101.mika.about.CheckStatus
 import com.wangzan101.mika.about.ReleaseInfo
 import com.wangzan101.mika.about.UpdateState
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -21,5 +22,27 @@ class AboutCopyTest {
         assertTrue(AboutCopy.checkValue(UpdateState(status = CheckStatus.Checking)).spinner)
         // 连不上但早先查到过新版:照样提示有新版
         assertTrue(AboutCopy.checkValue(UpdateState(latest = r020, update = r020, status = CheckStatus.Failed)).dot)
+    }
+
+    @Test
+    fun noPublishedReleaseIsDistinctFromOfflineAndUpToDate() {
+        assertEquals(AboutCopy.CheckValue(AboutCopy.NO_RELEASE),
+            AboutCopy.checkValue(UpdateState(status = CheckStatus.NoRelease)))
+        assertEquals(AboutCopy.CheckValue(AboutCopy.OFFLINE),
+            AboutCopy.checkValue(UpdateState(status = CheckStatus.Failed)))
+        assertEquals(AboutCopy.CheckValue(AboutCopy.UP_TO_DATE),
+            AboutCopy.checkValue(UpdateState(latest = r010, status = CheckStatus.Done)))
+        assertNotEquals(AboutCopy.OFFLINE, AboutCopy.NO_RELEASE)
+        assertNotEquals(AboutCopy.UP_TO_DATE, AboutCopy.NO_RELEASE)
+        assertTrue(AboutCopy.NO_RELEASE_TOAST.isNotBlank())
+        assertNotEquals(AboutCopy.OFFLINE_TOAST, AboutCopy.NO_RELEASE_TOAST)
+        assertNotEquals(AboutCopy.UP_TO_DATE_TOAST, AboutCopy.NO_RELEASE_TOAST)
+    }
+
+    @Test
+    fun aLaterAutomaticSameVersionResultOverridesTheOldNoReleaseLabel() {
+        // Automatic checks retain the previous manual status but refresh the release.
+        val state = UpdateState(latest = r010, status = CheckStatus.NoRelease, manualRounds = 1)
+        assertEquals(AboutCopy.CheckValue(AboutCopy.UP_TO_DATE), AboutCopy.checkValue(state))
     }
 }

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_no_release">Релизов пока нет</string>
+    <string name="about_no_release_toast">Подключение к GitHub установлено. Обновления пока не опубликованы.</string>
     <string name="about_tagline">Ваш личный помощник в телефоне: делает дела за вас</string>
     <string name="about_check">Проверить обновления</string>
     <string name="about_check_sub">Новые версии берутся из GitHub Releases</string>

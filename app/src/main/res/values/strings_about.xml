@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_no_release">No releases yet</string>
+    <string name="about_no_release_toast">Connected to GitHub. No update has been published yet.</string>
     <string name="about_tagline">Your personal assistant on your phone, getting things done for you</string>
     <string name="about_check">Check for updates</string>
     <string name="about_check_sub">Get new versions from GitHub Releases</string>

@@ -3,6 +3,7 @@ package com.wangzan101.mika.about
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.runTest
+import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -17,12 +18,16 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.util.concurrent.TimeUnit
 
 class UpdateCheckerTest {
     @get:Rule val tmp = TemporaryFolder()
 
     private val server = MockWebServer()
     private var github: MockResponse = MockResponse().setResponseCode(500)
+    private var releaseList: MockResponse = MockResponse().setResponseCode(500)
+    private val latestPath = "/repos/SmartJoy-Tech/Mika/releases/latest"
+    private val listPath = "/repos/SmartJoy-Tech/Mika/releases?per_page=1"
     private val hits = mutableListOf<String>()
     private var clock = 1_000_000_000L
 
@@ -31,7 +36,7 @@ class UpdateCheckerTest {
         server.dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 hits += request.path.orEmpty()
-                return github
+                return if (request.path == listPath) releaseList else github
             }
         }
         server.start()
@@ -40,9 +45,14 @@ class UpdateCheckerTest {
     @After
     fun stop() = server.shutdown()
 
-    private fun checker(current: String = "0.1.0") = UpdateChecker(
+    private fun checker(
+        current: String = "0.1.0",
+        path: String = "/api",
+        client: OkHttpClient = UpdateChecker.defaultClient(),
+    ) = UpdateChecker(
         tmp.root.resolve("update.json"), current,
-        releaseApi = server.url("/api").toString(),
+        client = client,
+        releaseApi = server.url(path).toString(),
         now = { clock },
     )
 
@@ -93,6 +103,174 @@ class UpdateCheckerTest {
         assertEquals(CheckStatus.Failed, c.state.value.status)
         assertEquals(1, c.state.value.manualRounds)
         assertNull(c.state.value.update)
+    }
+
+    @Test
+    fun latest404IsNoReleaseOnlyAfterTheSameRepositoryReturnsAnEmptyList() = runTest {
+        github = MockResponse().setResponseCode(404).setBody("""{"message":"Not Found"}""")
+        releaseList = MockResponse().setBody(" \n[]\n ")
+        val c = checker(path = latestPath)
+        c.check(manual = true)
+        assertEquals(listOf(latestPath, listPath), hits)
+        assertEquals(CheckStatus.NoRelease, c.state.value.status)
+        assertEquals(1, c.state.value.manualRounds)
+        assertNull(c.state.value.latest)
+        assertNull(c.state.value.update)
+        server.takeRequest()
+        val fallback = server.takeRequest()
+        assertEquals("application/vnd.github+json", fallback.getHeader("Accept"))
+        assertTrue(fallback.getHeader("User-Agent")!!.startsWith("TinyFox/"))
+    }
+
+    @Test
+    fun confirmedEmptyReleaseListClearsTheCachedUpdateOnDisk() = runTest {
+        github = release("v0.2.0")
+        val c = checker(path = latestPath)
+        c.check(manual = true)
+        assertTrue(c.state.value.hasUpdate)
+
+        github = MockResponse().setResponseCode(404)
+        releaseList = MockResponse().setBody("[]")
+        c.check(manual = true)
+        assertEquals(CheckStatus.NoRelease, c.state.value.status)
+        assertEquals(2, c.state.value.manualRounds)
+        assertFalse(c.state.value.hasUpdate)
+        assertNull(c.state.value.latest)
+
+        val reopened = checker(path = latestPath)
+        reopened.load()
+        assertNull(reopened.state.value.latest)
+        assertNull(reopened.state.value.update)
+    }
+
+    @Test
+    fun aFailedEmptyReleaseProbeKeepsThePreviouslyKnownUpdate() = runTest {
+        github = release("v0.2.0")
+        val c = checker(path = latestPath)
+        c.check(manual = true)
+        github = MockResponse().setResponseCode(404)
+        releaseList = MockResponse().setResponseCode(403).setBody("[]")
+        c.check(manual = true)
+        assertEquals(CheckStatus.Failed, c.state.value.status)
+        assertEquals("0.2.0", c.state.value.latest?.version)
+        assertEquals("0.2.0", c.state.value.update?.version)
+    }
+
+    @Test
+    fun inaccessibleNonemptyOrMalformedReleaseListsRemainFailures() = runTest {
+        github = MockResponse().setResponseCode(404)
+        val cases = listOf(
+            200 to """[{"tag_name":"v0.2.0","prerelease":true}]""",
+            200 to "{}", 200 to "null", 200 to "not json", 200 to "",
+            204 to "", 403 to "[]", 404 to "[]", 500 to "[]",
+        )
+        for ((status, body) in cases) {
+            hits.clear()
+            releaseList = MockResponse().setResponseCode(status).setBody(body)
+            val c = checker(path = latestPath)
+            c.check(manual = true)
+            assertEquals("HTTP $status body=$body", CheckStatus.Failed, c.state.value.status)
+            assertNull(c.state.value.update)
+            assertEquals(listOf(latestPath, listPath), hits)
+        }
+    }
+
+    @Test
+    fun aTimedOutReleaseListRemainsAFailure() = runTest {
+        github = MockResponse().setResponseCode(404)
+        releaseList = MockResponse().setBody("[]").setHeadersDelay(1, TimeUnit.SECONDS)
+        val client = OkHttpClient.Builder().readTimeout(250, TimeUnit.MILLISECONDS)
+            .callTimeout(2, TimeUnit.SECONDS).retryOnConnectionFailure(false).build()
+        val c = checker(path = latestPath, client = client)
+        c.check(manual = true)
+        assertEquals(CheckStatus.Failed, c.state.value.status)
+        assertNull(c.state.value.latest)
+        assertEquals(listOf(latestPath, listPath), hits)
+    }
+
+    @Test
+    fun aRedirectCannotUseAnotherOriginToConfirmAnEmptyReleaseList() = runTest {
+        val other = MockWebServer()
+        other.enqueue(MockResponse().setBody("[]"))
+        other.start()
+        try {
+            github = MockResponse().setResponseCode(404)
+            releaseList = MockResponse().setResponseCode(302)
+                .setHeader("Location", other.url("/releases"))
+            val c = checker(path = latestPath)
+            c.check(manual = true)
+            assertEquals(CheckStatus.Failed, c.state.value.status)
+            assertNull(c.state.value.latest)
+            assertEquals(listOf(latestPath, listPath), hits)
+            assertEquals("The empty-list confirmation must not leave the repository origin", 0, other.requestCount)
+        } finally {
+            other.shutdown()
+        }
+    }
+
+    @Test
+    fun otherLatestErrorsDoNotProbeOrPretendThereAreNoReleases() = runTest {
+        releaseList = MockResponse().setBody("[]")
+        for ((status, body) in listOf(403 to "[]", 429 to "[]", 500 to "[]", 200 to "{}")) {
+            hits.clear()
+            github = MockResponse().setResponseCode(status).setBody(body)
+            val c = checker(path = latestPath)
+            c.check(manual = true)
+            assertEquals("HTTP $status", CheckStatus.Failed, c.state.value.status)
+            assertEquals(listOf(latestPath), hits)
+        }
+    }
+
+    @Test
+    fun a404ForANoncanonicalApiAddressDoesNotGuessAnotherEndpoint() = runTest {
+        github = MockResponse().setResponseCode(404)
+        releaseList = MockResponse().setBody("[]")
+        val addresses = listOf(
+            server.url("/api"),
+            server.url("/other/SmartJoy-Tech/Mika/releases/latest"),
+            server.url("/repos/SmartJoy-Tech/Mika/releases/latest/extra"),
+            server.url(latestPath).newBuilder().addQueryParameter("extra", "1").build(),
+            server.url(latestPath).newBuilder().fragment("extra").build(),
+            server.url(latestPath).newBuilder().username("reader").build(),
+        )
+        for (address in addresses) {
+            hits.clear()
+            val c = UpdateChecker(tmp.root.resolve("update.json"), "0.1.0", releaseApi = address.toString())
+            c.check(manual = true)
+            assertEquals(address.toString(), CheckStatus.Failed, c.state.value.status)
+            assertEquals(address.toString(), 1, hits.size)
+        }
+    }
+
+    @Test
+    fun automaticEmptyReleaseCheckRemainsSilent() = runTest {
+        github = MockResponse().setResponseCode(404)
+        releaseList = MockResponse().setBody("[]")
+        val c = checker(path = latestPath)
+        assertTrue(c.autoCheck())
+        assertEquals(CheckStatus.Idle, c.state.value.status)
+        assertEquals(0, c.state.value.manualRounds)
+        assertNull(c.state.value.update)
+        assertEquals(listOf(latestPath, listPath), hits)
+    }
+
+    @Test
+    fun automaticEmptyReleaseCheckClearsCacheWithoutCompletingAManualRound() = runTest {
+        github = release("v0.2.0")
+        val c = checker(path = latestPath)
+        c.check(manual = true)
+        assertEquals(CheckStatus.Done, c.state.value.status)
+        github = MockResponse().setResponseCode(404)
+        releaseList = MockResponse().setBody("[]")
+        assertTrue(c.autoCheck())
+        assertEquals(CheckStatus.Done, c.state.value.status)
+        assertEquals(1, c.state.value.manualRounds)
+        assertNull(c.state.value.latest)
+        assertNull(c.state.value.update)
+        val reopened = checker(path = latestPath)
+        reopened.load()
+        assertNull(reopened.state.value.latest)
+        assertNull(reopened.state.value.update)
     }
 
     /** 自动检查失败不改界面上的状态;每次打开都查,只挡住两分钟内连着来的。 */

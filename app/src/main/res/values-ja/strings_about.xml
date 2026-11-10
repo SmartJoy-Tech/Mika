@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_no_release">リリースなし</string>
+    <string name="about_no_release_toast">GitHub に接続しました。公開された更新はまだありません。</string>
     <string name="about_tagline">スマホの中のあなた専用アシスタント。用事をまるごと片付けます</string>
     <string name="about_check">アップデートを確認</string>
     <string name="about_check_sub">GitHub Releases から新しいバージョンを入手</string>

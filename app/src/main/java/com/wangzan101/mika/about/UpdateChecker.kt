@@ -12,6 +12,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -20,16 +21,17 @@ import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
 import com.wangzan101.mika.core.net.NetProxy
 import okhttp3.OkHttpClient
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import java.io.File
 import java.util.concurrent.TimeUnit
 
 /** 手动检查更新这一次的结果;自动检查不改它(失败时不打扰)。 */
-enum class CheckStatus { Idle, Checking, Done, Failed }
+enum class CheckStatus { Idle, Checking, Done, NoRelease, Failed }
 
 /**
  * 检查更新的状态。[latest] 是最近一次查到的版本(更新记录用),[update] 是比当前新的那个(有它才有红点)。
- * [manualRounds] 每完成一次手动检查加一,页面据此给出「已是最新」「连不上」之类的提示。
+ * [manualRounds] 每完成一次手动检查加一,页面据此给出「已是最新」「暂无发布」「连不上」之类的提示。
  */
 data class UpdateState(
     val latest: ReleaseInfo? = null,
@@ -100,26 +102,66 @@ class UpdateChecker(
         mutex.withLock {
             loadLocked()
             if (manual) _state.update { it.copy(status = CheckStatus.Checking) }
-            val found = withContext(Dispatchers.IO) { fetchLatest() }
-            if (found != null) {
-                _state.update { it.withLatest(found) }
+            val result = withContext(Dispatchers.IO) { lookupLatest() }
+            _state.update { previous ->
+                val refreshed = when (result) {
+                    is ReleaseLookup.Found -> previous.withLatest(result.release)
+                    ReleaseLookup.Empty -> previous.withLatest(null)
+                    ReleaseLookup.Failed -> previous
+                }
+                if (manual) refreshed.copy(
+                    status = when (result) {
+                        is ReleaseLookup.Found -> CheckStatus.Done
+                        ReleaseLookup.Empty -> CheckStatus.NoRelease
+                        ReleaseLookup.Failed -> CheckStatus.Failed
+                    },
+                    manualRounds = previous.manualRounds + 1,
+                ) else refreshed
             }
-            if (manual) _state.update { it.copy(status = if (found != null) CheckStatus.Done else CheckStatus.Failed, manualRounds = it.manualRounds + 1) }
             save()
         }
     }
 
     /** GitHub 上最新的发布;没查到为空。 */
-    internal fun fetchLatest(): ReleaseInfo? = runCatching { Releases.fromGitHub(get(releaseApi), deviceAbis) }.getOrNull()
+    internal fun fetchLatest(): ReleaseInfo? = (lookupLatest() as? ReleaseLookup.Found)?.release
 
-    private fun get(url: String): String {
+    private sealed interface ReleaseLookup {
+        data class Found(val release: ReleaseInfo) : ReleaseLookup
+        data object Empty : ReleaseLookup
+        data object Failed : ReleaseLookup
+    }
+
+    private class HttpFailure(val code: Int) : Exception("HTTP $code")
+
+    private fun lookupLatest(): ReleaseLookup = try {
+        ReleaseLookup.Found(Releases.fromGitHub(get(releaseApi), deviceAbis))
+    } catch (e: Exception) {
+        if (e is HttpFailure && e.code == 404 && confirmsEmptyReleaseChannel()) ReleaseLookup.Empty
+        else ReleaseLookup.Failed
+    }
+
+    /** 404 也可能是仓库不可访问；只有同一仓库的发布列表明确返回 200 + [] 才能确认暂无发布。 */
+    private fun confirmsEmptyReleaseChannel(): Boolean = runCatching {
+        val latest = releaseApi.toHttpUrl()
+        val segments = latest.pathSegments
+        require(latest.username.isEmpty() && latest.password.isEmpty() && latest.query == null && latest.fragment == null)
+        require(segments.size == 5 && segments[0] == "repos" && segments[1].isNotEmpty() && segments[2].isNotEmpty()
+            && segments[3] == "releases" && segments[4] == "latest")
+        val listUrl = latest.newBuilder().removePathSegment(4).addQueryParameter("per_page", "1").build()
+        // 不接受跳往别处的空列表，也不向重定向目的地发送这次确认请求。
+        val directClient = client.newBuilder().followRedirects(false).followSslRedirects(false).build()
+        val list = Json.parseToJsonElement(get(listUrl.toString(), directClient))
+        list is JsonArray && list.isEmpty()
+    }.getOrDefault(false)
+
+    private fun get(url: String, requestClient: OkHttpClient = client): String {
         val req = Request.Builder().url(url)
             .header("User-Agent", "TinyFox/$currentVersion")
             .header("Accept", "application/vnd.github+json")
             .header("X-GitHub-Api-Version", "2022-11-28")
             .build()
-        client.newCall(req).execute().use { resp ->
-            if (!resp.isSuccessful) error("HTTP ${resp.code}")
+        requestClient.newCall(req).execute().use { resp ->
+            if (resp.code != 200) throw HttpFailure(resp.code)
             return resp.body?.string() ?: error("empty body")
         }
     }
@@ -153,7 +195,7 @@ class UpdateChecker(
     }
 
     companion object {
-        /** 有的网络连 GitHub 时快时慢:超时放短,失败就换备用来源。走设置 › 网络代理。 */
+        /** 有的网络连 GitHub 时快时慢:超时放短，失败保留上次结果。走设置 › 网络代理。 */
         fun defaultClient(): OkHttpClient = NetProxy.shared.client(OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
             .readTimeout(8, TimeUnit.SECONDS)
