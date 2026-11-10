@@ -28,7 +28,7 @@ The personal build uses the owner-provided SmartJoy symbol without Chinese or En
 
 `tinyfox` is the product branch and the intended default branch. The original `main` branch is kept as an
 upstream reference. `.github/workflows/tinyfox-sync.yml` checks the latest stable
-upstream release every hour at minute 17 (GitHub schedules can be delayed).
+upstream release every hour at minute 23 (GitHub schedules can be delayed).
 The workflow must be on the default branch and Actions must be enabled.
 
 1. Fetch the latest stable tag and validate that its history moves forward.
@@ -93,11 +93,18 @@ Never upload a private keystore/password, model credential, nmem key, or GitHub
 token to source control or build logs. Cloud sync/build does not upload this local key,
 publish APK Releases, install on the phone, or change its permissions.
 
-The in-app updater points at this fork and retains HTTPS URL, package, increasing
-versionCode, digest and signer verification. It will offer an update only after a
-signed TinyFox APK has been published as a stable Release in this fork. A display
-version containing `-tinyfox.N` is deliberate; mark the GitHub Release stable.
-Original Mika APKs are not accepted as TinyFox updates.
+The in-app updater checks this fork's latest stable Release when the app opens.
+A release tag can show a version notice; an installable update also needs a signed
+TinyFox APK asset. The updater retains HTTPS URL, package, increasing versionCode,
+available digest/size, and signer verification. A display version containing
+`-tinyfox.N` is deliberate; mark the GitHub Release stable. Original Mika APKs are
+not accepted as TinyFox updates.
+
+From 0.1.39, an optional setting (off by default) downloads updates over the active
+non-VPN Wi-Fi network. A default VPN network or SOCKS proxy prevents this automatic
+download path. The app process must remain alive; installation still requires a
+user action through the Android installer. This is not an unattended phone update
+service. Source synchronization and unsigned CI artifacts alone do not feed it.
 
 ## First migration and acceptance
 

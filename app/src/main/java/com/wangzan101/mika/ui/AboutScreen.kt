@@ -55,6 +55,7 @@ import com.wangzan101.mika.ui.components.ButtonKind
 import com.wangzan101.mika.ui.components.GroupCard
 import com.wangzan101.mika.ui.components.MikaLogo
 import com.wangzan101.mika.ui.components.ListRow
+import com.wangzan101.mika.ui.components.MikaSwitch
 import com.wangzan101.mika.ui.components.MikaButton
 import com.wangzan101.mika.ui.components.PageScaffold
 import com.wangzan101.mika.ui.components.RowChevron
@@ -85,6 +86,8 @@ fun AboutScreen(
     onOpenLicense: () -> Unit,
     onBack: () -> Unit,
     diagnostics: () -> String = { "" },
+    autoUpdate: Boolean = false,
+    onAutoUpdate: (Boolean) -> Unit = {},
 ) {
     val c = MikaTheme.colors
     val context = LocalContext.current
@@ -119,6 +122,13 @@ fun AboutScreen(
             ) {
                 TrailingValue(v)
                 RowChevron()
+            }
+            ListRow(
+                MikaIcons.Refresh,
+                stringResource(R.string.about_auto_update),
+                stringResource(R.string.about_auto_update_detail),
+            ) {
+                MikaSwitch(autoUpdate, onAutoUpdate, Modifier.testTag("auto-update-switch"))
             }
             ListRow(MikaIcons.Lines, AboutCopy.CHANGELOG, AboutCopy.CHANGELOG_SUB, onClick = { sheet = AboutSheet.Changelog }) { RowChevron() }
         }
@@ -252,7 +262,7 @@ private fun NotesBox(notes: String) {
 }
 
 @Composable
-private fun UpdateSheet(r: ReleaseInfo, current: String, beta: Boolean, onOpenUrl: (String) -> Unit, onDismiss: () -> Unit) {
+internal fun UpdateSheet(r: ReleaseInfo, current: String, beta: Boolean, onOpenUrl: (String) -> Unit, onDismiss: () -> Unit) {
     AboutSheetFrame(AboutCopy.updateTitle(r.version), AboutCopy.updateSub(current, beta, r.date), "update-sheet", onDismiss) {
         if (r.notes.isNotBlank()) NotesBox(r.notes)
         if (r.apkUrl != null) UpdateDownloadControls(r)

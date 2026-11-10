@@ -509,8 +509,9 @@ class TaskRun(
         val traceTicket = traces.ticket()
         var record: RunHandle? = null
         var runStore: RunStore? = null
-        // 这次运行里经计量的模型请求(含旁路调用),收尾时记进运行记录
-        val tally = RunUsageTally()
+        // 整个运行共用一份已报告 Token 预算；子任务沿用协程上下文里的这份，不另开额度。
+        val tokenBudget = if (conditionCheck) null else FeatureFlags.get(service).taskTokenBudget()
+        val tally = RunUsageTally(tokenBudget)
         // 第一次打开网址时才建;没建过就不用关
         var webStack: WebStack? = null
         // 当前界面(手机/网页)要看分发器;画中画的画面来源随它切换
@@ -670,16 +671,24 @@ class TaskRun(
                 val id = phone?.display?.current?.displayId ?: return false
                 return moveTask(taskId, id)
             }
+            val app = service.application as MikaApp
+            // 微信只使用当前绑定会话的独立授权；仍保留 Channel 来源及原有确认/接管规则。
+            val unlockAuthorized = taskUnlockAuthorization(provenance.origin, channelPeer) { peer ->
+                app.wechat.store.canUnlock(peer)
+            }
             val taskGate = TaskGate(states.locked, shellUp,
                 refreshLocked = states::refresh,
-                unattendedUnlock = if (provenance.origin == RunOrigin.Trigger) {
+                unattendedUnlock = unlockAuthorized?.let { authorized ->
                     {
-                        val result = (service.application as MikaApp).deviceAccess.access.unlock()
+                        val result = app.deviceAccess.access.unlock(authorized)
                         states.refresh()
-                        Log.i(TAG, "scheduled unlock finished: ${result.status}")
+                        Log.i(TAG, "${provenance.origin} unlock finished: ${result.status}")
                         result.status
                     }
-                } else null,
+                },
+                unlockFailureMessage = {
+                    tr(if (provenance.origin == RunOrigin.Channel) R.string.wechat_unlock_failed else R.string.trigger_unlock_failed)
+                },
             ) {
                 val t = phone?.screen?.target?.value
                 t != null && t.taskId >= 0 && moveBackToAgent(t.taskId)
@@ -692,6 +701,7 @@ class TaskRun(
                     runs.open(goal).also { opened ->
                         record = opened
                         _runId.value = opened.runId
+                        service.rememberRecord(this@TaskRun, opened.runId)
                         mcpExternalId?.let { ext ->
                             (service.application as? com.wangzan101.mika.MikaApp)?.remoteTasks?.rememberRun(ext, opened.runId)
                         }
@@ -772,7 +782,7 @@ class TaskRun(
             val runSpec = RunSpec(RunId(key), goal, conversationId,
                 priorTurns,
                 provenance, if (conditionCheck) setOf("web", "sandbox") else null, readOnly = conditionCheck,
-                stepBudget = stepLimit)
+                stepBudget = stepLimit, tokenBudget = tokenBudget)
             // 外部 MCP server 只在主任务接;子任务/条件检查/评测不接,避免绕过父任务审批、影响评测可复现
             if (!conditionCheck) {
                 // 连上的当场归 resources:收尾(含取消、失败、连到一半被停)关作用域时一起关,stdio server 的进程和沙箱租约跟着放掉
@@ -964,7 +974,7 @@ class TaskRun(
 
                 override suspend fun returnWeb(loggedIn: Boolean): HandoverActivity? =
                     webStack?.let { w -> withContext(Dispatchers.Main) { w.returnFromTakeover(loggedIn) } }
-            }, side, queue = service.takeoverQueue)
+            }, side, queue = service.takeoverQueue, remind = { service.refreshNotifications(this@TaskRun) })
             takeover = handover
             handoverRef = handover
 
@@ -1152,6 +1162,27 @@ class TaskRun(
 
     /** 停止后有没有可交代的:做过至少一件事,或停下时已经写出了字。 */
     fun hasStopMaterial(draft: String?): Boolean = synchronized(activityLog) { activityLog.isNotEmpty() } || !draft.isNullOrBlank()
+
+    /** 真正失败后的断点交代:只按记录拼,不再请模型,也不把短失败原因改写成成功。 */
+    suspend fun checkpointSummary(): String? {
+        val k = kit
+        val runId = _runId.value
+        val recorded = withContext(Dispatchers.IO) {
+            try {
+                runId?.let { id -> k?.runStore?.events(id) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                null
+            }
+        }
+        val events = recorded?.takeIf { StopSummary.worthSaying(it, null) } ?: synchronized(activityLog) { activityLog.toList() }
+        if (!StopSummary.worthSaying(events, null)) return null
+        val labels = ToolLabels(knownTools())
+        return StopSummary.plain(k?.agent?.taskText ?: goal, events, null, labels::label) {
+            ConfirmationNotifier.appLabel(service, it)
+        }
+    }
 
     /**
      * 用户停止之后:按这次已经做了的事写几行交代(见 [StopSummary]),只读运行记录,不再操作任何东西。
