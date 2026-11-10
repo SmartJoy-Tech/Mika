@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_rate_limited">GitHub 暂时限流</string>
+    <string name="about_rate_limited_toast">GitHub 暂时限制了检查频率，请稍后再试</string>
     <string name="about_no_release">暂无发布版本</string>
     <string name="about_no_release_toast">已连接 GitHub，暂无已发布的更新版本</string>
     <string name="about_tagline">你手机上的私人助理，替你把事办成</string>

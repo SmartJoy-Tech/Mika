@@ -18,6 +18,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
 class UpdateCheckerTest {
@@ -49,8 +52,9 @@ class UpdateCheckerTest {
         current: String = "0.1.0",
         path: String = "/api",
         client: OkHttpClient = UpdateChecker.defaultClient(),
+        cacheName: String = "update.json",
     ) = UpdateChecker(
-        tmp.root.resolve("update.json"), current,
+        tmp.root.resolve(cacheName), current,
         client = client,
         releaseApi = server.url(path).toString(),
         now = { clock },
@@ -85,15 +89,196 @@ class UpdateCheckerTest {
         assertEquals("0.1.0", c.state.value.latest?.version)
     }
 
-    /** GitHub 限流(403)就是这次没查到:只问 GitHub 一次,不去别处找。 */
+    /** 没有明确限流响应头的 403 保持普通失败，不根据错误正文猜测。 */
     @Test
-    fun gitHubRateLimitIsAFailure() = runTest {
+    fun anUnmarked403RemainsAFailure() = runTest {
         github = MockResponse().setResponseCode(403).setBody("""{"message":"API rate limit exceeded"}""")
         val c = checker()
         c.check(manual = true)
         assertEquals(listOf("/api"), hits)
         assertEquals(CheckStatus.Failed, c.state.value.status)
         assertNull(c.state.value.update)
+    }
+
+    @Test
+    fun explicitRateLimitSignalsAreReportedWithoutProbingReleases() = runTest {
+        val responses = listOf(
+            MockResponse().setResponseCode(429),
+            MockResponse().setResponseCode(403).setHeader("X-RateLimit-Remaining", "0"),
+            MockResponse().setResponseCode(403).setHeader("Retry-After", "30"),
+        )
+        for ((i, response) in responses.withIndex()) {
+            hits.clear()
+            github = response
+            val c = checker(path = latestPath, cacheName = "signal-$i.json")
+            c.check(manual = true)
+            assertEquals(CheckStatus.RateLimited, c.state.value.status)
+            assertEquals(1, c.state.value.manualRounds)
+            assertNull(c.state.value.latest)
+            assertEquals(listOf(latestPath), hits)
+        }
+    }
+
+    @Test
+    fun cooldownUsesTheLaterHeaderAndSurvivesRestartWithoutExtraRequests() = runTest {
+        for ((i, times) in listOf(30L to 180L, 180L to 30L).withIndex()) {
+            hits.clear()
+            val (retrySeconds, resetSeconds) = times
+            val deadline = clock + maxOf(retrySeconds, resetSeconds) * 1_000
+            github = MockResponse().setResponseCode(403).setHeader("X-RateLimit-Remaining", "0")
+                .setHeader("Retry-After", retrySeconds)
+                .setHeader("X-RateLimit-Reset", (clock / 1_000) + resetSeconds)
+            val cacheName = "cooldown-$i.json"
+            val c = checker(path = latestPath, cacheName = cacheName)
+            c.check(manual = true)
+            assertEquals(CheckStatus.RateLimited, c.state.value.status)
+
+            github = release("v0.2.0")
+            clock = deadline - 1
+            c.check(manual = true)
+            assertEquals(CheckStatus.RateLimited, c.state.value.status)
+            assertEquals(2, c.state.value.manualRounds)
+            assertFalse(c.autoCheck())
+            assertEquals(2, c.state.value.manualRounds)
+            assertEquals(listOf(latestPath), hits)
+
+            val reopened = checker(path = latestPath, cacheName = cacheName)
+            reopened.load()
+            assertFalse(reopened.autoCheck())
+            assertEquals(CheckStatus.Idle, reopened.state.value.status)
+            assertEquals(0, reopened.state.value.manualRounds)
+            reopened.check(manual = true)
+            assertEquals(CheckStatus.RateLimited, reopened.state.value.status)
+            assertEquals(1, reopened.state.value.manualRounds)
+            assertEquals(listOf(latestPath), hits)
+
+            clock = deadline
+            reopened.check(manual = true)
+            assertEquals(CheckStatus.Done, reopened.state.value.status)
+            assertEquals(2, reopened.state.value.manualRounds)
+            assertEquals("0.2.0", reopened.state.value.update?.version)
+            assertEquals(listOf(latestPath, latestPath), hits)
+        }
+    }
+
+    @Test
+    fun missingOrInvalidRateLimitTimesUseASixtySecondCooldown() = runTest {
+        val responses = listOf(
+            MockResponse().setResponseCode(429),
+            MockResponse().setResponseCode(429).setHeader("Retry-After", "invalid")
+                .setHeader("X-RateLimit-Reset", "invalid"),
+            MockResponse().setResponseCode(403).setHeader("X-RateLimit-Remaining", "0")
+                .setHeader("X-RateLimit-Reset", "1"),
+            MockResponse().setResponseCode(429).setHeader("Retry-After", "-10")
+                .setHeader("X-RateLimit-Reset", "-1"),
+            MockResponse().setResponseCode(429).setHeader("Retry-After", Long.MAX_VALUE)
+                .setHeader("X-RateLimit-Reset", Long.MAX_VALUE),
+        )
+        for ((i, response) in responses.withIndex()) {
+            hits.clear()
+            val start = clock
+            github = response
+            val c = checker(path = latestPath, cacheName = "default-cooldown-$i.json")
+            c.check(manual = true)
+            assertEquals(CheckStatus.RateLimited, c.state.value.status)
+            github = release("v0.2.0")
+            clock = start + 59_999
+            assertFalse(c.autoCheck())
+            c.check(manual = true)
+            assertEquals(CheckStatus.RateLimited, c.state.value.status)
+            assertEquals(listOf(latestPath), hits)
+            clock = start + 60_000
+            assertTrue(c.autoCheck())
+            assertEquals("0.2.0", c.state.value.update?.version)
+            assertEquals(listOf(latestPath, latestPath), hits)
+        }
+    }
+
+    @Test
+    fun aRateLimitedListProbeKeepsItsCooldownAndThePreviouslyKnownUpdate() = runTest {
+        github = release("v0.2.0")
+        val c = checker(path = latestPath)
+        c.check(manual = true)
+        github = MockResponse().setResponseCode(404)
+        releaseList = MockResponse().setResponseCode(403).setHeader("X-RateLimit-Remaining", "0")
+            .setHeader("Retry-After", "180")
+        c.check(manual = true)
+        assertEquals(CheckStatus.RateLimited, c.state.value.status)
+        assertEquals("0.2.0", c.state.value.latest?.version)
+        assertEquals("0.2.0", c.state.value.update?.version)
+        assertEquals(listOf(latestPath, latestPath, listPath), hits)
+
+        val reopened = checker(path = latestPath)
+        reopened.load()
+        assertEquals("0.2.0", reopened.state.value.update?.version)
+        reopened.check(manual = true)
+        assertEquals(CheckStatus.RateLimited, reopened.state.value.status)
+        assertFalse(reopened.autoCheck())
+        assertEquals(listOf(latestPath, latestPath, listPath), hits)
+
+        clock += 180_000
+        github = release("v0.3.0")
+        reopened.check(manual = true)
+        assertEquals(CheckStatus.Done, reopened.state.value.status)
+        assertEquals("0.3.0", reopened.state.value.update?.version)
+        assertEquals(listOf(latestPath, latestPath, listPath, latestPath), hits)
+    }
+
+    @Test
+    fun anAutomaticRateLimitIsSilentAndPreventsRepeatedNetworkCalls() = runTest {
+        github = MockResponse().setResponseCode(429).setHeader("Retry-After", "180")
+        val c = checker(path = latestPath)
+        assertTrue(c.autoCheck())
+        assertEquals(CheckStatus.Idle, c.state.value.status)
+        assertEquals(0, c.state.value.manualRounds)
+        clock += UpdateSchedule.MIN_GAP_MS
+        assertFalse(c.autoCheck())
+        assertEquals(CheckStatus.Idle, c.state.value.status)
+        assertEquals(0, c.state.value.manualRounds)
+        assertEquals(listOf(latestPath), hits)
+    }
+
+    @Test
+    fun anAutomaticSuccessAfterCooldownClearsTheOldManualRateLimitStatus() = runTest {
+        for (emptyChannel in listOf(false, true)) {
+            hits.clear()
+            github = MockResponse().setResponseCode(403).setHeader("Retry-After", "180")
+            val c = checker(path = latestPath, cacheName = "auto-recover-$emptyChannel.json")
+            c.check(manual = true)
+            assertEquals(CheckStatus.RateLimited, c.state.value.status)
+            assertEquals(1, c.state.value.manualRounds)
+
+            github = if (emptyChannel) MockResponse().setResponseCode(404) else release("v0.1.0")
+            releaseList = MockResponse().setBody("[]")
+            clock += 180_000
+            assertTrue(c.autoCheck())
+            assertEquals(if (emptyChannel) CheckStatus.NoRelease else CheckStatus.Done, c.state.value.status)
+            assertEquals(1, c.state.value.manualRounds)
+            assertNull(c.state.value.update)
+            if (emptyChannel) assertNull(c.state.value.latest)
+            else assertEquals("0.1.0", c.state.value.latest?.version)
+            assertEquals(if (emptyChannel) listOf(latestPath, latestPath, listPath)
+                else listOf(latestPath, latestPath), hits)
+        }
+    }
+
+    @Test
+    fun retryAfterHttpDateIsHonoredUntilItsExactDeadline() = runTest {
+        val deadline = clock + 180_000
+        val date = DateTimeFormatter.RFC_1123_DATE_TIME.format(Instant.ofEpochMilli(deadline).atZone(ZoneOffset.UTC))
+        github = MockResponse().setResponseCode(403).setHeader("Retry-After", date)
+        val c = checker(path = latestPath)
+        c.check(manual = true)
+        assertEquals(CheckStatus.RateLimited, c.state.value.status)
+        github = release("v0.1.0")
+        clock = deadline - 1
+        c.check(manual = true)
+        assertEquals(CheckStatus.RateLimited, c.state.value.status)
+        assertEquals(listOf(latestPath), hits)
+        clock = deadline
+        c.check(manual = true)
+        assertEquals(CheckStatus.Done, c.state.value.status)
+        assertEquals(listOf(latestPath, latestPath), hits)
     }
 
     @Test
@@ -211,7 +396,7 @@ class UpdateCheckerTest {
     @Test
     fun otherLatestErrorsDoNotProbeOrPretendThereAreNoReleases() = runTest {
         releaseList = MockResponse().setBody("[]")
-        for ((status, body) in listOf(403 to "[]", 429 to "[]", 500 to "[]", 200 to "{}")) {
+        for ((status, body) in listOf(403 to "[]", 500 to "[]", 200 to "{}")) {
             hits.clear()
             github = MockResponse().setResponseCode(status).setBody(body)
             val c = checker(path = latestPath)

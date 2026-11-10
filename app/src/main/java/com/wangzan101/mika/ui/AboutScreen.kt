@@ -99,6 +99,8 @@ fun AboutScreen(
             waitingRound = -1
             when {
                 update.update != null -> sheet = AboutSheet.Update
+                update.status == CheckStatus.RateLimited ->
+                    Toast.makeText(context, AboutCopy.RATE_LIMITED_TOAST, Toast.LENGTH_SHORT).show()
                 update.status == CheckStatus.Failed ->
                     Toast.makeText(context, AboutCopy.OFFLINE_TOAST, Toast.LENGTH_SHORT).show()
                 update.status == CheckStatus.NoRelease ->

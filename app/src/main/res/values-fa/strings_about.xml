@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_rate_limited">محدودیت GitHub</string>
+    <string name="about_rate_limited_toast">GitHub موقتاً بررسی به‌روزرسانی‌ها را محدود کرده است. بعداً دوباره تلاش کنید.</string>
     <string name="about_no_release">هنوز نسخه‌ای منتشر نشده</string>
     <string name="about_no_release_toast">اتصال به GitHub برقرار شد. هنوز به‌روزرسانی‌ای منتشر نشده است.</string>
     <string name="about_tagline">دستیار شخصی شما در گوشی، برای انجام کارهایتان</string>

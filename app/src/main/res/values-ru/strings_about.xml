@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_rate_limited">Лимит GitHub</string>
+    <string name="about_rate_limited_toast">GitHub временно ограничивает проверки обновлений. Повторите попытку позже.</string>
     <string name="about_no_release">Релизов пока нет</string>
     <string name="about_no_release_toast">Подключение к GitHub установлено. Обновления пока не опубликованы.</string>
     <string name="about_tagline">Ваш личный помощник в телефоне: делает дела за вас</string>

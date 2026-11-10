@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_rate_limited">GitHub の利用制限</string>
+    <string name="about_rate_limited_toast">GitHub が更新確認を一時的に制限しています。しばらくしてからお試しください。</string>
     <string name="about_no_release">リリースなし</string>
     <string name="about_no_release_toast">GitHub に接続しました。公開された更新はまだありません。</string>
     <string name="about_tagline">スマホの中のあなた専用アシスタント。用事をまるごと片付けます</string>

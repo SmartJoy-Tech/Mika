@@ -24,10 +24,12 @@ import okhttp3.OkHttpClient
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import java.io.File
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
-/** 手动检查更新这一次的结果;自动检查不改它(失败时不打扰)。 */
-enum class CheckStatus { Idle, Checking, Done, NoRelease, Failed }
+/** 检查更新的结果；自动检查保持静默，限流解除时会清除旧的限流状态。 */
+enum class CheckStatus { Idle, Checking, Done, NoRelease, RateLimited, Failed }
 
 /**
  * 检查更新的状态。[latest] 是最近一次查到的版本(更新记录用),[update] 是比当前新的那个(有它才有红点)。
@@ -72,6 +74,7 @@ class UpdateChecker(
 
     private val mutex = Mutex()
     private var lastAttempt: Long? = null
+    private var rateLimitUntil: Long? = null
     private var loaded = false
 
     /** 每次打开 App 时调:到期就在后台查一次,失败不吭声。 */
@@ -92,7 +95,9 @@ class UpdateChecker(
     suspend fun autoCheck(): Boolean {
         val due = mutex.withLock {
             loadLocked()
-            UpdateSchedule.due(lastAttempt, now()).also { if (it) lastAttempt = now() }
+            val current = now()
+            (rateLimitUntil?.let { current < it } != true && UpdateSchedule.due(lastAttempt, current))
+                .also { if (it) lastAttempt = current }
         }
         if (due) check(manual = false)
         return due
@@ -102,21 +107,30 @@ class UpdateChecker(
         mutex.withLock {
             loadLocked()
             if (manual) _state.update { it.copy(status = CheckStatus.Checking) }
-            val result = withContext(Dispatchers.IO) { lookupLatest() }
+            val result = rateLimitUntil?.takeIf { now() < it }?.let { ReleaseLookup.RateLimited(it) }
+                ?: withContext(Dispatchers.IO) { lookupLatest() }
+            rateLimitUntil = (result as? ReleaseLookup.RateLimited)?.retryAt
             _state.update { previous ->
                 val refreshed = when (result) {
                     is ReleaseLookup.Found -> previous.withLatest(result.release)
                     ReleaseLookup.Empty -> previous.withLatest(null)
-                    ReleaseLookup.Failed -> previous
+                    is ReleaseLookup.RateLimited, ReleaseLookup.Failed -> previous
                 }
                 if (manual) refreshed.copy(
                     status = when (result) {
                         is ReleaseLookup.Found -> CheckStatus.Done
                         ReleaseLookup.Empty -> CheckStatus.NoRelease
+                        is ReleaseLookup.RateLimited -> CheckStatus.RateLimited
                         ReleaseLookup.Failed -> CheckStatus.Failed
                     },
                     manualRounds = previous.manualRounds + 1,
-                ) else refreshed
+                ) else if (previous.status == CheckStatus.RateLimited) {
+                    when (result) {
+                        is ReleaseLookup.Found -> refreshed.copy(status = CheckStatus.Done)
+                        ReleaseLookup.Empty -> refreshed.copy(status = CheckStatus.NoRelease)
+                        else -> refreshed
+                    }
+                } else refreshed
             }
             save()
         }
@@ -128,20 +142,32 @@ class UpdateChecker(
     private sealed interface ReleaseLookup {
         data class Found(val release: ReleaseInfo) : ReleaseLookup
         data object Empty : ReleaseLookup
+        data class RateLimited(val retryAt: Long) : ReleaseLookup
         data object Failed : ReleaseLookup
     }
 
     private class HttpFailure(val code: Int) : Exception("HTTP $code")
+    private class RateLimit(val retryAt: Long) : Exception("GitHub rate limited")
 
-    private fun lookupLatest(): ReleaseLookup = try {
-        ReleaseLookup.Found(Releases.fromGitHub(get(releaseApi), deviceAbis))
-    } catch (e: Exception) {
-        if (e is HttpFailure && e.code == 404 && confirmsEmptyReleaseChannel()) ReleaseLookup.Empty
-        else ReleaseLookup.Failed
+    private fun lookupLatest(): ReleaseLookup {
+        try {
+            return ReleaseLookup.Found(Releases.fromGitHub(get(releaseApi), deviceAbis))
+        } catch (e: RateLimit) {
+            return ReleaseLookup.RateLimited(e.retryAt)
+        } catch (e: HttpFailure) {
+            if (e.code != 404) return ReleaseLookup.Failed
+        } catch (_: Exception) {
+            return ReleaseLookup.Failed
+        }
+        return try {
+            if (confirmsEmptyReleaseChannel()) ReleaseLookup.Empty else ReleaseLookup.Failed
+        } catch (e: RateLimit) {
+            ReleaseLookup.RateLimited(e.retryAt)
+        }
     }
 
     /** 404 也可能是仓库不可访问；只有同一仓库的发布列表明确返回 200 + [] 才能确认暂无发布。 */
-    private fun confirmsEmptyReleaseChannel(): Boolean = runCatching {
+    private fun confirmsEmptyReleaseChannel(): Boolean = try {
         val latest = releaseApi.toHttpUrl()
         val segments = latest.pathSegments
         require(latest.username.isEmpty() && latest.password.isEmpty() && latest.query == null && latest.fragment == null)
@@ -152,7 +178,23 @@ class UpdateChecker(
         val directClient = client.newBuilder().followRedirects(false).followSslRedirects(false).build()
         val list = Json.parseToJsonElement(get(listUrl.toString(), directClient))
         list is JsonArray && list.isEmpty()
-    }.getOrDefault(false)
+    } catch (e: RateLimit) {
+        throw e
+    } catch (_: Exception) {
+        false
+    }
+
+    /** 尊重 GitHub 的等待时间；缺少或损坏的响应头至少等待一分钟，避免反复请求加重限流。 */
+    private fun rateLimitDeadline(reset: String?, retryAfter: String?): Long {
+        val current = now()
+        val resetAt = reset?.trim()?.toLongOrNull()?.let { runCatching { Math.multiplyExact(it, 1000L) }.getOrNull() }
+        val retryAt = retryAfter?.trim()?.let { value ->
+            value.toLongOrNull()?.let { seconds ->
+                runCatching { Math.addExact(current, Math.multiplyExact(seconds, 1000L)) }.getOrNull()
+            } ?: runCatching { ZonedDateTime.parse(value, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant().toEpochMilli() }.getOrNull()
+        }
+        return listOfNotNull(resetAt, retryAt).filter { it > current }.maxOrNull() ?: current + 60_000L
+    }
 
     private fun get(url: String, requestClient: OkHttpClient = client): String {
         val req = Request.Builder().url(url)
@@ -161,6 +203,10 @@ class UpdateChecker(
             .header("X-GitHub-Api-Version", "2022-11-28")
             .build()
         requestClient.newCall(req).execute().use { resp ->
+            if (resp.code == 429 || (resp.code == 403 &&
+                    (resp.header("X-RateLimit-Remaining")?.trim() == "0" || resp.header("Retry-After") != null))) {
+                throw RateLimit(rateLimitDeadline(resp.header("X-RateLimit-Reset"), resp.header("Retry-After")))
+            }
             if (resp.code != 200) throw HttpFailure(resp.code)
             return resp.body?.string() ?: error("empty body")
         }
@@ -174,6 +220,7 @@ class UpdateChecker(
         loaded = true
         val o = runCatching { Json.parseToJsonElement(file.readText()).jsonObject }.getOrNull() ?: return
         lastAttempt = (o["lastAttempt"] as? JsonPrimitive)?.longOrNull
+        rateLimitUntil = (o["rateLimitUntil"] as? JsonPrimitive)?.longOrNull
         val latest = (o["latest"] as? JsonObject)?.let(Releases::fromJson)
         _state.update { it.withLatest(latest) }
     }
@@ -181,6 +228,7 @@ class UpdateChecker(
     private fun save() {
         val o = buildJsonObject {
             lastAttempt?.let { put("lastAttempt", it) }
+            rateLimitUntil?.let { put("rateLimitUntil", it) }
             _state.value.latest?.let { put("latest", Releases.toJson(it)) }
         }
         runCatching {

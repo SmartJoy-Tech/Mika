@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_rate_limited">حد طلبات GitHub</string>
+    <string name="about_rate_limited_toast">يحد GitHub مؤقتًا من عمليات التحقق من التحديثات. حاول مرة أخرى لاحقًا.</string>
     <string name="about_no_release">لا إصدارات بعد</string>
     <string name="about_no_release_toast">تم الاتصال بـ GitHub. لا توجد تحديثات منشورة بعد.</string>
     <string name="about_tagline">مساعدك الشخصي على هاتفك، ينجز المهام نيابةً عنك</string>

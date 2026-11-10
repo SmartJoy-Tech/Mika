@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_rate_limited">Límite de GitHub</string>
+    <string name="about_rate_limited_toast">GitHub limita temporalmente las comprobaciones. Inténtalo más tarde.</string>
     <string name="about_no_release">Sin versiones</string>
     <string name="about_no_release_toast">Conexión con GitHub establecida. Aún no hay actualizaciones publicadas.</string>
     <string name="about_tagline">Tu asistente personal en el teléfono, que hace las cosas por ti</string>

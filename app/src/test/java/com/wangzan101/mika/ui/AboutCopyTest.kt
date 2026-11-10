@@ -45,4 +45,18 @@ class AboutCopyTest {
         val state = UpdateState(latest = r010, status = CheckStatus.NoRelease, manualRounds = 1)
         assertEquals(AboutCopy.CheckValue(AboutCopy.UP_TO_DATE), AboutCopy.checkValue(state))
     }
+
+    @Test
+    fun rateLimitedIsDistinctFromOfflineWithoutHidingAKnownUpdate() {
+        assertEquals(AboutCopy.CheckValue(AboutCopy.RATE_LIMITED),
+            AboutCopy.checkValue(UpdateState(status = CheckStatus.RateLimited)))
+        assertEquals(AboutCopy.CheckValue(AboutCopy.RATE_LIMITED),
+            AboutCopy.checkValue(UpdateState(latest = r010, status = CheckStatus.RateLimited)))
+        assertNotEquals(AboutCopy.OFFLINE, AboutCopy.RATE_LIMITED)
+        assertNotEquals(AboutCopy.NO_RELEASE, AboutCopy.RATE_LIMITED)
+        assertTrue(AboutCopy.RATE_LIMITED_TOAST.isNotBlank())
+        assertNotEquals(AboutCopy.OFFLINE_TOAST, AboutCopy.RATE_LIMITED_TOAST)
+        assertTrue(AboutCopy.checkValue(UpdateState(latest = r020, update = r020,
+            status = CheckStatus.RateLimited)).dot)
+    }
 }

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="about_rate_limited">Batas GitHub</string>
+    <string name="about_rate_limited_toast">GitHub sementara membatasi pemeriksaan pembaruan. Coba lagi nanti.</string>
     <string name="about_no_release">Belum ada rilis</string>
     <string name="about_no_release_toast">Terhubung ke GitHub. Belum ada pembaruan yang dirilis.</string>
     <string name="about_tagline">Asisten pribadi di ponsel Anda, yang mengerjakan banyak hal untuk Anda</string>
