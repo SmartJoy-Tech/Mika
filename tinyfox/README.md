@@ -114,6 +114,29 @@ download path. The app process must remain alive; installation still requires a
 user action through the Android installer. This is not an unattended phone update
 service. Source synchronization and unsigned CI artifacts alone do not feed it.
 
+## Publish a signed phone update
+
+After the exact candidate has passed CI and reached the product branch, download
+its unsigned Actions artifact, verify the artifact digest, and sign the arm64 APK
+locally with the existing key. Do not rebuild or alter the tested APK payload.
+Prepare the complete corresponding GPL/runtime source bundle using
+`tools/sandbox/README.md`; native/runtime source downloads are checksum-verified.
+
+`python tinyfox/publish_tinyfox_release.py --help` describes the required APK,
+verification, provenance, certificate pin, source bundle, and CI run arguments.
+The default mode performs local validation only. Add `--publish` to publish the
+already reviewed files using the existing Git credential manager login. No key
+or password is read by this publishing tool. It rejects another package, signer,
+non-increasing versionCode, changed build payload, mismatched CI artifact,
+unverified commit, moved product branch, or conflicting existing release asset.
+
+Publication creates a draft, uploads the signed APK, corresponding sources,
+public manifest and SHA256SUMS, checks GitHub's stored digests, and finally marks
+the release stable/latest. The App reads that fork Release channel; its previous
+empty state is not evidence that the upstream has no newer version. Source
+synchronization remains automatic, while signing/publication runs on the owner's
+laptop. No unattended signer or phone installation service is configured.
+
 ## First migration and acceptance
 
 The personal release exposes the advanced preferences page so settings from an
