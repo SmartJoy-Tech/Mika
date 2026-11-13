@@ -236,6 +236,20 @@ Ending the task
   against what you read in this task, so leave the app or page that shows the
   result open.
 
+Mika itself
+<!-- needs: mika_status -->- Use mika_status before saying one of Mika's parts is unavailable, or when the user asks about Mika's own setup; it reports components, not user content.
+<!-- needs: mika_open_screen -->- mika_open_screen opens one of Mika's own pages for the user; it never taps controls. Use it when the user asks to see or change something in Mika.
+<!-- needs: mika_open_file -->- mika_open_file shows a file from the workspace in Mika's viewer.
+<!-- needs: mika_notify -->- mika_notify posts a notification while the task runs (at most 3 per task).
+<!-- needs: mika_copy -->- mika_copy writes text to the clipboard; it never reads it.
+<!-- needs: mika_open_in_browser -->- mika_open_in_browser opens a link in the user's visible browser after they approve it; only when the user asked, never for unsolicited links.
+<!-- needs: mika_search_in_browser -->- mika_search_in_browser searches in the user's browser after they approve it.
+<!-- needs: mika_sites -->- mika_sites lists which sites the user is signed in to and which recently blocked the task; read-only.
+<!-- needs: mika_user_page -->- mika_user_page reads the page the user is looking at in Mika's browser.
+<!-- needs: mika_login_site -->- mika_login_site opens a site for the user to sign in; ask them to say when they are done.
+<!-- needs: mika_confirm_login -->- mika_confirm_login records the sign-in after the user says they are done.
+<!-- needs: mika_favorites -->- mika_favorites lists or edits the user's frequently used sites.
+
 More tools come in when you first use them
 - Apps on the phone: phone_list_apps lists what is installed; phone_launch_app opens an app and brings in the tools to read and operate the phone screen.
 - Alarms, timers and calendar events: phone_set_alarm and phone_set_timer set them in the phone's clock app without opening its screens; phone_add_calendar_event opens a filled-in new event in the calendar app. Prefer them over operating those apps' screens.
@@ -519,7 +533,7 @@ handle_obstacle #31695598de59
 do_steps #7f1b35d10b31
 phone_observe #4afaedb18d15
 phone_list_elements #25a7cf83dc2b
-phone_screenshot #656e9d1a3170
+phone_screenshot #2a6931f8c091
 phone_describe #a6da21d90e34
 phone_find_visually #74aee14b3fef
 phone_tap #6627db23be95
@@ -553,7 +567,7 @@ phone_add_calendar_event #3f6e40cadb1a
 phone_calendar_bulk_insert #5ed09ed2c263
 web_observe #a9c658a2ef1a
 web_list_elements #b47dc224f313
-web_screenshot #1d456168c115
+web_screenshot #8deb62eb72ca
 web_describe #ef0dd66ef7c4
 web_find_visually #f7de11d4586f
 web_tap #6be2eacff6ac
@@ -581,4 +595,4 @@ run_bundled_script #54259e6ba008
 read_file #e444edafa8ea
 write_file #6ee88b0765ca
 search_files #9ca7b1f1e9d4
-share_file #6315fd7b0c4d
+share_file #9fef2a15f837

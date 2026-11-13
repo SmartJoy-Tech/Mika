@@ -14,6 +14,10 @@
     <string name="chat_example_replace_body">Рекомендуемая задача заменит уже введённый текст.</string>
     <string name="chat_example_replace_action">Заменить черновик</string>
     <string name="recommendations_title">Рекомендуемые задачи</string>
+    <string name="recommendations_drag">Перетащите для изменения порядка</string>
+    <string name="recommendations_drag_hint">Перетащите значок, чтобы изменить порядок отображения.</string>
+    <string name="recommendations_move_up">Переместить вверх</string>
+    <string name="recommendations_move_down">Переместить вниз</string>
     <string name="recommendations_sub">Управляйте задачами и подсказками на главном экране</string>
     <string name="recommendations_add">Добавить задачу</string>
     <string name="recommendations_edit">Изменить задачу</string>
@@ -56,6 +60,7 @@
     <string name="chat_missing">Не хватает: %1$s</string>
     <string name="chat_go_settings">Открыть настройки</string>
     <string name="chat_menu">Меню</string>
+    <string name="drawer_personal">Личный помощник</string>
     <string name="chat_new">Новый чат</string>
     <string name="chat_expand_steps">Показать шаги</string>
     <string name="chat_collapse_steps">Скрыть шаги</string>
@@ -95,11 +100,71 @@
         <item quantity="many">В этом чате будут сохранены %1$d задач по расписанию.</item>
         <item quantity="other">В этом чате будет сохранена %1$d задача по расписанию.</item>
     </plurals>
+    <string name="drawer_select">Выбрать</string>
+    <string name="drawer_selected_count">Выбрано: %1$d</string>
+    <string name="drawer_select_all">Выбрать все</string>
+    <string name="drawer_select_none">Снять выбор</string>
+    <string name="drawer_delete_many_title">Удалить выбранные чаты?</string>
+    <plurals name="drawer_delete_many_body">
+        <item quantity="one">Будет удалён %1$d чат и файлы в нём.</item>
+        <item quantity="few">Будут удалены %1$d чата и файлы в них.</item>
+        <item quantity="many">Будет удалено %1$d чатов и файлы в них.</item>
+        <item quantity="other">Будет удалено %1$d чата и файлы в них.</item>
+    </plurals>
+    <plurals name="drawer_delete_many_running">
+        <item quantity="one">Будет остановлена %1$d выполняемая задача.</item>
+        <item quantity="few">Будут остановлены %1$d выполняемые задачи.</item>
+        <item quantity="many">Будет остановлено %1$d выполняемых задач.</item>
+        <item quantity="other">Будет остановлено %1$d выполняемой задачи.</item>
+    </plurals>
+    <plurals name="drawer_delete_many_schedules">
+        <item quantity="one">Будет сохранена %1$d задача по расписанию в них.</item>
+        <item quantity="few">Будут сохранены %1$d задачи по расписанию в них.</item>
+        <item quantity="many">Будет сохранено %1$d задач по расписанию в них.</item>
+        <item quantity="other">Будет сохранено %1$d задачи по расписанию в них.</item>
+    </plurals>
+    <plurals name="drawer_delete_progress">
+        <item quantity="one">Удаление %1$d чата…</item>
+        <item quantity="few">Удаление %1$d чатов…</item>
+        <item quantity="many">Удаление %1$d чатов…</item>
+        <item quantity="other">Удаление %1$d чата…</item>
+    </plurals>
+    <plurals name="drawer_delete_done">
+        <item quantity="one">Удалён %1$d чат.</item>
+        <item quantity="few">Удалено %1$d чата.</item>
+        <item quantity="many">Удалено %1$d чатов.</item>
+        <item quantity="other">Удалено %1$d чата.</item>
+    </plurals>
+    <plurals name="drawer_delete_partial">
+        <item quantity="one">Удалён %1$d чат, %2$d не удалось.</item>
+        <item quantity="few">Удалено %1$d чата, %2$d не удалось.</item>
+        <item quantity="many">Удалено %1$d чатов, %2$d не удалось.</item>
+        <item quantity="other">Удалено %1$d чата, %2$d не удалось.</item>
+    </plurals>
     <string name="drawer_actions">Действия с чатом</string>
     <string name="drawer_rename">Переименовать</string>
     <string name="drawer_rename_title">Переименовать чат</string>
     <string name="drawer_pinned">Закреплённые</string>
     <string name="drawer_pinned_mark">Закреплён</string>
+    <string name="drawer_archive">В архив</string>
+    <string name="drawer_unarchive">Убрать из архива</string>
+    <string name="drawer_archived">В архиве</string>
+    <string name="drawer_archived_count">%1$d в архиве</string>
+    <string name="drawer_archive_empty">Нет архивированных чатов</string>
+    <string name="drawer_archive_done">Чат «%1$s» добавлен в архив</string>
+    <string name="drawer_archive_this_week">На этой неделе</string>
+    <string name="drawer_archive_this_month">В этом месяце</string>
+    <string name="drawer_archive_earlier">Раньше</string>
+    <string name="drawer_archived_today">Архивировано сегодня</string>
+    <plurals name="drawer_archived_days_ago">
+        <item quantity="one">Архивировано %1$d день назад</item>
+        <item quantity="few">Архивировано %1$d дня назад</item>
+        <item quantity="many">Архивировано %1$d дней назад</item>
+        <item quantity="other">Архивировано %1$d дня назад</item>
+    </plurals>
+    <string name="drawer_search_filter_all">Все</string>
+    <string name="drawer_search_filter_active">Без архива</string>
+    <string name="drawer_search_filter_archived">В архиве</string>
     <string name="drawer_search_hint">Поиск чатов</string>
     <string name="drawer_search_results">Результаты поиска</string>
     <string name="drawer_search_empty">Нет чатов, совпадающих с «%1$s»</string>
@@ -127,6 +192,10 @@
     <string name="step_viewed">Просмотрено: %1$s</string>
     <string name="step_viewed_part">Просмотрено: %2$s в «%1$s»</string>
     <string name="step_failed">Не удалось</string>
+    <string name="step_declined_not_said">Не записано: это не ваши слова</string>
+    <string name="step_declined_sensitive">Не записано: конфиденциальные данные</string>
+    <string name="step_declined_not_asked">Без изменений: вы об этом не просили</string>
+    <string name="step_declined_not_requested">Не записано: в этом сообщении не было просьбы запомнить</string>
     <string name="step_number">Шаг %1$d</string>
     <string name="source_label">Источник</string>
     <plurals name="screenshots">
@@ -137,6 +206,7 @@
     </plurals>
     <string name="attach_add">Добавить вложение</string>
     <string name="attach_close">Закрыть панель вложений</string>
+    <string name="attach_blocked_running">Пока выполняется задача, вложения добавить нельзя — сначала переключитесь в режим очереди</string>
     <string name="attach_camera">Камера</string>
     <string name="attach_album">Фото</string>
     <string name="attach_files">Файлы</string>
@@ -191,6 +261,10 @@
     <string name="chat_branch_retry">Спросить заново отсюда</string>
     <string name="chat_branch_attachments_readd">Добавьте нужные вложения заново</string>
     <string name="chat_attach_unavailable">Не удалось добавить: %1$s. Убедитесь, что файлы доступны и не превышают ограничение размера.</string>
+    <string name="chat_attach_too_large">%1$s: размер превышает ограничение в 200 MiB</string>
+    <string name="chat_attach_low_device_space">%1$s: недостаточно места на телефоне; освободите место и повторите попытку</string>
+    <string name="chat_attach_workspace_limit">%1$s: достигнут предел хранилища рабочего пространства; удалите файлы из рабочего пространства и повторите попытку</string>
+    <string name="chat_attach_io_error">%1$s: не удалось прочитать или скопировать файл; убедитесь, что он доступен, и повторите попытку</string>
     <string name="chat_retry_missing">%1$s: файл не найден</string>
     <string name="chat_retry_limit">%1$s: превышен лимит копирования</string>
     <string name="chat_retry_failed">%1$s: не удалось скопировать</string>
@@ -202,6 +276,8 @@
     <string name="chat_withdraw_message">Отозвать сообщение</string>
     <string name="pip_close">Закрыть маленькое окно для этой задачи</string>
     <string name="pip_unmute">Вернуть звук</string>
+    <string name="pip_mute">Выключить звук</string>
+    <string name="pip_back">Назад на виртуальном экране</string>
     <string name="pip_reopen">Показать экран</string>
     <string name="pip_closed_needs_you">Нужны вы</string>
     <string name="pip_closed_hint">Закрыто для этой задачи. Нажмите «Показать экран» справа внизу или откройте «Фоновые экраны» в боковом меню.</string>
@@ -222,4 +298,16 @@
     <string name="chat_placeholder_queue">Напишите следующую задачу…</string>
     <string name="voice_placeholder_queue">Продиктуйте следующую задачу…</string>
     <string name="steer_received_paused">Принято — будет учтено после продолжения задачи</string>
+    <plurals name="drawer_archive_many_done">
+        <item quantity="one">%1$d чат архивирован</item>
+        <item quantity="few">%1$d чата архивированы</item>
+        <item quantity="many">%1$d чатов архивировано</item>
+        <item quantity="other">%1$d чата архивированы</item>
+    </plurals>
+    <plurals name="drawer_archive_many_skipped">
+        <item quantity="one">%1$d не архивирован</item>
+        <item quantity="few">%1$d не архивированы</item>
+        <item quantity="many">%1$d не архивировано</item>
+        <item quantity="other">%1$d не архивированы</item>
+    </plurals>
 </resources>

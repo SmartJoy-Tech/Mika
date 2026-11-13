@@ -21,13 +21,21 @@ sealed interface Delivery {
         override val id: String, override val threadId: String, val text: String,
         val restored: Boolean = false, val title: String = "Mika 任务结果",
     ) : Delivery
+    /** A file explicitly exported by this task; hosts resolve the opaque URI, never a model-supplied path. */
+    data class Image(
+        override val id: String, override val threadId: String,
+        val uri: String, val name: String, val size: Long, val sha256: String? = null,
+    ) : Delivery
     data class Progress(override val id: String, override val threadId: String, val text: String) : Delivery
     data class Notice(override val id: String, override val threadId: String, val text: String) : Delivery
 }
 
 sealed interface ChannelInput {
     val peer: ChannelPeer
-    data class Text(override val peer: ChannelPeer, val messageId: String, val text: String, val replyToAskId: String? = null) : ChannelInput
+    data class Text(
+        override val peer: ChannelPeer, val messageId: String, val text: String, val replyToAskId: String? = null,
+        val requireMatchingAsk: Boolean = false,
+    ) : ChannelInput
     data class Confirm(override val peer: ChannelPeer, val askId: String, val choice: ConfirmChoice) : ChannelInput
     data class Stop(override val peer: ChannelPeer, val runId: RunId) : ChannelInput
 }
@@ -39,6 +47,7 @@ enum class SendOutcome { Delivered, Failed, Uncertain }
 /** 渠道负责收发，不决定谁是主人、谁能批准。 */
 interface Channel {
     val id: String
+    val supportsImages: Boolean get() = false
     /** 能在这个渠道里回答付款确认(只有付款要问,只在手机上同意)。 */
     val confirms: Boolean
     fun isAlive(peer: ChannelPeer): Boolean = true

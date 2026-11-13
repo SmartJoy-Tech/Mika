@@ -14,6 +14,10 @@
     <string name="chat_example_replace_body">Tugas yang direkomendasikan akan mengganti teks yang sudah Anda ketik.</string>
     <string name="chat_example_replace_action">Ganti draf</string>
     <string name="recommendations_title">Tugas rekomendasi</string>
+    <string name="recommendations_drag">Seret untuk mengubah urutan</string>
+    <string name="recommendations_drag_hint">Seret pegangan untuk mengubah urutan tampilan.</string>
+    <string name="recommendations_move_up">Pindahkan ke atas</string>
+    <string name="recommendations_move_down">Pindahkan ke bawah</string>
     <string name="recommendations_sub">Kelola tugas dan prompt yang tampil di beranda</string>
     <string name="recommendations_add">Tambah tugas rekomendasi</string>
     <string name="recommendations_edit">Edit tugas rekomendasi</string>
@@ -53,6 +57,7 @@
     <string name="chat_missing">Kurang: %1$s</string>
     <string name="chat_go_settings">Buka Pengaturan</string>
     <string name="chat_menu">Menu</string>
+    <string name="drawer_personal">Asisten pribadi</string>
     <string name="chat_new">Obrolan baru</string>
     <string name="chat_expand_steps">Tampilkan langkah</string>
     <string name="chat_collapse_steps">Sembunyikan langkah</string>
@@ -89,11 +94,50 @@
     <plurals name="drawer_delete_schedules">
         <item quantity="other">%1$d tugas terjadwal di obrolan ini akan dipertahankan.</item>
     </plurals>
+    <string name="drawer_select">Pilih</string>
+    <string name="drawer_selected_count">%1$d dipilih</string>
+    <string name="drawer_select_all">Pilih semua</string>
+    <string name="drawer_select_none">Hapus pilihan</string>
+    <string name="drawer_delete_many_title">Hapus obrolan yang dipilih?</string>
+    <plurals name="drawer_delete_many_body">
+        <item quantity="other">%1$d obrolan yang dipilih dan berkas di dalamnya akan dihapus.</item>
+    </plurals>
+    <plurals name="drawer_delete_many_running">
+        <item quantity="other">%1$d tugas yang sedang berjalan akan dihentikan.</item>
+    </plurals>
+    <plurals name="drawer_delete_many_schedules">
+        <item quantity="other">%1$d tugas terjadwal di dalamnya akan dipertahankan.</item>
+    </plurals>
+    <plurals name="drawer_delete_progress">
+        <item quantity="other">Menghapus %1$d obrolan…</item>
+    </plurals>
+    <plurals name="drawer_delete_done">
+        <item quantity="other">%1$d obrolan dihapus.</item>
+    </plurals>
+    <plurals name="drawer_delete_partial">
+        <item quantity="other">%1$d obrolan dihapus, %2$d gagal.</item>
+    </plurals>
     <string name="drawer_actions">Opsi obrolan</string>
     <string name="drawer_rename">Ganti nama</string>
     <string name="drawer_rename_title">Ganti nama obrolan</string>
     <string name="drawer_pinned">Disematkan</string>
     <string name="drawer_pinned_mark">Disematkan</string>
+    <string name="drawer_archive">Arsipkan</string>
+    <string name="drawer_unarchive">Batalkan arsip</string>
+    <string name="drawer_archived">Diarsipkan</string>
+    <string name="drawer_archived_count">%1$d diarsipkan</string>
+    <string name="drawer_archive_empty">Belum ada obrolan yang diarsipkan</string>
+    <string name="drawer_archive_done">“%1$s” diarsipkan</string>
+    <string name="drawer_archive_this_week">Minggu ini</string>
+    <string name="drawer_archive_this_month">Bulan ini</string>
+    <string name="drawer_archive_earlier">Lebih lama</string>
+    <string name="drawer_archived_today">Diarsipkan hari ini</string>
+    <plurals name="drawer_archived_days_ago">
+        <item quantity="other">Diarsipkan %1$d hari lalu</item>
+    </plurals>
+    <string name="drawer_search_filter_all">Semua</string>
+    <string name="drawer_search_filter_active">Aktif</string>
+    <string name="drawer_search_filter_archived">Diarsipkan</string>
     <string name="drawer_search_hint">Cari chat</string>
     <string name="drawer_search_results">Hasil pencarian</string>
     <string name="drawer_search_empty">Tidak ada chat yang cocok dengan “%1$s”</string>
@@ -118,6 +162,10 @@
     <string name="step_viewed">Melihat %1$s</string>
     <string name="step_viewed_part">Melihat %2$s di %1$s</string>
     <string name="step_failed">Gagal</string>
+    <string name="step_declined_not_said">Tidak ditulis: bukan kata-kata Anda sendiri</string>
+    <string name="step_declined_sensitive">Tidak ditulis: informasi sensitif</string>
+    <string name="step_declined_not_asked">Tidak diubah: Anda tidak memintanya</string>
+    <string name="step_declined_not_requested">Tidak ditulis: pesan ini tidak meminta untuk mengingat</string>
     <string name="step_number">Langkah %1$d</string>
     <string name="source_label">Sumber</string>
     <plurals name="screenshots">
@@ -125,6 +173,7 @@
     </plurals>
     <string name="attach_add">Tambah lampiran</string>
     <string name="attach_close">Tutup panel lampiran</string>
+    <string name="attach_blocked_running">Tidak bisa menambah lampiran saat tugas berjalan — pindah ke mode antre dulu</string>
     <string name="attach_camera">Kamera</string>
     <string name="attach_album">Foto</string>
     <string name="attach_files">Berkas</string>
@@ -176,6 +225,10 @@
     <string name="chat_branch_retry">Tanya ulang dari sini</string>
     <string name="chat_branch_attachments_readd">Tambahkan ulang lampiran yang ingin disertakan</string>
     <string name="chat_attach_unavailable">Tidak dapat menambahkan: %1$s. Pastikan berkas tersedia dan tidak melebihi batas ukuran.</string>
+    <string name="chat_attach_too_large">%1$s: melebihi batas 200 MiB</string>
+    <string name="chat_attach_low_device_space">%1$s: ruang penyimpanan ponsel tidak cukup; kosongkan ruang lalu coba lagi</string>
+    <string name="chat_attach_workspace_limit">%1$s: penyimpanan ruang kerja mencapai batas; hapus berkas di ruang kerja lalu coba lagi</string>
+    <string name="chat_attach_io_error">%1$s: tidak dapat membaca atau menyalin berkas; pastikan berkas tersedia lalu coba lagi</string>
     <string name="chat_retry_missing">%1$s: berkas tidak ditemukan</string>
     <string name="chat_retry_limit">%1$s: batas penyalinan terlampaui</string>
     <string name="chat_retry_failed">%1$s: tidak dapat disalin</string>
@@ -187,6 +240,8 @@
     <string name="chat_withdraw_message">Tarik pesan</string>
     <string name="pip_close">Tutup tampilan kecil untuk tugas ini</string>
     <string name="pip_unmute">Kembalikan suara</string>
+    <string name="pip_mute">Matikan suara</string>
+    <string name="pip_back">Kembali di layar virtual</string>
     <string name="pip_reopen">Tampilkan layar</string>
     <string name="pip_closed_needs_you">Perlu Anda</string>
     <string name="pip_closed_hint">Ditutup untuk tugas ini. Ketuk “Tampilkan layar” di kanan bawah, atau buka “Layar latar belakang” di menu samping.</string>
@@ -207,4 +262,10 @@
     <string name="chat_placeholder_queue">Tulis tugas berikutnya…</string>
     <string name="voice_placeholder_queue">Ucapkan tugas berikutnya…</string>
     <string name="steer_received_paused">Dimengerti — akan dipakai saat tugas dilanjutkan</string>
+    <plurals name="drawer_archive_many_done">
+        <item quantity="other">%1$d chat diarsipkan</item>
+    </plurals>
+    <plurals name="drawer_archive_many_skipped">
+        <item quantity="other">%1$d tidak diarsipkan</item>
+    </plurals>
 </resources>

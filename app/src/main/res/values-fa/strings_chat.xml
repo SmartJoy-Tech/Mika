@@ -32,6 +32,7 @@
     <string name="chat_missing">موارد لازم: %1$s</string>
     <string name="chat_go_settings">باز کردن تنظیمات</string>
     <string name="chat_menu">منو</string>
+    <string name="drawer_personal">دستیار شخصی</string>
     <string name="chat_new">گفتگوی جدید</string>
     <string name="chat_expand_steps">نمایش مراحل</string>
     <string name="chat_collapse_steps">پنهان کردن مراحل</string>
@@ -69,11 +70,57 @@
         <item quantity="one">%1$d کار زمان‌بندی‌شده در این گفتگو حفظ می‌شود.</item>
         <item quantity="other">%1$d کار زمان‌بندی‌شده در این گفتگو حفظ می‌شود.</item>
     </plurals>
+    <string name="drawer_select">انتخاب</string>
+    <string name="drawer_selected_count">%1$d مورد انتخاب شده</string>
+    <string name="drawer_select_all">انتخاب همه</string>
+    <string name="drawer_select_none">لغو انتخاب</string>
+    <string name="drawer_delete_many_title">گفتگوهای انتخاب‌شده حذف شوند؟</string>
+    <plurals name="drawer_delete_many_body">
+        <item quantity="one">%1$d گفتگوی انتخاب‌شده و فایل‌های داخل آن حذف می‌شود.</item>
+        <item quantity="other">%1$d گفتگوی انتخاب‌شده و فایل‌های داخلشان حذف می‌شوند.</item>
+    </plurals>
+    <plurals name="drawer_delete_many_running">
+        <item quantity="one">%1$d کار در حال اجرا متوقف می‌شود.</item>
+        <item quantity="other">%1$d کار در حال اجرا متوقف می‌شوند.</item>
+    </plurals>
+    <plurals name="drawer_delete_many_schedules">
+        <item quantity="one">%1$d کار زمان‌بندی‌شده در آن‌ها حفظ می‌شود.</item>
+        <item quantity="other">%1$d کار زمان‌بندی‌شده در آن‌ها حفظ می‌شود.</item>
+    </plurals>
+    <plurals name="drawer_delete_progress">
+        <item quantity="one">در حال حذف %1$d گفتگو…</item>
+        <item quantity="other">در حال حذف %1$d گفتگو…</item>
+    </plurals>
+    <plurals name="drawer_delete_done">
+        <item quantity="one">%1$d گفتگو حذف شد.</item>
+        <item quantity="other">%1$d گفتگو حذف شد.</item>
+    </plurals>
+    <plurals name="drawer_delete_partial">
+        <item quantity="one">%1$d گفتگو حذف شد، %2$d ناموفق بود.</item>
+        <item quantity="other">%1$d گفتگو حذف شد، %2$d ناموفق بود.</item>
+    </plurals>
     <string name="drawer_actions">گزینه‌های گفتگو</string>
     <string name="drawer_rename">تغییر نام</string>
     <string name="drawer_rename_title">تغییر نام گفتگو</string>
     <string name="drawer_pinned">سنجاق‌شده</string>
     <string name="drawer_pinned_mark">سنجاق‌شده</string>
+    <string name="drawer_archive">بایگانی</string>
+    <string name="drawer_unarchive">خارج کردن از بایگانی</string>
+    <string name="drawer_archived">بایگانی‌شده</string>
+    <string name="drawer_archived_count">%1$d بایگانی‌شده</string>
+    <string name="drawer_archive_empty">هیچ گفتگویی بایگانی نشده است</string>
+    <string name="drawer_archive_done">«%1$s» بایگانی شد</string>
+    <string name="drawer_archive_this_week">این هفته</string>
+    <string name="drawer_archive_this_month">این ماه</string>
+    <string name="drawer_archive_earlier">قدیمی‌تر</string>
+    <string name="drawer_archived_today">امروز بایگانی شد</string>
+    <plurals name="drawer_archived_days_ago">
+        <item quantity="one">%1$d روز پیش بایگانی شد</item>
+        <item quantity="other">%1$d روز پیش بایگانی شد</item>
+    </plurals>
+    <string name="drawer_search_filter_all">همه</string>
+    <string name="drawer_search_filter_active">بایگانی‌نشده</string>
+    <string name="drawer_search_filter_archived">بایگانی‌شده</string>
     <string name="settings_title">تنظیمات</string>
     <string name="chat_unconfirmed">تأیید ممکن نشد: %1$s</string>
     <string name="chat_unverified">انجام شد، اما تأیید نتیجه ممکن نشد</string>
@@ -92,6 +139,10 @@
     <string name="step_viewed">%1$s مشاهده شد</string>
     <string name="step_viewed_part">%2$s در %1$s مشاهده شد</string>
     <string name="step_failed">ناموفق بود</string>
+    <string name="step_declined_not_said">نوشته نشد: گفتهٔ خود شما نیست</string>
+    <string name="step_declined_sensitive">نوشته نشد: اطلاعات حساس</string>
+    <string name="step_declined_not_asked">تغییری نکرد: شما نخواسته بودید</string>
+    <string name="step_declined_not_requested">نوشته نشد: در این پیام خواسته نشده بود به خاطر سپرده شود</string>
     <string name="step_number">مرحلهٔ %1$d</string>
     <string name="source_label">منبع</string>
     <plurals name="screenshots">
@@ -100,6 +151,7 @@
     </plurals>
     <string name="attach_add">افزودن پیوست</string>
     <string name="attach_close">بستن بخش پیوست‌ها</string>
+    <string name="attach_blocked_running">هنگام اجرای کار نمی‌توان پیوست اضافه کرد — ابتدا به حالت صف بروید</string>
     <string name="attach_camera">دوربین</string>
     <string name="attach_album">عکس‌ها</string>
     <string name="attach_files">فایل‌ها</string>
@@ -159,6 +211,8 @@
     <string name="chat_withdraw_message">پس گرفتن پیام</string>
     <string name="pip_close">بستن نمای کوچک این کار</string>
     <string name="pip_unmute">روشن کردن دوبارهٔ صدا</string>
+    <string name="pip_mute">قطع صدا</string>
+    <string name="pip_back">بازگشت در صفحهٔ مجازی</string>
     <string name="pip_reopen">نمایش صفحه</string>
     <string name="pip_closed_needs_you">به توجه شما نیاز دارد</string>
     <string name="pip_closed_hint">نمای این کار بسته شد. روی «نمایش صفحه» در پایین سمت راست بزنید، یا «صفحه‌های پس‌زمینه» را در منوی کناری باز کنید.</string>
@@ -202,6 +256,10 @@
     <string name="recommendations_save_failed">ذخیره ممکن نشد. دوباره تلاش کنید.</string>
     <string name="recommendations_sub">مدیریت کارها و متن‌های صفحهٔ اصلی</string>
     <string name="recommendations_title">کارهای پیشنهادی</string>
+    <string name="recommendations_drag">برای تغییر ترتیب بکشید</string>
+    <string name="recommendations_drag_hint">دستگیره را بکشید تا ترتیب نمایش تغییر کند.</string>
+    <string name="recommendations_move_up">انتقال به بالا</string>
+    <string name="recommendations_move_down">انتقال به پایین</string>
     <string name="recommendations_title_label">عنوان</string>
     <string name="recommendations_title_required">عنوانی وارد کنید</string>
     <string name="recommendations_too_long">عنوان یا متن بیش از حد طولانی است</string>
@@ -209,7 +267,19 @@
     <string name="recommendations_unreadable">کارهای پیشنهادی ذخیره‌شده خوانده نشدند، بنابراین فعلاً قابل تغییر نیستند.</string>
     <string name="share_draft_replace_body">این محتوای به‌اشتراک‌گذاشته‌شده جایگزین پیش‌نویس فعلی شما می‌شود.</string>
     <string name="chat_attach_unavailable">افزودن ممکن نشد: %1$s. بررسی کنید فایل‌ها در دسترس و در محدودهٔ حجم باشند.</string>
+    <string name="chat_attach_too_large">%1$s: از محدودیت 200 MiB بیشتر است</string>
+    <string name="chat_attach_low_device_space">%1$s: فضای ذخیره‌سازی گوشی کافی نیست؛ فضا را آزاد کنید و دوباره تلاش کنید</string>
+    <string name="chat_attach_workspace_limit">%1$s: فضای ذخیره‌سازی محیط کار به سقف رسیده است؛ فایل‌های محیط کار را پاک کنید و دوباره تلاش کنید</string>
+    <string name="chat_attach_io_error">%1$s: خواندن یا کپی کردن ممکن نیست؛ بررسی کنید فایل در دسترس باشد و دوباره تلاش کنید</string>
     <string name="chat_retry_missing">%1$s: فایل موجود نیست</string>
     <string name="chat_retry_limit">%1$s: به سقف کپی رسید</string>
     <string name="chat_retry_failed">%1$s: کپی ممکن نشد</string>
+    <plurals name="drawer_archive_many_done">
+        <item quantity="one">%1$d گفتگو بایگانی شد</item>
+        <item quantity="other">%1$d گفتگو بایگانی شد</item>
+    </plurals>
+    <plurals name="drawer_archive_many_skipped">
+        <item quantity="one">%1$d بایگانی نشد</item>
+        <item quantity="other">%1$d بایگانی نشد</item>
+    </plurals>
 </resources>

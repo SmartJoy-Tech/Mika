@@ -33,7 +33,7 @@
     <string name="plans_repeat_interval">間隔</string>
     <string name="plans_repeat_weekly">每週</string>
     <string name="plans_interval_minutes">每隔多少分鐘重複</string>
-    <string name="plans_clock">當地時間：HH:mm</string>
+    <string name="plans_clock">當地時刻（逗號分隔）</string>
     <string name="plans_zone">時區 ID</string>
     <string name="plans_condition_optional">執行條件（可選）</string>
     <string name="plans_notify_change">條件剛滿足時</string>
@@ -47,7 +47,7 @@
     <string name="plans_error_reminder_condition">固定提醒不能同時設定執行條件</string>
     <string name="plans_error_time">請輸入有效的日期和時間</string>
     <string name="plans_error_interval">重複間隔須在 1 到 525,600 分鐘之間</string>
-    <string name="plans_error_clock">請按 HH:mm 格式輸入有效時間</string>
+    <string name="plans_error_clock">請按 HH:mm 輸入時刻，多個時刻用逗號分隔</string>
     <string name="plans_error_zone">請輸入有效的時區 ID</string>
     <string name="plans_error_weekdays">請至少選擇一個星期幾</string>
     <string name="plans_error_cooldown">執行間隔須在 1 到 525,600 分鐘之間</string>
@@ -65,6 +65,9 @@
     <string name="plans_condition">滿足條件才執行：%1$s · %2$s</string>
     <string name="plans_last">上次 %1$s · %2$s</string>
     <string name="plans_never_run">還沒執行過</string>
+    <string name="plans_source_user">手動</string>
+    <string name="plans_source_model">模型</string>
+    <string name="plans_source_external">指令碼</string>
     <string name="plans_delivered">已送達</string>
     <string name="plans_unchanged">條件未變化</string>
     <string name="plans_not_met">條件未滿足</string>
@@ -74,4 +77,5 @@
     <string name="plans_running_now">執行中</string>
     <string name="trigger_deleted">定時任務已刪除</string>
     <string name="trigger_busy">這條任務仍在執行</string>
+    <string name="plans_run_history">執行記錄</string>
 </resources>

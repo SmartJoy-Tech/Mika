@@ -11,9 +11,15 @@ import kotlin.coroutines.CoroutineContext
 /** 删掉一个对话会连带什么:有没有在跑或排队的任务(会被停掉),绑在它上面的定时任务有几条(会保留)。 */
 data class DeleteImpact(val runningTask: Boolean, val schedules: Int)
 
+/** 一次批量删除的进度:一共 [total] 条,已经处理 [done] 条,其中 [failed] 条没删成。 */
+data class DeleteBatch(val total: Int, val done: Int, val failed: Int) {
+    /** 全部处理完了(不论成没成)。 */
+    val finished: Boolean get() = done >= total
+}
+
 /**
  * 删掉一个对话:停掉它在跑、排队的任务并等它收尾(收尾时存进的那一轮也在删的范围里),
- * 然后删它的工作区(附件、用户发来的屏幕、任务写的文件)和对话记录。
+ * 然后删对话记录，再清理它的工作区(附件、用户发来的屏幕、任务写的文件)。
  * 定时任务有自己的管理页,不随历史对话删除;下次触发会在原对话编号下重新留下结果。
  * 运行记录(运行统计用)是全局的,不删。
  */
@@ -41,11 +47,11 @@ class ConversationDeleter(
             cancelTasks(conversationId)
             withTimeoutOrNull(stopWaitMs) { active.first { conversationId !in it } }
         }
-        // 工作区删不掉(运行环境不支持等)也照样删对话记录
-        try { deleteWorkspace(conversationId) } catch (e: CancellationException) { throw e } catch (e: Exception) { }
         withContext(io) {
             forgetRemoteTasks(conversationId)
             store.delete(conversationId)
         }
+        // Only clean up attachments after the history has been removed.
+        try { deleteWorkspace(conversationId) } catch (e: CancellationException) { throw e } catch (e: Exception) { }
     }
 }

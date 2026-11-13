@@ -33,7 +33,7 @@
     <string name="plans_repeat_interval">فاصلهٔ زمانی</string>
     <string name="plans_repeat_weekly">هفتگی</string>
     <string name="plans_interval_minutes">تکرار هر چند دقیقه</string>
-    <string name="plans_clock">زمان محلی: HH:mm</string>
+    <string name="plans_clock">زمان‌های محلی (با ویرگول جدا کنید)</string>
     <string name="plans_zone">شناسهٔ منطقهٔ زمانی</string>
     <string name="plans_condition_optional">شرط (اختیاری)</string>
     <string name="plans_notify_change">هنگام تغییر</string>
@@ -47,7 +47,7 @@
     <string name="plans_error_reminder_condition">یادآوری ثابت نمی‌تواند شرط داشته باشد</string>
     <string name="plans_error_time">تاریخ و زمان معتبر وارد کنید</string>
     <string name="plans_error_interval">فاصله‌ای بین ۱ تا ۵۲۵٬۶۰۰ دقیقه وارد کنید</string>
-    <string name="plans_error_clock">زمان معتبر با قالب HH:mm وارد کنید</string>
+    <string name="plans_error_clock">زمان‌های معتبر HH:mm را با ویرگول از هم جدا کنید</string>
     <string name="plans_error_zone">شناسهٔ معتبر منطقهٔ زمانی وارد کنید</string>
     <string name="plans_error_weekdays">حداقل یک روز انتخاب کنید</string>
     <string name="plans_error_cooldown">فاصله‌ای بین ۱ تا ۵۲۵٬۶۰۰ دقیقه وارد کنید</string>
@@ -66,6 +66,9 @@
     <string name="plans_condition">فقط با تحقق شرط اجرا می‌شود: %1$s · %2$s</string>
     <string name="plans_last">آخرین مورد %1$s · %2$s</string>
     <string name="plans_never_run">هنوز اجرا نشده</string>
+    <string name="plans_source_user">دستی</string>
+    <string name="plans_source_model">مدل</string>
+    <string name="plans_source_external">اسکریپت</string>
     <string name="plans_delivered">تحویل داده شد</string>
     <string name="plans_unchanged">شرط تغییر نکرده است</string>
     <string name="plans_not_met">شرط برقرار نیست</string>
@@ -75,4 +78,5 @@
     <string name="plans_running_now">در حال اجرا</string>
     <string name="trigger_deleted">کار زمان‌بندی‌شده حذف شد</string>
     <string name="trigger_busy">این کار همچنان در حال اجراست</string>
+    <string name="plans_run_history">تاریخچه اجرا</string>
 </resources>

@@ -33,7 +33,7 @@
     <string name="plans_repeat_interval">間隔</string>
     <string name="plans_repeat_weekly">毎週</string>
     <string name="plans_interval_minutes">繰り返し間隔（分）</string>
-    <string name="plans_clock">現地時刻: HH:mm</string>
+    <string name="plans_clock">現地時刻（カンマ区切り）</string>
     <string name="plans_zone">タイムゾーン ID</string>
     <string name="plans_condition_optional">条件（任意）</string>
     <string name="plans_notify_change">条件が変化した時</string>
@@ -47,7 +47,7 @@
     <string name="plans_error_reminder_condition">固定リマインダーに条件は設定できません</string>
     <string name="plans_error_time">有効な日付と時刻を入力してください</string>
     <string name="plans_error_interval">1～525,600 分の間隔を入力してください</string>
-    <string name="plans_error_clock">HH:mm 形式で有効な時刻を入力してください</string>
+    <string name="plans_error_clock">HH:mm 形式で入力し、複数の時刻はカンマで区切ってください</string>
     <string name="plans_error_zone">有効なタイムゾーン ID を入力してください</string>
     <string name="plans_error_weekdays">曜日を 1 つ以上選択してください</string>
     <string name="plans_error_cooldown">1～525,600 分の実行間隔を入力してください</string>
@@ -65,6 +65,9 @@
     <string name="plans_condition">次の場合のみ実行: %1$s · %2$s</string>
     <string name="plans_last">前回 %1$s · %2$s</string>
     <string name="plans_never_run">まだ実行されていません</string>
+    <string name="plans_source_user">手動</string>
+    <string name="plans_source_model">モデル</string>
+    <string name="plans_source_external">スクリプト</string>
     <string name="plans_delivered">通知済み</string>
     <string name="plans_unchanged">条件は変わっていません</string>
     <string name="plans_not_met">条件を満たしていません</string>
@@ -74,4 +77,5 @@
     <string name="plans_running_now">実行中</string>
     <string name="trigger_deleted">スケジュールされたタスクを削除しました</string>
     <string name="trigger_busy">このタスクはまだ実行中です</string>
+    <string name="plans_run_history">実行履歴</string>
 </resources>

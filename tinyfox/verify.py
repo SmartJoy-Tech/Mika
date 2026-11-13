@@ -11,6 +11,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 APP_ID = 'io.github.smartjoytech.tinyfox'
 SERVICE = APP_ID + '.a11y.TinyFoxAccessibilityService'
+CALL_SERVICE = APP_ID + '.calls.TinyFoxInCallService'
 REPO = 'SmartJoy-Tech/Mika'
 ANDROID = '{http://schemas.android.com/apk/res/android}'
 
@@ -52,14 +53,29 @@ def verify_sources():
     accessibility = [s for s in services if s.get(ANDROID + 'permission') == 'android.permission.BIND_ACCESSIBILITY_SERVICE']
     require(len(accessibility) == 1 and accessibility[0].get(ANDROID + 'name') == SERVICE,
             'Manifest must register exactly the TinyFox accessibility service')
+    call_services = [s for s in services if s.get(ANDROID + 'permission') == 'android.permission.BIND_INCALL_SERVICE']
+    require(len(call_services) == 1 and call_services[0].get(ANDROID + 'name') == CALL_SERVICE,
+            'Manifest must register exactly the TinyFox InCall service')
+    require(not any('MikaInCallService' in s.get(ANDROID + 'name', '') for s in services),
+            'Original InCall service remains registered')
+    require('class TinyFoxInCallService : MikaInCallService()' in
+            read('app/src/main/java/io/github/smartjoytech/tinyfox/calls/TinyFoxInCallService.kt'),
+            'Missing TinyFox InCall service implementation')
     require(f'val service = "{SERVICE}"' in read('core/src/main/kotlin/com/wangzan101/mika/core/shell/RecoveryPermissions.kt'),
             'Recovery service identity drifted')
     require('class TinyFoxAccessibilityService : ScreenAccessibility()' in
             read('app/src/main/java/io/github/smartjoytech/tinyfox/a11y/TinyFoxAccessibilityService.kt'), 'Missing service implementation')
-    require(f'/Android/data/{APP_ID}/files' in read('tools/mika/scripts/mika_cli.py'), 'Computer CLI package drifted')
+    require(f'DEFAULT_PACKAGE = "{APP_ID}"' in read('tools/mika/scripts/mika_cli.py'), 'Computer CLI package drifted')
     links = read('app/src/main/java/com/wangzan101/mika/about/MikaLinks.kt')
     require(f'"https://github.com/{REPO}"' in links and
             f'"https://api.github.com/repos/{REPO}/releases/latest"' in links, 'Update channel drifted')
+    for filename, job in (('mika-test-apk.yml', 'android'), ('test-apk.yml', 'apk')):
+        workflow = read('.github/workflows/' + filename)
+        require(re.search(r'(?m)^jobs:\s*\n  ' + job + r":\s*\n    if: github\.repository == 'wangzan101/Mika'\s*$", workflow),
+                f'Upstream-only developer workflow guard missing: {filename}')
+        jobs_block = workflow.split('\njobs:', 1)[-1]
+        require(re.findall(r'(?m)^  ([A-Za-z_][A-Za-z0-9_-]*):', jobs_block) == [job],
+                f'Unexpected job in upstream-only developer workflow: {filename}')
     versions()
 
 
@@ -79,6 +95,10 @@ def verify_apk(apk, aapt, certificate=None, apksigner=None):
     require('application-debuggable' not in badging, 'Do not distribute a debuggable APK')
     require(f'"{SERVICE}"' in tree, 'APK does not contain the registered TinyFox service')
     require('com.wangzan101.mika.a11y.MikaAccessibilityService' not in tree, 'Old service remains registered')
+    require(f'"{CALL_SERVICE}"' in tree, 'APK does not contain the registered TinyFox InCall service')
+    require('MikaInCallService' not in tree, 'Original InCall service remains registered in APK')
+    require(len(re.findall(r'(?m)^\s*A: android:permission\([^)]*\)="android\.permission\.BIND_INCALL_SERVICE"', tree)) == 1,
+            'APK must contain exactly one protected InCall service registration')
     require('com.wangzan101.mika.helper' not in tree, 'Provider authority points to the original app')
     permissions = set(re.findall(r"uses-permission: name='([^']+)'", badging))
     allowed = set(json.loads(read('tinyfox/permissions.json'))) | {APP_ID + '.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'}
@@ -97,7 +117,7 @@ def verify_apk(apk, aapt, certificate=None, apksigner=None):
         actual = re.search(r'Signer #1 certificate SHA-256 digest: ([0-9a-f]+)', output)[1]
         require(actual.lower() == certificate.lower(), 'APK signer differs from the pinned TinyFox certificate')
         signature = actual
-    return {'package': APP_ID, 'service': SERVICE, 'versionCode': code, 'versionName': name,
+    return {'package': APP_ID, 'service': SERVICE, 'call_service': CALL_SERVICE, 'versionCode': code, 'versionName': name,
             'apk': apk.name, 'sha256': hashlib.sha256(apk.read_bytes()).hexdigest(),
             'bytes': apk.stat().st_size, 'certificate_sha256': signature,
             'brand': branding['brand'], 'compiled_icon_sha256': icon_hash}

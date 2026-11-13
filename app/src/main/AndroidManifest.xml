@@ -18,6 +18,13 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 通话功能:拨号、读通话状态,以及安卓 13+ 的「通话助手」框架(伴侣角色经 shell 授予)。 -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CALL_COMPANION_APP" />
+    <uses-permission
+        android:name="android.permission.MANAGE_ONGOING_CALLS"
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <!-- 批量日程经安卓日历提供方一次写入；用户未授权时退回系统日历的新建页。 -->
@@ -48,6 +55,11 @@
     <!-- 语音输入要麦克风,但不是必需:没有麦克风的设备照常安装,只是用不了语音 -->
     <uses-feature
         android:name="android.hardware.microphone"
+        android:required="false" />
+
+    <!-- 通话功能要电话硬件,但不是必需:没有通话模块的设备照常安装,只是用不了通话。 -->
+    <uses-feature
+        android:name="android.hardware.telephony"
         android:required="false" />
 
     <!-- 网页定位用到位置权限,但不是必需:没有定位硬件的设备照常安装,只是网页拿不到位置 -->
@@ -115,6 +127,11 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- 覆盖磁贴长按的系统默认应用详情页，直接回到 Mika。 -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
             <!-- 系统分享只进入现有对话页的草稿;文字、链接或一张内容图片都不会自动执行。 -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -127,6 +144,14 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".self.SelfNotificationActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay" />
 
         <!-- 通知里接管按钮的落点:从通知启动 Activity 才会收起通知栏,让用户直接看到挪到主屏的 App -->
         <activity
@@ -173,6 +198,18 @@
             android:taskAffinity=""
             android:windowSoftInputMode="stateHidden" />
 
+        <!-- Android Quick Settings binds this service; ordinary apps cannot toggle the capsule through it. -->
+        <service android:name=".capsule.CapsuleTileService"
+            android:enabled="false"
+            android:exported="true"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:label="@string/capsule_tile_label"
+            android:icon="@drawable/ic_notification">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
         <service
             android:name="io.github.smartjoytech.tinyfox.a11y.TinyFoxAccessibilityService"
             android:exported="true"
@@ -194,6 +231,28 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Runs a user-requested phone task on the app's own virtual display and shows its progress; afterwards keeps the one web page the user asked to keep open running, for at most two hours" />
         </service>
+
+        <!-- 通话:Telecom 绑定伴侣 InCallService,系统电话仍用自己的通话界面;前台服务在锁屏时撑住进程。 -->
+        <service
+            android:name="io.github.smartjoytech.tinyfox.calls.TinyFoxInCallService"
+            android:exported="true"
+            android:permission="android.permission.BIND_INCALL_SERVICE">
+            <intent-filter>
+                <action android:name="android.telecom.InCallService" />
+            </intent-filter>
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_UI" android:value="false" />
+        </service>
+
+        <service
+            android:name=".calls.CallStandbyService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Keeps the user-enabled incoming call assistant available while the screen is locked and carries one user-confirmed outgoing call across screen lock, with a visible ongoing notification and no idle audio capture" />
+        </service>
+
+        <receiver android:name=".calls.CallNotificationAction" android:exported="false" />
 
         <!-- 用户绑定并打开微信渠道后保持长轮询；没有本地服务器，任务仍交给 TaskService。 -->
         <service
@@ -297,6 +356,15 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".task.TriggerAlarmReceiver" android:exported="false" />
+
+        <!-- 外部脚本建任务的广播入口:对外开放(无权限),由「允许外部脚本建任务」开关 + 每分钟限流 + 来源标记把关 -->
+        <receiver
+            android:name=".task.ExternalScheduleReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.wangzan101.mika.SCHEDULE" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".teach.TeachReceiver" android:exported="false" />
     </application>
 

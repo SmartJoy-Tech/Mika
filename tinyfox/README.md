@@ -9,6 +9,7 @@ against any third-party application's account restrictions or detection.
 - App: `TinyFox`
 - Application ID: `io.github.smartjoytech.tinyfox`
 - Accessibility service: `io.github.smartjoytech.tinyfox.a11y.TinyFoxAccessibilityService`
+- Android call service: `io.github.smartjoytech.tinyfox.calls.TinyFoxInCallService`
 - Update/feedback repository: `SmartJoy-Tech/Mika`
 - Upstream baseline: `tinyfox/upstream.json`
 - Version: upstream version + `-tinyfox.<revision>`; versionCode = upstream versionCode * 100 + revision.
@@ -42,6 +43,13 @@ upstream workflow/wrapper changes, and failed checks stop the workflow and leave
 the current product branch intact. Review the failed run in Actions; no force
 push or automatic conflict resolution is used. Unchanged results do not send
 additional messages. GitHub's own Actions notification settings apply to failures.
+
+The reviewed v0.1.41 baseline includes two upstream developer-APK workflows.
+Their jobs are restricted to the upstream repository; TinyFox releases continue
+through `tinyfox-build.yml`. Future upstream workflow changes still require review.
+The optional call and external-schedule features remain disabled by default.
+The two dangerous phone permissions require the user's own grant; Android may
+grant the normal call-companion permission when installing the new version.
 
 Prompt goldens are kept byte-for-byte compatible with upstream. The test-only
 `SnapshotIdentity` adapter canonicalizes the exact leading system identity
