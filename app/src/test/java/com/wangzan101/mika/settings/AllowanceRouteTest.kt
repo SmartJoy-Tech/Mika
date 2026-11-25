@@ -1,7 +1,7 @@
 package com.wangzan101.mika.settings
 
-import com.wangzan101.mika.core.chatgpt.ChatGptAuth
-import com.wangzan101.mika.core.usage.AllowanceSource
+import com.wangzan101.mika.core.model.chatgpt.ChatGptAuth
+import com.wangzan101.mika.core.model.usage.AllowanceSource
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -23,6 +23,13 @@ class AllowanceRouteTest {
             if (preset.selfHosted) assertTrue(preset.label, route.selfHosted)
             else assertNotNull(preset.label, route.dashboard)
         }
+    }
+
+    @Test fun openDesignGoOpensItsDashboardWithoutAnAutomaticKeyQuery() {
+        val go = route("https://amr-link.open-design.ai/v1")
+        assertEquals("https://open-design.ai/cloud/dashboard", go.dashboard)
+        assertNull(go.source)
+        assertEquals(AllowanceRoute(), route("https://amr-link.open-design.ai.example.test/v1"))
     }
 
     @Test fun onlyRecognizedOfficialAddressesCanUseTheSavedKey() {

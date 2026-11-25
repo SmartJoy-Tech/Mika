@@ -6,7 +6,7 @@
     <string name="web_search_searxng_url">URL da instância</string>
     <string name="web_search_note_jina">Precisa de uma chave de API. Usa a pesquisa do Jina (s.jina.ai).</string>
     <string name="web_search_note_exa">Precisa de uma chave de API. Usa a pesquisa do Exa (api.exa.ai).</string>
-    <string name="web_search_note_keirolabs">Precisa de uma chave de API. Usa a pesquisa do Keirolabs (api.keirolabs.cloud).</string>
+    <string name="web_search_note_deepseek">Precisa de uma chave de API (a mesma do chat serve). Os resultados vêm da pesquisa do DeepSeek (api.deepseek.com).</string>
     <string name="web_search_note_searxng">Sua própria instância do SearXNG, sem chave. Ela precisa permitir saída JSON (adicione json a search.formats no settings.yml).</string>
     <string name="web_search_api_key_required">Chave de API (obrigatória)</string>
     <string name="web_search_missing_key">O %1$s precisa de uma chave de API para funcionar.</string>
@@ -17,4 +17,9 @@
     <string name="web_search_api_key">Chave de API (opcional)</string>
     <string name="web_search_invalid_endpoint">Digite um URL HTTP ou HTTPS sem parâmetros de consulta.</string>
     <string name="web_search_action">Pesquisar na web</string>
+    <string name="web_search_google_grounding_toggle">Fundamentação com Google Search (Gemini)</string>
+    <string name="web_search_note_google">Usa sua chave de API do Gemini existente (ferramentas: [{googleSearch: {}}]). 5.000 prompts fundamentados grátis por mês; depois, US$ 14 por 1.000 consultas. Uma pergunta pode disparar várias buscas.</string>
+    <string name="web_search_google_unavailable_provider">A fundamentação com Google Search não está disponível em %1$s. Requer um modelo principal do Gemini.</string>
+    <string name="web_search_google_unavailable_none">A fundamentação com Google Search requer um modelo principal do Gemini em Configurações › Modelos.</string>
+    <string name="web_search_google_unavailable_value">Indisponível</string>
 </resources>

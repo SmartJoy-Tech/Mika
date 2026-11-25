@@ -17,6 +17,9 @@ Mika 只以子进程方式运行它们,不链接它们。
 `app/src/main/assets/runtime/rootfs.tar.xz`。手机首次启动 Mika 时在后台解到 `files/sandbox/rootfs`,不联网。
 
 - `runtime/sources.lock`:最小根文件系统的地址与 SHA-256,以及每个软件包的仓库、版本、APKINDEX 校验值、`.apk` 的 SHA-256。
+- `runtime/pip-requires.lock`:要烤进 `site-packages` 的 wheel(名称、版本、文件名、下载地址、SHA-256)。构建时逐个核对 SHA-256
+  后直接解开,不运行 pip,所以离线和重编都不依赖 PyPI;换 Python 小版本后按 wheel 自己的 tag 重新求。这个文件和 `sources.lock`
+  一样是构建的必需输入,缺了构建失败。
 - `build-runtime.py`:按 `sources.lock` 下载、校验后拼成 `rootfs.tar.xz`。全程不运行 apk:按 apk 的布局解开软件包,
   并用软件包签过名的元数据写出 `/lib/apk/db/installed`,所以运行环境里的 apk 看到的数据库是一致的。
   每个 `.apk` 都要核对:锁文件里的 SHA-256、它自己的 RSA 签名(公钥取自钉住的最小根文件系统)、控制段校验值与 APKINDEX 一致、
@@ -29,10 +32,14 @@ Mika 只以子进程方式运行它们,不链接它们。
 ```bash
 python3 tools/sandbox/build-runtime.py --resolve   # 换 Alpine 小版本或软件包后重新求依赖,改写 runtime/sources.lock
 python3 tools/sandbox/build-runtime.py             # 生成 rootfs.tar.xz、BundledRuntime.kt、packages.json
-python3 tools/sandbox/build-runtime.py --check     # 重新生成并与仓库里的产物比较,不一致退出 1
+python3 tools/sandbox/build-runtime.py --check     # 重新生成并与仓库里的产物比较,不一致或产物缺失退出 1
 ```
 
 `build-runtime.py` 里的 `WANT` 必须与 core 的 `SANDBOX_PACKAGES` 一致(`BundledRuntimeTest` 核对)。
+
+`--resolve` 按分支索引求依赖闭包。最小根文件系统比索引旧时,那个包在运行环境里仍是根文件系统的版本
+(锁文件里的一条 `apk` 不能替换根文件系统自带的包),所以有包要求它的精确版本时 `--resolve` 直接失败,
+并指出该换到哪个 minirootfs 版本。
 
 运行环境包含 `tzdata`。每次启动命令时,`ProcRunner.env` 都把手机当前的 IANA 时区写入 `TZ`,
 让命令行、Python 和 Node 的本地时间与手机一致,并保留夏令时和历史偏移规则;手机切换时区后,下一条命令随之更新。

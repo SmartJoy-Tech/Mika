@@ -1,7 +1,7 @@
 package com.wangzan101.mika.core.tool
 
-import com.wangzan101.mika.core.observation.Observation
-import com.wangzan101.mika.core.risk.GateTarget
+import com.wangzan101.mika.core.screen.observation.Observation
+import com.wangzan101.mika.core.safety.gate.GateTarget
 import com.wangzan101.mika.core.action.Risk as ApprovalRisk
 import kotlinx.serialization.json.JsonObject
 
@@ -24,16 +24,19 @@ enum class Concurrency { Serial, ParallelSafe }
  * 屏幕上的动作与读屏在几种界面上各有一个同动词的工具。
  */
 enum class Verb {
-    Observe, ListElements, Query, Collect, PhoneRun, PhoneFind, PhoneExtract, PhoneDialog, PhoneEvent, PhoneGesture, PhoneCommand, Screenshot, ViewPastScreens, ViewUserScreen, Describe, FindVisually, Diagnose,
+    Observe, ListElements, Query, Collect, PhoneRun, DoEach, PhoneFind, PhoneExtract, PhoneDialog, PhoneEvent, PhoneGesture, PhoneCommand, Screenshot, ViewPastScreens, ViewUserScreen, Describe, FindVisually, Diagnose,
     Tap, TypeText, ClearText, Scroll, Swipe, Back, PressKey,
-    ListApps, LaunchApp, OpenLink, ShareText, AppAfterTask,
+    ListApps, LaunchApp, OpenLink, ShareText, ShareAudio, ShareImage, AppAfterTask, SmsLogin,
     SetAlarm, SetTimer, ShowAlarms, AddCalendarEvent, BulkAddCalendarEvents, SetWheel,
     Navigate, ReadPage, EvaluateJs, SiteCommand, Tabs, Downloads, Upload, SiteMode, Script, Interact, Capture, WaitFor, KeepOpen,
-    RunCommand, RunBundledScript, ReadFile, WriteFile, SearchFiles, ShareFile,
+    RunCommand, RunBundledScript, PluginScript, ReadFile, WriteFile, SearchFiles, ShareFile, ViewImage, ListFolderFiles,
+    ListDeviceFiles, CopyDeviceFile, SearchDeviceFiles, ListDeviceDirectoryHints, UpdateDeviceDirectoryDescription,
+    AudioGenerate, AudioSave, AudioTranscribe, Speak,
+    ImageGenerate, ImageEdit, ImageSave,
     RootCommand,
     CallState, CallDial, CallAnswer, CallHangup, CallTakeover,
     Wait, AskUser, RequestConfirmation, HandToUser, HandleObstacle, EndNotDone,
-    KnowledgeSearch, KnowledgeRead, SkillSearch, SkillRead, SkillSave, MemorySearch, MemorySave, MemoryEdit, ProfileEdit, HistoryRead, WebSearch,
+    KnowledgeSearch, KnowledgeRead, SkillSearch, SkillRead, SkillSave, MemorySearch, MemorySave, MemoryEdit, ProfileEdit, HistoryRead, NoticesRead, WebSearch, WechatSendOwner,
     TaskMemorySearch, TaskMemoryTimeline, TaskMemoryStep,
     ScheduleTask,
     SpawnAgent, SettingsList, SettingsSet,

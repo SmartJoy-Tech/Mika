@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="calls_title">AI 接打電話</string>
-    <string name="calls_entry_sub">火山即時語音 · 行動網路電話</string>
+    <string name="calls_entry_sub">即時語音 · 行動網路電話</string>
     <string name="calls_action_failed">操作未完成，請檢查是否就緒後再試一次。</string>
     <string name="calls_permissions_required">需要電話和通知權限才能啟用。</string>
     <string name="calls_ai_active">AI 正在通話</string>
@@ -19,23 +19,20 @@
     <string name="calls_sim">撥出使用的 SIM 卡</string>
     <string name="calls_default">預設</string>
     <string name="calls_dial">由 AI 撥打</string>
-    <string name="calls_call_note">通話使用現有的 SIM 卡，可能產生電信業者通話費及火山服務用量費。撥出前請在設定填寫通話目的與開場白。</string>
+    <string name="calls_call_note">通話使用現有的 SIM 卡，可能產生電信業者通話費及語音服務用量費。撥出前請在設定填寫通話目的與開場白。</string>
     <string name="calls_prepare">檢查並準備</string>
     <string name="calls_enable">啟用 AI 電話</string>
     <string name="calls_disable">停用並恢復一般通話</string>
     <string name="calls_provider">火山方舟 Doubao 即時語音互動 API</string>
-    <string name="calls_credentials">火山方舟 Doubao 即時語音互動 API 憑據</string>
-    <string name="calls_key_saved">憑證已安全儲存，服務權限仍須實際測試</string>
     <string name="calls_key_missing">尚未設定</string>
     <string name="calls_profile">通話配置</string>
-    <string name="calls_model_label">模型 %1$s · 通話音訊路徑</string>
     <string name="calls_incoming">來電</string>
     <string name="calls_auto_answer">自動接聽來電</string>
     <string name="calls_all_incoming">接聽所有來電</string>
     <string name="calls_all_note">包含名單外號碼及隱藏號碼的來電</string>
     <string name="calls_allowlist">允許自動接聽的來電號碼</string>
     <string name="calls_allowlist_empty">名單為空：除非啟用接聽所有來電，否則不會自動接聽</string>
-    <string name="calls_privacy_note">僅在 AI 處理通話期間將音訊傳送至火山，不儲存錄音。通話逐字稿會加密儲存在這支手機上，隨時可親自接手。</string>
+    <string name="calls_privacy_note">僅在 AI 處理通話期間將音訊傳送至所選語音服務，不儲存錄音。通話逐字稿會加密儲存在這支手機上，隨時可親自接手。</string>
     <string name="calls_history_empty">目前沒有 AI 通話紀錄</string>
     <string name="calls_collapse">收合</string>
     <string name="calls_transcript">顯示通話逐字稿</string>
@@ -52,15 +49,15 @@
     <string name="calls_cancel">取消</string>
     <string name="calls_greeting">開場白</string>
     <string name="calls_instructions">通話目的與指示</string>
-    <string name="calls_duration">AI 最長通話時間（15–600 秒）</string>
-    <string name="calls_speaker">火山音色 ID</string>
+    <string name="calls_duration">AI 最長通話時間（0 為不限，15–600 秒）</string>
+    <string name="calls_limits_unlimited">一次一通 · AI 語音時長不限</string>
+    <string name="calls_speaker">音色 ID</string>
     <string name="calls_audio_route">通話音訊路徑</string>
     <string name="calls_audio_verified">已實測本機通話雙方均能聽到聲音</string>
     <string name="calls_verify_note">先手動撥打或接聽一通測試電話，確認雙方聲音正常後，再啟用自動接聽。</string>
     <string name="calls_tool_state">通話狀態</string>
     <string name="calls_tool_dial">撥打電話</string>
     <string name="calls_tool_hangup">掛斷電話</string>
-    <string name="calls_advanced">進階設定</string>
     <string name="calls_allowlist_hint">每行填寫一個號碼，也可用逗號分隔。</string>
     <string name="calls_allowlist_invalid">請填寫有效號碼，最多 %1$d 個。</string>
     <string name="calls_audio_direct">直連電話音訊</string>
@@ -89,7 +86,7 @@
     <string name="calls_original_transcript">通話文字原文</string>
     <string name="calls_outgoing_title">撥打電話</string>
     <string name="calls_rules">自動接聽規則</string>
-    <string name="calls_setup_credentials">請設定火山即時語音憑據。</string>
+    <string name="calls_setup_credentials">請設定所選語音服務的憑據。</string>
     <string name="calls_setup_shell">請先連線 Mika 內建助理。</string>
     <string name="calls_sim_clear_preferred">取消預設 SIM</string>
     <string name="calls_sim_preferred">預設撥號 SIM：%1$s</string>
@@ -143,4 +140,21 @@
     <string name="calls_notification_connecting_audio">正在連接通話音訊</string>
     <string name="calls_notification_connected_waiting">AI 已接通，正在等待對方說話，可隨時接管</string>
     <string name="calls_notification_connected">AI 已接通，可隨時手動接管</string>
+    <string name="calls_only_types">僅接聽所選類型</string>
+    <string name="calls_pick_types">請至少選擇一種來電類型</string>
+    <string name="calls_type_note">Mika 透過無障礙服務讀取系統電話顯示的標籤與號碼。無法確認類型或號碼時，由你本人接聽。</string>
+    <string name="calls_type_accessibility">開啟 Mika 無障礙服務</string>
+    <string name="calls_type_takeout">外送餐點</string>
+    <string name="calls_type_parcel">快遞包裹</string>
+    <string name="calls_type_delivery">配送或物流（未細分）</string>
+    <string name="calls_type_sales">廣告推銷</string>
+    <string name="calls_type_broker">仲介（含房仲）</string>
+    <string name="calls_type_financial_sales">保險與理財推銷</string>
+    <string name="calls_type_spam">騷擾電話</string>
+    <string name="calls_type_fraud">疑似詐騙</string>
+    <string name="calls_type_high_risk">高風險來電</string>
+    <string name="calls_type_business">企業與客服</string>
+    <string name="calls_type_transport">計程車與叫車服務</string>
+    <string name="calls_only_strangers">僅接聽陌生號碼</string>
+    <string name="calls_strangers_note">請允許 Mika 讀取通訊錄。只有確認號碼未儲存時，AI 才會接聽。隱藏號碼或無法查詢時，由你本人接聽。</string>
 </resources>

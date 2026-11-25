@@ -79,6 +79,37 @@ class ContextCompressorTest {
         assertEquals(0, c.foldedSteps)
     }
 
+    /** 轮数触发:大小远没到触发点(1M 窗口),但 40 轮 > keepRecent(12)+foldEvery(16)=28,照样折到最近 12 轮。 */
+    @Test fun foldsByRoundCountEvenWhenSizeIsSmall() {
+        val h = head + taps(40)
+        val c = ContextCompressor(TOOLS, foldEvery = 16).compress(h, contextTokens = 1_000_000)
+        assertTrue(c.rewritten)
+        assertEquals(28, c.foldedSteps)
+        assertEquals(12, toolRounds(c.messages))
+        assertTrue(summary(c.messages)!!.contains("Step 28 phone_tap(按钮28) → applied"))
+    }
+
+    /** 轮数触发也是锯齿式的:两次折叠之间只追加,不每步都压;折叠数远少于步数。 */
+    @Test fun roundCountFoldsInBatchesNotEveryStep() {
+        val all = head + taps(120)
+        fun h(n: Int) = all.take(head.size + 2 * n)
+        val c = ContextCompressor(TOOLS, foldEvery = 16)
+        val outs = (1..120).map { c.compress(h(it), contextTokens = 1_000_000) }
+        val rewrites = outs.zipWithNext().withIndex().filter { (_, p) -> p.first.messages != p.second.messages.take(p.first.messages.size) }.map { it.index + 2 }
+        val folds = outs.zipWithNext().withIndex().filter { (_, p) -> p.first.foldedSteps != p.second.foldedSteps }.map { it.index + 2 }
+        assertEquals(folds, rewrites)
+        assertTrue("$rewrites", rewrites.isNotEmpty() && rewrites.size <= 10)
+        rewrites.zipWithNext().forEach { (a, b) -> assertTrue("$rewrites", b - a > 1) }
+    }
+
+    /** 默认不按轮数触发(只按大小),40 轮在 1M 窗口里原样发。 */
+    @Test fun withoutFoldEveryRoundCountDoesNotTrigger() {
+        val h = head + taps(40)
+        val c = ContextCompressor(TOOLS).compress(h, contextTokens = 1_000_000)
+        assertEquals(h, c.messages)
+        assertEquals(0, c.foldedSteps)
+    }
+
     /** 触发点刚好低于整份请求的窗口:压一次就能回到目标以下,用最轻的一级(留最近 12 次往返)。 */
     private fun justOver(h: List<Message>) = windowFor(uncalibrated(h)) - 1
 
@@ -94,6 +125,32 @@ class ContextCompressorTest {
         assertEquals(h.takeLast(24), c.messages.drop(3))
         val s = summary(c.messages)!!
         assertTrue(s, "Step 1 phone_tap(按钮1) → applied" in s && "Step 28 phone_tap(按钮28) → applied" in s && "Step 29" !in s)
+    }
+
+    @Test fun keepsTheAskUserRoundEvenWhenATaskProgressCallComesFirst() {
+        // #714 lets a round carry a task_progress call ahead of the one action that
+        // actually runs. The compressor must judge the round by that action, not
+        // by the progress report, or the user's answer is folded away.
+        val ask = listOf(
+            Message(Role.Assistant, listOf(
+                Part.ToolCall("p1", "task_progress", """{"updates":[]}"""),
+                Part.ToolCall("a1", "ask_user", """{"question":"Continue?"}"""),
+            ), Author.Mika),
+            Message(Role.Tool, listOf(
+                Part.ToolResult("p1", """{"ok":true}""", isError = false),
+                Part.ToolResult("a1", """{"answer":"yes"}""", isError = false),
+            ), Author.Mika),
+        )
+        val h = head + taps(30) + ask + taps(20)
+        val c = ContextCompressor(TOOLS).compress(h, contextTokens = justOver(h))
+        assertTrue(
+            "the ask_user round was folded",
+            c.messages.any { m -> m.parts.any { it is Part.ToolCall && it.name == "ask_user" } },
+        )
+        assertTrue(
+            "the user's answer was folded",
+            c.messages.any { m -> m.parts.any { it is Part.ToolResult && it.callId == "a1" } },
+        )
     }
 
     @Test fun appendOnlyBetweenCompactions() {

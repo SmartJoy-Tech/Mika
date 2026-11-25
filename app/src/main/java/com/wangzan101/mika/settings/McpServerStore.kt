@@ -3,18 +3,26 @@ package com.wangzan101.mika.settings
 import com.wangzan101.mika.BuildConfig
 import com.wangzan101.mika.core.cap.mcp.HttpMcpEndpoint
 import com.wangzan101.mika.core.cap.mcp.LegacySseMcpEndpoint
+import com.wangzan101.mika.core.cap.mcp.McpCatalog
 import com.wangzan101.mika.core.cap.mcp.McpOAuth
 import com.wangzan101.mika.core.cap.mcp.McpOAuthException
 import com.wangzan101.mika.core.cap.mcp.McpOAuthTokens
+import com.wangzan101.mika.core.cap.mcp.McpPackageSpec
+import com.wangzan101.mika.core.cap.mcp.McpPreset
+import com.wangzan101.mika.core.cap.mcp.McpPresetResolver
 import com.wangzan101.mika.core.cap.mcp.McpStdioLauncher
 import com.wangzan101.mika.core.cap.mcp.StdioMcpEndpoint
 import com.wangzan101.mika.core.cap.mcp.parseStdioCommand
 import com.wangzan101.mika.core.cap.mcp.McpClientException
 import com.wangzan101.mika.core.cap.mcp.McpConnection
 import com.wangzan101.mika.core.cap.mcp.McpTrust
+import com.wangzan101.mika.core.net.LocalHosts
 import com.wangzan101.mika.core.net.NetProxy
-import com.wangzan101.mika.core.oauth.LoopbackCallback
-import com.wangzan101.mika.core.resource.ResourceScope
+import com.wangzan101.mika.core.model.oauth.LoopbackCallback
+import com.wangzan101.mika.core.run.ResourceScope
+import com.wangzan101.mika.core.workspace.SandboxError
+import com.wangzan101.mika.mcp.McpPackageConsent
+import com.wangzan101.mika.mcp.McpPackageProvisioner
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.CancellationException
@@ -65,6 +73,12 @@ data class McpServerConfig(
     val allowedTools: List<String>? = null,
     /** 非密的自定义请求头;Authorization 另存。 */
     val headers: Map<String, String> = emptyMap(),
+    /** 预设 id(来自目录);null 表示自定义配置。 */
+    val presetId: String? = null,
+    /** 无秘密的连接快照;目录更新不改变已有配置的地址、transport、认证目的地或命令。 */
+    val presetSnapshot: McpPreset? = null,
+    /** 只存非秘密字段值;秘密字段走 [McpFieldSecrets]。 */
+    val fieldValues: Map<String, String> = emptyMap(),
 )
 
 data class McpHealth(val ok: Boolean, val message: String?, val tools: List<String>, val atMs: Long)
@@ -89,6 +103,12 @@ class McpServerStore(
     ),
     /** stdio server 只能由沙箱启动;为 null 时 stdio 配置会报不可用。 */
     private val stdio: McpStdioLauncher? = null,
+    /** 内置预设目录;测试注入临时目录,App 资产加载在别处接线。UI 用同一份实例取目录。 */
+    val catalog: McpCatalog = McpCatalog.Empty,
+    /** stdio 预设含包时的安装/缓存;为 null 时这类预设报不可用。 */
+    private val packageProvisioner: McpPackageProvisioner? = null,
+    /** stdio 包下载确认;已确认的「包名 + 精确版本 + 来源」持久化,重装 App 后仍有效,不需重复确认。 */
+    val packageConsent: McpPackageConsent = McpPackageConsent(File(dir, "mcp-package-consent.json")),
 ) {
     private val file = File(dir, "mcp-servers.json")
     private val secretsFile = File(dir, "mcp-server-secrets.bin")
@@ -97,6 +117,8 @@ class McpServerStore(
     val servers: StateFlow<List<McpServerConfig>> = _servers.asStateFlow()
     private val oauth = McpOAuth(http)
     private val tokenJson = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val fieldSecrets = McpFieldSecrets(::loadSecrets, ::saveSecrets)
+    private val resolver = McpPresetResolver()
     private val _health = MutableStateFlow<Map<String, McpHealth>>(emptyMap())
     /** 最近一次连接/测试的结果;只在进程内,不落盘。 */
     val health: StateFlow<Map<String, McpHealth>> = _health.asStateFlow()
@@ -129,6 +151,7 @@ class McpServerStore(
         val hadToken = secrets.remove(id) != null
         val hadOAuth = secrets.remove("oauth:$id") != null
         if (hadToken || hadOAuth) saveSecrets(secrets)
+        fieldSecrets.clear(id)
     }
 
     @Synchronized fun setEnabled(id: String, enabled: Boolean) {
@@ -145,8 +168,118 @@ class McpServerStore(
         saveSecrets(secrets)
     }
 
+    @Synchronized fun secret(configId: String, fieldId: String): String? = fieldSecrets.get(configId, fieldId)
+
+    @Synchronized fun setSecret(configId: String, fieldId: String, value: String?) = fieldSecrets.set(configId, fieldId, value)
+
+    @Synchronized fun secrets(configId: String): Map<String, String> = fieldSecrets.all(configId)
+
+    /** Build a config from a catalog preset and its non-secret field values. Secrets are supplied later. */
+    fun presetConfig(presetId: String, values: Map<String, String>): Result<McpServerConfig> {
+        val preset = catalog.presets.find { it.id == presetId }
+            ?: return Result.failure(IllegalArgumentException("unknown MCP preset $presetId"))
+        val secretIds = preset.fields.filter { it.secret }.map { it.id }.toSet()
+        val leaked = secretIds.intersect(values.keys)
+        if (leaked.isNotEmpty()) {
+            return Result.failure(IllegalArgumentException("secret fields must be supplied separately: ${leaked.sorted().joinToString()}"))
+        }
+        val resolved = resolver.resolveStructure(preset, values)
+        val nonSecret = preset.fields.filter { !it.secret }.map { it.id }.toSet()
+        return Result.success(
+            McpServerConfig(
+                name = preset.name,
+                url = resolved.url,
+                transport = preset.transport,
+                command = resolved.argv.joinToString(" "),
+                auth = preset.auth,
+                headers = preset.headers,
+                presetId = preset.id,
+                presetSnapshot = preset,
+                fieldValues = values.filterKeys { it in nonSecret },
+            ),
+        )
+    }
+
+    /**
+     * 按预设 id 新增或替换:重试/重新授权时复用已有配置 id,不产生重复条目(秘密仍归同一 config id)。
+     * 复用 id 也避免同一预设反复添加后出现多个 disabled 副本。
+     */
+    @Synchronized fun savePreset(config: McpServerConfig): Result<McpServerConfig> {
+        validate(config)?.let { return Result.failure(IllegalArgumentException(it)) }
+        val existing = config.presetId?.let { pid -> _servers.value.firstOrNull { it.presetId == pid } }
+        val effective = if (existing != null) config.copy(id = existing.id) else config
+        val next = if (existing != null) _servers.value.map { if (it.id == existing.id) effective else it } else _servers.value + effective
+        saveConfigs(next)
+        _servers.value = next
+        if (existing != null) dropStaleSecrets(existing, effective)
+        return Result.success(effective)
+    }
+
+    /**
+     * 目录里预设换了形态(如本地包 → 官方远程 OAuth)后按同一 id 替换:新快照不声明的字段秘密删掉,
+     * 否则 resolver 会永远报「未知字段」;连接目标(地址/传输/认证)变了,发给旧目标的令牌也一并作废。
+     */
+    private fun dropStaleSecrets(old: McpServerConfig, new: McpServerConfig) {
+        val declared = new.presetSnapshot?.fields?.map { it.id }?.toSet() ?: return
+        (fieldSecrets.all(new.id).keys - declared).forEach { fieldSecrets.set(new.id, it, null) }
+        val sameTarget = old.url == new.url && old.command == new.command &&
+            old.transport == new.transport && old.auth == new.auth
+        if (!sameTarget) {
+            setToken(new.id, null)
+            clearOAuth(new.id)
+        }
+    }
+
+    /**
+     * Connect a preset for the first time: save its config and secrets, then run the normal
+     * connection test. On failure the config is kept but disabled, so the user can edit and retry.
+     */
+    suspend fun connectPreset(
+        presetId: String,
+        values: Map<String, String>,
+        secrets: Map<String, String>,
+    ): Result<McpTestResult> {
+        val config = presetConfig(presetId, values).getOrElse { return Result.failure(it) }
+        val saved = savePreset(config).getOrElse { return Result.failure(it) }
+        // 只写该预设声明的秘密字段(非空);未知字段不落进加密存储,避免 resolver 永久报「未知字段」。
+        val declared = saved.presetSnapshot?.fields?.filter { it.secret }?.map { it.id }?.toSet()
+        secrets.forEach { (fieldId, value) ->
+            if (value.isNotBlank() && (declared == null || fieldId in declared)) setSecret(saved.id, fieldId, value)
+        }
+        val result = test(saved)
+        if (result.isFailure) setEnabled(saved.id, false)
+        return result
+    }
+
+    /** Resolve a saved preset config from its snapshot plus current field secrets (never the live catalog). */
+    private fun resolvedPreset(config: McpServerConfig): com.wangzan101.mika.core.cap.mcp.ResolvedMcpPreset? {
+        val snapshot = config.presetSnapshot ?: return null
+        return resolver.resolve(snapshot, config.fieldValues + fieldSecrets.all(config.id))
+    }
+
+    /** 把 provisioner 返回的可执行目录前缀和预设声明的 argv(首个元素是可执行名)拼成最终 argv。 */
+    private fun composeArgv(prefix: List<String>, command: List<String>): List<String> =
+        if (prefix.isEmpty() || command.isEmpty()) command
+        else listOf(prefix.first() + "/" + command.first()) + command.drop(1)
+
+    /** UI 在用户确认下载后调用;绑定包名 + 精确版本 + 来源。 */
+    fun acceptPackage(spec: McpPackageSpec) = packageConsent.accept(spec)
+
+    /** 该包(名 + 精确版本 + 来源)是否已确认。 */
+    fun packageAccepted(spec: McpPackageSpec): Boolean = packageConsent.accepted(spec)
+
     fun validate(config: McpServerConfig): String? {
         if (config.name.isBlank()) return "name is required"
+        config.presetSnapshot?.let { snapshot ->
+            val secretIds = snapshot.fields.filter { it.secret }.map { it.id }.toSet()
+            val leaked = secretIds.intersect(config.fieldValues.keys)
+            if (leaked.isNotEmpty()) return "secret fields must not be stored in plain field values: ${leaked.sorted().joinToString()}"
+            val declared = snapshot.fields.map { it.id }.toSet()
+            val undeclared = config.fieldValues.keys - declared
+            if (undeclared.isNotEmpty()) return "undeclared field values: ${undeclared.sorted().joinToString()}"
+        } ?: run {
+            if (config.fieldValues.isNotEmpty()) return "field values require a preset snapshot"
+        }
         if (config.transport == "stdio") {
             if (config.command.isBlank()) return "command is required"
             if (config.command.length > 4000) return "command is too long"
@@ -277,6 +410,7 @@ class McpServerStore(
                 previewChars = config.previewChars,
                 trust = if (config.trust == "trust-annotations") McpTrust.TrustAnnotations else McpTrust.Restricted,
                 allowedTools = config.allowedTools?.toSet(),
+                displayName = config.name,
             )
         }
         _health.update {
@@ -296,10 +430,22 @@ class McpServerStore(
         when (config.transport) {
             "stdio" -> {
                 val launcher = stdio ?: throw IllegalStateException("stdio MCP servers are not available on this build")
-                val argv = parseStdioCommand(config.command)
+                val resolved = if (config.presetId != null) resolvedPreset(config) else null
+                val spec = config.presetSnapshot?.packageSpec
+                val argv = if (spec != null) {
+                    val provisioner = packageProvisioner
+                        ?: throw SandboxError("mcp_package_unavailable", "Package installation is not available on this device.", recoverable = true)
+                    composeArgv(
+                        provisioner.prepare(workspace, spec, packageConsent.accepted(spec)),
+                        resolved?.argv ?: emptyList(),
+                    )
+                } else {
+                    resolved?.argv ?: parseStdioCommand(config.command)
+                }
+                val environment = resolved?.environment ?: emptyMap()
                 StdioMcpEndpoint.connect(
                     serverId = config.id, command = argv, launcher = launcher, workspace = workspace,
-                    timeoutSec = config.timeoutSec,
+                    environment = environment, timeoutSec = config.timeoutSec,
                     clientName = "TinyFox", clientVersion = BuildConfig.VERSION_NAME,
                 ).map { it as com.wangzan101.mika.core.cap.mcp.McpEndpoint }
             }
@@ -322,6 +468,11 @@ class McpServerStore(
 
     private suspend fun authHeaders(config: McpServerConfig): Map<String, String> {
         if (config.transport == "stdio") return emptyMap()
+        // Preset with declared fields: resolve Bearer, secret headers and non-secret headers from
+        // the saved snapshot + current secrets, so no secret ever lives in the plain config.
+        if (config.auth == "fields") {
+            return resolvedPreset(config)?.headers ?: config.headers
+        }
         return buildMap {
             putAll(config.headers)
             if (config.auth == "oauth") {
@@ -331,7 +482,7 @@ class McpServerStore(
                     setOAuthTokens(config.id, tokens)
                 }
                 put("Authorization", "Bearer ${tokens.accessToken}")
-            } else {
+            } else if (config.auth == "token") {
                 token(config.id)?.let { put("Authorization", "Bearer $it") }
             }
         }
@@ -439,10 +590,7 @@ class McpServerStore(
         Files.move(tmp.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
     }
 
-    private fun isLocalHost(host: String): Boolean =
-        host == "localhost" || host == "127.0.0.1" || host == "::1" ||
-            host.startsWith("10.") || host.startsWith("192.168.") ||
-            Regex("^172\\.(1[6-9]|2[0-9]|3[01])\\.").containsMatchIn(host)
+    private fun isLocalHost(host: String): Boolean = LocalHosts.isPrivateOrMesh(host)
 
     companion object {
         /** 设置页测试 stdio server 时用的沙箱工作区;任务里用对话 ID。 */

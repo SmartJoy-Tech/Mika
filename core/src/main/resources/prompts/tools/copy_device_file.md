@@ -1,0 +1,1 @@
+Copy an ordinary file from an authorized device folder into the current workspace, including PDFs, images and office documents. Read-only source access is sufficient. The result gives the actual workspace path and byte count. Use only for files needed for the user's task.

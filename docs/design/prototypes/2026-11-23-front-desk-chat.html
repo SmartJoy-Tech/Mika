@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>前台聊天原型</title>
+<style>
+  :root {
+    --bg: #F7F7F8; --surface: #FFFFFF; --fill: rgba(0,0,0,.04);
+    --ink: #1C1C1E; --ink2: #5F6068; --ink3: #9A9BA3; --hair: rgba(0,0,0,.07);
+    --accent: #0A7CFF; --accent-soft: rgba(10,124,255,.10); --on-accent: #fff;
+    --ok: #1F9D55; --ok-soft: rgba(31,157,85,.12);
+    --warn: #B86E00; --warn-soft: rgba(255,159,10,.14);
+    --bad: #E5483D; --bad-soft: rgba(229,72,61,.10);
+    --page: #ECECEF; --frame: #1C1C1E; --note: #FFFFFF;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E0E10; --surface: #1A1A1D; --fill: rgba(255,255,255,.06);
+      --ink: #F2F2F4; --ink2: #A4A5AD; --ink3: #6C6D75; --hair: rgba(255,255,255,.08);
+      --accent: #3D97FF; --accent-soft: rgba(61,151,255,.16);
+      --ok: #3CCF7A; --ok-soft: rgba(60,207,122,.14);
+      --warn: #FFB340; --warn-soft: rgba(255,159,10,.16);
+      --bad: #FF6961; --bad-soft: rgba(255,105,97,.14);
+      --page: #050506; --frame: #2A2A2E; --note: #1A1A1D;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E0E10; --surface: #1A1A1D; --fill: rgba(255,255,255,.06);
+    --ink: #F2F2F4; --ink2: #A4A5AD; --ink3: #6C6D75; --hair: rgba(255,255,255,.08);
+    --accent: #3D97FF; --accent-soft: rgba(61,151,255,.16);
+    --ok: #3CCF7A; --ok-soft: rgba(60,207,122,.14);
+    --warn: #FFB340; --warn-soft: rgba(255,159,10,.16);
+    --bad: #FF6961; --bad-soft: rgba(255,105,97,.14);
+    --page: #050506; --frame: #2A2A2E; --note: #1A1A1D;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
+  .top h1 { font-size: 22px; margin: 0 0 4px; }
+  .top p { margin: 0 0 18px; color: var(--ink2); font-size: 14px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .tab { border: 0; background: var(--note); color: var(--ink2); border-radius: 20px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
+  .tab.on { background: var(--ink); color: var(--bg); }
+  .stage { display: flex; gap: 28px; align-items: flex-start; flex-wrap: wrap; }
+
+  .phone { flex: 0 0 auto; width: 372px; max-width: 100%; height: 780px; background: var(--frame); border-radius: 44px; padding: 10px; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
+  .screen { width: 100%; height: 100%; background: var(--bg); border-radius: 35px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+  .status { height: 30px; flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; font-size: 12px; font-weight: 600; }
+  .bar { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 4px 14px 8px; font-weight: 600; font-size: 16px; }
+  .bar .sp { flex: 1; }
+  .ico { width: 34px; height: 34px; border-radius: 17px; display: grid; place-items: center; color: var(--ink2); }
+  .feed { flex: 1; overflow-y: auto; padding: 6px 14px 12px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+
+  .me { align-self: flex-end; max-width: 80%; background: var(--accent); color: var(--on-accent); padding: 8px 12px; border-radius: 18px 18px 6px 18px; font-size: 14.5px; }
+  .desk { align-self: flex-start; max-width: 88%; font-size: 14.5px; color: var(--ink); }
+  .desk .tool { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--ink3); background: var(--fill); border-radius: 10px; padding: 1px 8px; margin-bottom: 4px; }
+  .typing::after { content: "▍"; color: var(--ink3); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .chip { border: 1px solid var(--hair); background: var(--surface); border-radius: 16px; padding: 4px 10px; font-size: 13px; color: var(--ink); cursor: pointer; }
+
+  .card { align-self: stretch; background: var(--surface); border-radius: 14px; padding: 10px 12px; border: 1px solid var(--hair); font-size: 13px; }
+  .card .h { display: flex; align-items: center; gap: 8px; }
+  .card .t { font-weight: 600; font-size: 13.5px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pill { font-size: 11.5px; border-radius: 10px; padding: 1px 8px; white-space: nowrap; }
+  .p-run { background: var(--accent-soft); color: var(--accent); }
+  .p-ask { background: var(--warn-soft); color: var(--warn); }
+  .p-ok { background: var(--ok-soft); color: var(--ok); }
+  .p-q { background: var(--fill); color: var(--ink2); }
+  .card .line { color: var(--ink2); margin-top: 4px; }
+  .card .steer { margin-top: 6px; font-size: 12px; color: var(--ink3); }
+  .card .steer b { color: var(--ink2); font-weight: 500; }
+  .card .btns { display: flex; gap: 8px; margin-top: 8px; }
+  .btn { border: 0; border-radius: 10px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
+  .btn.pri { background: var(--accent); color: var(--on-accent); }
+  .btn.sec { background: var(--fill); color: var(--ink); }
+  .spin { width: 12px; height: 12px; border-radius: 6px; border: 2px solid var(--accent-soft); border-top-color: var(--accent); animation: rot .9s linear infinite; flex: 0 0 auto; }
+  @keyframes rot { to { transform: rotate(360deg); } }
+
+  .tray { flex: 0 0 auto; padding: 0 14px 6px; display: flex; gap: 6px; }
+  .tray .chip { font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+  .composer { flex: 0 0 auto; margin: 0 10px 14px; background: var(--surface); border-radius: 24px; border: 1px solid var(--hair); display: flex; align-items: center; padding: 6px 6px 6px 14px; gap: 6px; }
+  .composer .in { flex: 1; color: var(--ink3); font-size: 14.5px; }
+  .round { width: 34px; height: 34px; border-radius: 17px; display: grid; place-items: center; background: var(--fill); color: var(--ink2); font-size: 15px; }
+  .round.go { background: var(--accent); color: var(--on-accent); }
+
+  .side { flex: 1; min-width: 280px; max-width: 560px; }
+  .note { background: var(--note); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; font-size: 14px; color: var(--ink2); }
+  .note b { color: var(--ink); }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .ctrl { display: flex; gap: 8px; margin-bottom: 12px; }
+  .ctrl button { border: 0; border-radius: 10px; padding: 8px 14px; font-size: 14px; cursor: pointer; background: var(--ink); color: var(--bg); }
+  .ctrl button.ghost { background: var(--note); color: var(--ink2); }
+  .ctrl .n { align-self: center; font-size: 13px; color: var(--ink3); }
+
+  /* call */
+  .call { background: #101014; color: #F2F2F4; }
+  .call .feed { gap: 8px; }
+  .call .me { background: rgba(255,255,255,.14); color: #fff; }
+  .call .desk { color: #F2F2F4; }
+  .call .card { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.08); color: #ddd; }
+  .call .card .line { color: #aaa; }
+  .ball { flex: 0 0 auto; display: grid; place-items: center; padding: 10px 0 4px; }
+  .ball div { width: 88px; height: 88px; border-radius: 44px; background: radial-gradient(circle at 35% 35%, #6AB4FF, #0A5CCF); box-shadow: 0 0 40px rgba(61,151,255,.45); }
+  .callbar { flex: 0 0 auto; display: flex; justify-content: center; gap: 28px; padding: 10px 0 24px; }
+  .callbar span { width: 54px; height: 54px; border-radius: 27px; display: grid; place-items: center; background: rgba(255,255,255,.12); font-size: 20px; }
+  .callbar span.end { background: #E5483D; }
+  .hint { text-align: center; font-size: 12px; color: #8a8b93; padding-bottom: 4px; }
+  @media (max-width: 420px) { .phone { width: 100%; height: 720px; border-radius: 30px; } .screen { border-radius: 24px; } }
+
+  .think { align-self: flex-start; display: inline-flex; gap: 4px; padding: 6px 2px; }
+  .think i { width: 6px; height: 6px; border-radius: 3px; background: var(--ink3); animation: bob 1.2s infinite ease-in-out; }
+  .think i:nth-child(2) { animation-delay: .15s; } .think i:nth-child(3) { animation-delay: .3s; }
+  @keyframes bob { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+  .ref { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 12px; color: var(--ink2); background: var(--fill); border-radius: 10px; padding: 2px 9px; cursor: pointer; border: 0; }
+  .ref .dot { width: 7px; height: 7px; border-radius: 4px; }
+  .d-run { background: var(--accent); } .d-ask { background: var(--warn); } .d-ok { background: var(--ok); } .d-q { background: var(--ink3); } .d-bad { background: var(--bad); }
+  .p-bad { background: var(--bad-soft); color: var(--bad); }
+  .card.flash { animation: flash 1.2s ease-out; }
+  @keyframes flash { 0% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .card.done { padding: 8px 12px; }
+  .card .recent { margin: 4px 0 0; padding: 0; list-style: none; color: var(--ink3); font-size: 12px; }
+  .card .recent li::before { content: "· "; }
+  .card .more { margin-top: 6px; font-size: 12px; color: var(--accent); }
+  .tray { position: relative; padding: 0 10px; display: block; }
+  .strip { margin-left: 16px; display: inline-flex; align-items: center; gap: 6px; max-width: calc(100% - 32px); background: var(--surface); border: 1px solid var(--hair); border-bottom: 0; border-radius: 12px 12px 0 0; padding: 5px 12px 6px; font-size: 12px; color: var(--ink2); cursor: pointer; position: relative; top: 1px; z-index: 2; }
+  .strip .s { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .strip .w { color: var(--warn); }
+  .composer.joined { margin-top: 0; }
+  .call .strip { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.08); color: #ccc; }
+  .sheet .row { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .sheet .row .hd { display: flex; align-items: center; gap: 8px; width: 100%; }
+  .sheet .row ul { margin: 2px 0 0 16px; padding: 0; list-style: none; color: var(--ink3); font-size: 12px; }
+  .sheet .row ul li::before { content: "· "; }
+  .sheet .row .go { color: var(--accent); font-size: 12px; margin-left: 16px; }
+  .sheet .cap { font-size: 12px; color: var(--ink3); padding: 6px 8px 2px; }
+  .sheet { position: absolute; left: 10px; right: 10px; bottom: 100%; margin-bottom: 6px; background: var(--surface); border: 1px solid var(--hair); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.15); padding: 6px; z-index: 5; }
+  .sheet .row { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px; font-size: 13px; cursor: pointer; }
+  .sheet .row:hover { background: var(--fill); }
+  .sheet .row .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sheet .row .l { color: var(--ink3); font-size: 12px; }
+  .filler { align-self: center; font-size: 12px; color: var(--ink3); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>前台聊天原型（第二版）</h1>
+    <p>你在对话里只跟前台说话。前台只负责交流、不干活：凭上下文能答的自己答，要查资料、上网、动手机的都派给后台；后台以任务卡的形式穿插在对话里。点「下一步」一步步看。</p>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="stage">
+    <div class="phone"><div class="screen" id="screen"></div></div>
+    <div class="side">
+      <div class="ctrl"><button id="next">下一步</button><button class="ghost" id="reset">从头看</button><span class="n" id="count"></span></div>
+      <div class="note" id="note"></div>
+      <div class="note">
+        <b>三样东西，各管一件事</b>
+        <ul>
+          <li><b>前台气泡</b>＝提醒。只在关键节点说话：开始办、要你回答或确认、办好了 / 失败。说结论加一句人话，细节不重复。</li>
+          <li><b>任务卡</b>＝档案。派活时插在对话里，原地更新：状态、最近 3 步进展、需要的按钮。点开就是现在的任务详情。</li>
+          <li><b>在办横条</b>＝实时面板。靠左紧贴在输入框顶上，写着最要紧那件事的当前一步（有要你处理的优先）；卡片被聊没了也看得到。点开是这个对话里所有事的详细进展，点一件跳回卡片。</li>
+        </ul>
+      </div>
+      <div class="note">
+        <b>这一版改了什么</b>
+        <ul>
+          <li>前台汇报的气泡下面带一个<b>小标签</b>（例如「订日料 · 办好了 ›」），点了跳回那张卡片，卡片闪一下。</li>
+          <li>办好时前台只说结论，<b>细节只在卡片上</b>，不说两遍。</li>
+          <li>前台<b>不再自己联网</b>：问汇率、天气这类要查的，前台派给后台，出一张小卡，查到后由前台说一句；问「到哪了」，前台看任务板直接答，不调工具。</li>
+          <li>发出去到前台开口之间，有<b>「在想」三个点</b>，不留空白。</li>
+          <li>示例里不写具体 App 名。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const SC = {
+  chat: {
+    name: "办事时接着聊",
+    note: "<b>派活以后可以接着聊。</b>前台先回一句，任务卡开始跑。你问汇率，前台不自己查，派给后台出一张小卡，查到后说一句；你问「订餐到哪了」，前台看任务板直接答。你说「改成三个人」，前台判断这是补给正在办的那件。",
+    steps: [
+      { me: "帮我订明天中午 12 点附近评分高的日料，两个人" },
+      { think: true },
+      { desk: "好，我让后面去订，先挑附近评分高的几家。", card: { id: "a", t: "订明天 12:00 日料 · 2 人", s: "run", recent: ["打开订餐 App", "搜索附近日料"] } },
+      { me: "对了，今天美元汇率多少？" },
+      { think: true },
+      { desk: "我让后面查一下，马上告诉你。", card: { id: "x", t: "查今天美元汇率", s: "run", recent: ["联网搜索"] } },
+      { update: { id: "x", s: "ok", result: "1 美元 ≈ 7.12 元人民币（中间价）" }, desk: "今天 1 美元约合 7.12 元人民币。", ref: "x" },
+      { me: "订餐到哪了？" },
+      { desk: "在比较几家店明天中午的空位，还没订。", ref: "a", update: { id: "a", recent: ["打开订餐 App", "搜索附近日料", "比较几家店的空位"] } },
+      { me: "改成三个人吧" },
+      { desk: "好，已经告诉后面改成 3 个人。", update: { id: "a", t: "订明天 12:00 日料 · 3 人", steer: "改成三个人" } },
+    ],
+  },
+  far: {
+    name: "卡片被聊没了",
+    note: "<b>卡片原地更新，聊远了就滚出屏幕。</b>这时靠两样东西：输入框上方的「在办」条一直显示实时状态；后台有关键变化时，前台在底部说一句，气泡下面带标签，点了跳回卡片（试着点一下标签或「在办」条）。",
+    steps: [
+      { pre: [{ me: "帮我订明天中午 12 点的日料，三个人" }, { desk: "好，我让后面去订。", card: { id: "a", t: "订明天 12:00 日料 · 3 人", s: "run", recent: ["打开订餐 App", "搜索附近日料", "比较几家店的空位"] } },
+        { me: "下周去杭州出差，有什么推荐的吃的？" },
+        { desk: "片儿川、葱包桧、龙井虾仁都值得试；想吃得讲究点，可以留一顿给杭帮菜馆。要我让后面帮你查具体的店吗？" },
+        { me: "先不用，我想想" },
+        { desk: "好，想好了告诉我。" },
+        { me: "对了提醒我一下，周五之前要交报告" },
+        { desk: "要我让后面给你建一个周五的提醒吗？" }] },
+      { desk: "订餐那边有两家有空位：鮨一（人均 260）和隐泉（人均 180），订哪家？", chips: ["鮨一", "隐泉"], ref: "a", update: { id: "a", s: "ask", recent: ["比较几家店的空位", "找到 2 家有空位"], line: "等你选店" } },
+      { me: "鮨一" },
+      { desk: "好，订鮨一。", update: { id: "a", s: "run", recent: ["找到 2 家有空位", "你选了鮨一", "提交预订"] } },
+      { desk: "订好了。", ref: "a", update: { id: "a", s: "ok", result: "鮨一 · 明天 12:00 · 3 位" } },
+    ],
+  },
+  confirm: {
+    name: "要你确认 / 办完",
+    note: "<b>确认、付款这类步骤走卡片上的按钮</b>，前台不替你同意，只提醒一句、带标签指过去。办完后前台说一次结论，卡片收起来只显示结果，详情点开看。",
+    steps: [
+      { pre: [{ desk: "好，订鮨一。", card: { id: "a", t: "订明天 12:00 日料 · 3 人", s: "run", recent: ["你选了鮨一", "提交预订"] } }] },
+      { desk: "要付 100 元订金，需要你在卡片上点确认。", ref: "a", update: { id: "a", s: "ask", line: "等你确认付订金 ¥100", confirm: true } },
+      { update: { id: "a", s: "run", recent: ["提交预订", "你确认了付订金", "正在付款"], line: null, confirm: false } },
+      { desk: "订好了，订金已付。", ref: "a", update: { id: "a", s: "ok", result: "鮨一 · 明天 12:00 · 3 位 · 订金 ¥100" } },
+    ],
+  },
+  multi: {
+    name: "同时办两件 / 失败",
+    note: "<b>一个对话可以同时挂几件事。</b>「在办」条显示件数，点开是列表。手机同时只能跑一件时，第二件排队，前台说排第几。办失败了前台说原因和下一步，卡片标红。",
+    steps: [
+      { pre: [{ me: "帮我订明天中午 12 点的日料，三个人" }, { desk: "好，我让后面去订。", card: { id: "a", t: "订明天 12:00 日料 · 3 人", s: "run", recent: ["打开订餐 App", "比较几家店的空位"] } }] },
+      { me: "再帮我给王姐发消息，说明天的会改到下午三点" },
+      { think: true },
+      { desk: "好，这件也交给后面了，排在订餐后面，第 2 个。", card: { id: "b", t: "告诉王姐：会议改到 15:00", s: "q", line: "排队中 · 第 2 个" } },
+      { update: { id: "a", s: "ok", result: "鮨一 · 明天 12:00 · 3 位" }, desk: "订餐办好了，现在开始发消息。", ref: "a" },
+      { update: { id: "b", s: "run", line: null, recent: ["打开聊天 App", "找联系人「王姐」"] } },
+      { update: { id: "b", s: "bad", result: "通讯录里有两个「王姐」，没法确定是哪位" }, desk: "消息没发出去：有两个「王姐」，我分不清。告诉我是哪位（比如公司那位），我再让后面发。", ref: "b" },
+    ],
+  },
+  call: {
+    name: "语音通话里",
+    call: true,
+    note: "<b>语音通话是同一个前台</b>，只是说出来。你开口只打断它这句话，不取消后台任务。问天气也是派给后台查。卡片显示在通话的对话流里；挂断以后任务继续，结果写回这条会话并发通知。",
+    steps: [
+      { me: "帮我订明天中午的日料，三个人" },
+      { desk: "好，我让后面去订。", card: { id: "a", t: "订明天 12:00 日料 · 3 人", s: "run", recent: ["比较几家店的空位"] } },
+      { me: "今天天气怎么样？" },
+      { desk: "我让后面查一下。", card: { id: "w", t: "查今天天气", s: "run", recent: ["联网搜索"] } },
+      { update: { id: "w", s: "ok", result: "多云 15–22℃，下午可能小雨" }, desk: "今天多云，15 到 22 度，下午可能有小雨。" },
+      { desk: "订餐那边问：鮨一和隐泉都有位，订哪家？", update: { id: "a", s: "ask", line: "等你选店" } },
+      { me: "鮨一" },
+      { desk: "好的。", update: { id: "a", s: "run", line: null, recent: ["你选了鮨一", "提交预订"] } },
+    ],
+  },
+};
+const ORDER = ["chat", "far", "confirm", "multi", "call"];
+const STATE = { run: ["在办", "p-run", "d-run"], ask: ["要你处理", "p-ask", "d-ask"], ok: ["办好了", "p-ok", "d-ok"], q: ["排队中", "p-q", "d-q"], bad: ["没办成", "p-bad", "d-bad"] };
+let cur = "chat", step = 0, feed = [], cards = {}, sheet = false;
+
+function short(t) { return t.replace(/ · .*/, "").replace(/^订明天 12:00 /, "订"); }
+function cardHtml(c) {
+  const [label, pill] = STATE[c.s];
+  const done = c.s === "ok" || c.s === "bad";
+  const body = done
+    ? `<div class="line">${c.result || ""}</div><div class="more">查看详情 ›</div>`
+    : `${c.line ? `<div class="line">${c.line}</div>` : ""}${c.recent ? `<ul class="recent">${c.recent.slice(-3).map(r => `<li>${r}</li>`).join("")}</ul>` : ""}`;
+  return `<div class="card ${done ? "done" : ""}" id="card-${c.id}"><div class="h">${c.s === "run" ? '<div class="spin"></div>' : ""}<div class="t">${c.t}</div><span class="pill ${pill}">${label}</span></div>
+    ${body}${c.steer && !done ? `<div class="steer">已加入：<b>${c.steer}</b></div>` : ""}
+    ${c.confirm ? '<div class="btns"><button class="btn pri">确认付款</button><button class="btn sec">不付</button></div>' : ""}</div>`;
+}
+function refHtml(id) {
+  const c = cards[id]; const [label, , dot] = STATE[c.s];
+  return `<button class="ref" data-jump="${id}"><span class="dot ${dot}"></span>${short(c.t)} · ${label} ›</button>`;
+}
+function apply(st) {
+  (st.pre || []).forEach(apply);
+  feed = feed.filter(f => f.k !== "think");
+  if (st.me) feed.push({ k: "me", v: st.me });
+  if (st.think) feed.push({ k: "think" });
+  if (st.update) Object.assign(cards[st.update.id], st.update);
+  if (st.card) { cards[st.card.id] = { ...st.card }; }
+  if (st.desk) feed.push({ k: "desk", v: st.desk, chips: st.chips, ref: st.ref });
+  if (st.card) feed.push({ k: "card", id: st.card.id });
+}
+function render() {
+  const sc = SC[cur];
+  feed = []; cards = {};
+  for (let i = 0; i < step; i++) apply(sc.steps[i]);
+  const rows = feed.map(f => {
+    if (f.k === "me") return `<div class="me">${f.v}</div>`;
+    if (f.k === "think") return `<div class="think"><i></i><i></i><i></i></div>`;
+    if (f.k === "card") return cardHtml(cards[f.id]);
+    return `<div class="desk">${f.v}${f.chips ? `<div class="chips">${f.chips.map(c => `<span class="chip">${c}</span>`).join("")}</div>` : ""}${f.ref ? `<div>${refHtml(f.ref)}</div>` : ""}</div>`;
+  }).join("");
+  const list = Object.values(cards);
+  const active = list.filter(c => c.s !== "ok" && c.s !== "bad");
+  const ask = active.filter(c => c.s === "ask").length;
+  const sheetHtml = sheet ? `<div class="sheet"><div class="cap">这个对话里的事 · 点一件看详细进展</div>${list.map(c => {
+      const steps = (c.s === "ok" || c.s === "bad") ? [c.result || ""] : [...(c.recent || []), ...(c.line ? [c.line] : [])].slice(-3);
+      return `<div class="row" data-jump="${c.id}"><div class="hd"><span class="dot ${STATE[c.s][2]}" style="width:8px;height:8px;border-radius:4px"></span><span class="t">${c.t}</span><span class="l">${STATE[c.s][0]}</span></div><ul>${steps.map(x => `<li>${x}</li>`).join("")}</ul><span class="go">查看详细进展 ›</span></div>`;
+    }).join("")}</div>` : "";
+  const head = active.find(c => c.s === "ask") || active[0];
+  const headLine = head ? (head.line || (head.recent || []).slice(-1)[0] || STATE[head.s][0]) : "";
+  const tray = active.length ? `<div class="tray">${sheetHtml}<span class="strip" id="trayChip">${ask ? '<span class="w">●</span>' : '<span class="spin"></span>'}<span class="s">${active.length > 1 ? `${active.length} 件在办 · ` : ""}${short(head.t)}：${headLine}</span>${sheet ? "⌄" : "⌃"}</span></div>` : "";
+  const s = document.getElementById("screen");
+  if (sc.call) {
+    s.className = "screen call";
+    s.innerHTML = `<div class="status"><span>9:41</span><span>通话中 01:12</span></div>
+      <div class="ball"><div></div></div><div class="hint">${step && feed[feed.length - 1]?.k === "me" ? "在想…" : "在听…"}</div>
+      <div class="feed" id="f">${rows}</div>${tray}
+      <div class="callbar"><span>🔇</span><span>⌨️</span><span class="end">📞</span></div>`;
+  } else {
+    s.className = "screen";
+    s.innerHTML = `<div class="status"><span>9:41</span><span>●●● 5G</span></div>
+      <div class="bar"><span class="ico">☰</span><span>Mika</span><span class="sp"></span><span class="ico">🎧</span></div>
+      <div class="feed" id="f">${rows || '<div class="desk" style="color:var(--ink3)">有什么要我做的？</div>'}</div>${tray}
+      <div class="composer${active.length ? " joined" : ""}"><span class="round">＋</span><span class="in">和 Mika 说点什么</span><span class="round">🎤</span><span class="round go">↑</span></div>`;
+  }
+  const f = document.getElementById("f"); f.scrollTop = f.scrollHeight;
+  document.getElementById("note").innerHTML = sc.note;
+  document.getElementById("count").textContent = `${step} / ${sc.steps.length}`;
+  document.getElementById("next").disabled = step >= sc.steps.length;
+  document.getElementById("next").style.opacity = step >= sc.steps.length ? .4 : 1;
+  document.getElementById("tabs").innerHTML = ORDER.map(k => `<button class="tab ${k === cur ? "on" : ""}" data-k="${k}">${SC[k].name}</button>`).join("");
+}
+function jump(id) {
+  sheet = false; render();
+  const el = document.getElementById("card-" + id); if (!el) return;
+  el.scrollIntoView({ block: "center", behavior: "smooth" });
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+}
+document.getElementById("screen").onclick = e => {
+  const j = e.target.closest("[data-jump]"); if (j) { jump(j.dataset.jump); return; }
+  if (e.target.closest("#trayChip")) { sheet = !sheet; render(); }
+};
+document.getElementById("tabs").onclick = e => { const k = e.target.dataset.k; if (k) { cur = k; sheet = false; step = SC[k].steps[0].pre ? 1 : 0; render(); } };
+document.getElementById("next").onclick = () => { if (step < SC[cur].steps.length) { step++; render(); } };
+document.getElementById("reset").onclick = () => { sheet = false; step = SC[cur].steps[0].pre ? 1 : 0; render(); };
+render();
+</script>
+</body>
+</html>

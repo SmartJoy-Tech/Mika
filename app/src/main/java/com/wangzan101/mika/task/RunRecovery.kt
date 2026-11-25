@@ -5,7 +5,7 @@ import com.wangzan101.mika.i18n.tr
 import com.wangzan101.mika.chat.ConversationStore
 import com.wangzan101.mika.core.agent.StopSummary
 import com.wangzan101.mika.core.agent.Turn
-import com.wangzan101.mika.core.record.RunRecords
+import com.wangzan101.mika.core.run.record.RunRecords
 import com.wangzan101.mika.core.run.Channel
 import com.wangzan101.mika.core.run.ChannelPeer
 import com.wangzan101.mika.core.run.Delivery
@@ -48,6 +48,8 @@ class RunRecovery(
     private val records: RunRecords? = null,
     private val label: (String) -> String = { it },
     private val appLabel: (String) -> String = { it },
+    private val languageTag: () -> String? = { null },
+    private val scheduledLocalChannel: Channel? = null,
 ) {
     private val done = AtomicBoolean(false)
     private val lock = Mutex()
@@ -85,7 +87,10 @@ class RunRecovery(
     private suspend fun settle(run: StoredRun) {
         run.triggerWindowKey?.let { triggers.interrupted(it, "run interrupted before the result was confirmed") }
         val peer = run.channelPeer ?: ChannelPeer(LocalChannel.ID, "phone-owner", run.threadId)
-        val channel = channels(peer.channelId) ?: return
+        val scheduledChannel = scheduledLocalChannel.takeIf {
+            peer.channelId == LocalChannel.ID && run.triggerWindowKey != null
+        }
+        val channel = scheduledChannel ?: channels(peer.channelId) ?: return
         val deliveryId = resultId(run)
         val prior = deliveryId?.let(outbox::get)
         val reply = run.reply ?: (prior?.delivery as? Delivery.Result)?.text
@@ -121,7 +126,7 @@ class RunRecovery(
             return null
         }
         if (!StopSummary.worthSaying(events, null)) return null
-        val text = StopSummary.plain(said, events, null, label, appLabel)
+        val text = StopSummary.plain(said, events, null, label, appLabel, language = languageTag())
         return text.take(RECOVERY_SUMMARY_CHARS) + if (text.length > RECOVERY_SUMMARY_CHARS) "…" else ""
     }
 

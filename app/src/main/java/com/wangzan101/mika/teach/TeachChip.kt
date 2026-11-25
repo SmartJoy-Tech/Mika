@@ -24,9 +24,10 @@ import com.wangzan101.mika.R
 import com.wangzan101.mika.cap.phone.a11y.OverlayPlacement
 import com.wangzan101.mika.cap.phone.a11y.OverlayWindow
 import com.wangzan101.mika.cap.phone.a11y.ScreenAccessibility
-import com.wangzan101.mika.core.teach.TeachPhase
+import com.wangzan101.mika.core.learn.teach.TeachPhase
 import com.wangzan101.mika.ui.theme.MikaTheme
 import com.wangzan101.mika.ui.theme.MikaType
+import com.wangzan101.mika.ui.theme.MikaRadius
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
@@ -84,7 +85,7 @@ private fun TeachChipBar(
     MikaTheme {
         val c = MikaTheme.colors
         Row(
-            Modifier.testTag("teach-chip").clip(RoundedCornerShape(20.dp)).background(c.ink).padding(horizontal = 12.dp, vertical = 8.dp),
+            Modifier.testTag("teach-chip").clip(RoundedCornerShape(MikaRadius.Bubble)).background(c.ink).padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {

@@ -1,39 +1,47 @@
 package com.wangzan101.mika.task
 
+import com.wangzan101.mika.core.general.NOTICES_READ
+import com.wangzan101.mika.core.proactive.ObservedContext
 import com.wangzan101.mika.R
 import com.wangzan101.mika.i18n.tr
 import com.wangzan101.mika.core.agent.LearnGate
 import com.wangzan101.mika.core.agent.RunOutcome
 import com.wangzan101.mika.core.agent.TaskState
-import com.wangzan101.mika.core.knowledge.FrontMatter
-import com.wangzan101.mika.core.knowledge.GuideCatalog
-import com.wangzan101.mika.core.knowledge.KnowledgeStore
-import com.wangzan101.mika.core.knowledge.AppKnowledgeDrafter
-import com.wangzan101.mika.core.knowledge.AppKnowledgeDraftStore
-import com.wangzan101.mika.core.knowledge.AppKnowledgeStage
-import com.wangzan101.mika.core.knowledge.AppRunInput
-import com.wangzan101.mika.core.memory.Change
-import com.wangzan101.mika.core.memory.MemoryExtractor
-import com.wangzan101.mika.core.memory.MemorySource
-import com.wangzan101.mika.core.memory.MemoryStore
-import com.wangzan101.mika.core.record.RunEvent
-import com.wangzan101.mika.core.observation.PlaceKind
+import com.wangzan101.mika.core.learn.knowledge.FrontMatter
+import com.wangzan101.mika.core.learn.knowledge.GuideCatalog
+import com.wangzan101.mika.core.learn.knowledge.KnowledgeStore
+import com.wangzan101.mika.core.learn.knowledge.AppKnowledgeDrafter
+import com.wangzan101.mika.core.learn.knowledge.AppKnowledgeDraftStore
+import com.wangzan101.mika.core.learn.knowledge.AppKnowledgeStage
+import com.wangzan101.mika.core.learn.knowledge.AppRunInput
+import com.wangzan101.mika.core.learn.memory.Change
+import com.wangzan101.mika.core.learn.memory.MemoryExtractor
+import com.wangzan101.mika.core.learn.memory.MemorySource
+import com.wangzan101.mika.core.learn.memory.MemoryStore
+import com.wangzan101.mika.core.run.record.RunEvent
+import com.wangzan101.mika.core.screen.observation.PlaceKind
 import com.wangzan101.mika.core.run.RunOrigin
-import com.wangzan101.mika.core.skills.DraftInput
-import com.wangzan101.mika.core.skills.DraftResult
-import com.wangzan101.mika.core.skills.Eligibility
-import com.wangzan101.mika.core.skills.PersonalSkills
-import com.wangzan101.mika.core.skills.SkillDrafter
-import com.wangzan101.mika.core.skills.SkillNote
-import com.wangzan101.mika.core.skills.SkillOutcomes
-import com.wangzan101.mika.core.skills.SkillResult
-import com.wangzan101.mika.core.skills.SkillStatus
+import com.wangzan101.mika.core.learn.skills.DraftInput
+import com.wangzan101.mika.core.learn.skills.DraftResult
+import com.wangzan101.mika.core.learn.skills.Eligibility
+import com.wangzan101.mika.core.learn.skills.PersonalSkills
+import com.wangzan101.mika.core.learn.skills.SkillDrafter
+import com.wangzan101.mika.core.learn.skills.SkillFollow
+import com.wangzan101.mika.core.learn.skills.SkillNote
+import com.wangzan101.mika.core.learn.skills.SkillOutcomes
+import com.wangzan101.mika.core.learn.skills.SkillResult
+import com.wangzan101.mika.core.learn.skills.SkillStatus
+import com.wangzan101.mika.core.screen.map.ScreenMapBuilder
+import com.wangzan101.mika.core.screen.map.ScreenMapGrower
+import com.wangzan101.mika.core.screen.map.ScreenMapStore
 import com.wangzan101.mika.memory.RunNotes
 import com.wangzan101.mika.settings.MemorySwitches
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.wangzan101.mika.core.tool.ToolIndex
 
 /** 一次运行结束后,学东西要用的全部材料;由 [TaskRun] 在任务收尾时交出。 */
@@ -56,6 +64,12 @@ data class RunAftermath(
     val knowledge: KnowledgeStore? = null,
     /** 交出回答后判的结局;只从办成的学([LearnGate])。没判成、没判过为 [RunOutcome.Unknown]。 */
     val outcome: RunOutcome = RunOutcome.Unknown,
+    /**
+     * 这段对话里有通知提醒([com.wangzan101.mika.core.agent.NoticeTurn]),或这次任务开工时带了从通知里得来的那一段
+     * ([com.wangzan101.mika.core.proactive.ObservedContext]):用户在这里说的话多半是在回应别人写的通知
+     * (「好,就按他说的」),和读过网页的任务一样,不自动从里面提取记忆。用户明说要记的(memory_save)不受影响。
+     */
+    val noticeTainted: Boolean = false,
 )
 
 /**
@@ -81,12 +95,17 @@ class RunLearning(
     private val yieldToForeground: suspend () -> Unit = {},
     private val appDrafter: AppKnowledgeDrafter? = null,
     private val appDrafts: AppKnowledgeDraftStore? = null,
+    /** 各 App 的屏图仓库;为 null 时收尾不长图。 */
+    private val screenMaps: ScreenMapStore? = null,
 ) {
     suspend fun learn(a: RunAftermath): RunNotes {
         yieldToForeground()
         val events = guarded(emptyList()) { a.events() }
+        growGraphs(a, events)
         val used = events.filterIsInstance<RunEvent.SkillUsed>()
-        val skillNotes = recordOutcomes(used, a.end, a.outcome).toMutableList()
+        // 照着做了的技能(只读过的不算):记结果和要不要起草都看它
+        val followed = SkillFollow.followed(events, used, a.tools, catalog::skillPlaces)
+        val skillNotes = recordOutcomes(followed, used, a.end, a.outcome).toMutableList()
         // 试用中的 App 知识和个人技能按同一种结果算:取消的、没判成的不记
         val trial = SkillOutcomes.resultOf(a.end, a.outcome)?.takeIf { it != SkillResult.unreviewed }
         val trialNames = events.filterIsInstance<RunEvent.State>().filter { it.name == "knowledge_trial_used" }.map { it.detail }.distinct()
@@ -98,7 +117,11 @@ class RunLearning(
         // 没有运行编号就没处挂提示,用户看不到也撤销不了:不提取
         val learnable = a.origin == RunOrigin.Ui && a.end is TaskState.Succeeded
         val readWeb = events.filterIsInstance<RunEvent.Observed>().any { it.place?.kind in setOf(PlaceKind.Site, PlaceKind.Page) }
-        if (learnable && !readWeb && a.runId != null && store != null && extractor != null && switches.autoRemember && a.utterances.isNotEmpty()) {
+        // 读过通知的任务和读过网页的一样:用户这次说的话多半是在回应别人写的东西,不自动提取
+        val readNotices = events.filterIsInstance<RunEvent.Activity>().any { it.label == NOTICES_READ }
+            // 开工时就带着从通知里得来的那一段的也一样(运行记录里有那一笔;记录读不到时还有 a.noticeTainted)
+            || events.filterIsInstance<RunEvent.State>().any { it.name == ObservedContext.RUN_STATE }
+        if (learnable && !readWeb && !readNotices && !a.noticeTainted && a.runId != null && store != null && extractor != null && switches.autoRemember && a.utterances.isNotEmpty()) {
             val now = store.clock()
             changes += guarded(emptyList()) {
                 yieldToForeground()
@@ -110,21 +133,26 @@ class RunLearning(
 
         // 做法只从办成的学:回答如实说没办成、只办了一部分,或没判成的,不起草
         val done = learnable && LearnGate.done(a.end, a.outcome)
-        if (done) draft(a, events, used.map { it.name }.distinct())?.let(skillNotes::add)
+        if (done) draft(a, events, followed.toList())?.let(skillNotes::add)
         // App 知识也从没办成、磕磕绊绊的运行里学(值不值得由 AppKnowledgeDrafter 按经过判)
         if (a.origin == RunOrigin.Ui) skillNotes += draftApps(a, events)
         return RunNotes(a.conversationId, a.runId.orEmpty(), MemoryExtractor.notes(changes), a.usedMemory, skillNotes)
     }
 
-    /** 每份技能单独读改写(和别的任务同时记结果也不丢);一份出错不影响别的。 */
-    private suspend fun recordOutcomes(used: List<RunEvent.SkillUsed>, end: TaskState, outcome: RunOutcome): List<SkillNote> {
+    /**
+     * 每份技能单独读改写(和别的任务同时记结果也不丢);一份出错不影响别的。
+     * 结果只记到这次照着做了的技能上([followed],见 [SkillFollow]):只是读过的不记;
+     * 照着做了的不止一份时分不清结果归谁,一份也不记,免得没用上的技能跟着被记成没办成、被停用(#569)。
+     */
+    private suspend fun recordOutcomes(followed: Set<String>, used: List<RunEvent.SkillUsed>, end: TaskState, outcome: RunOutcome): List<SkillNote> {
         val result = SkillOutcomes.resultOf(end, outcome) ?: return emptyList()
-        return used.groupBy { it.name }.mapNotNull { (name, uses) ->
+        if (followed.size != 1) return emptyList()
+        return used.filter { it.name in followed }.groupBy { it.name }.mapNotNull { (name, uses) ->
             val next = guarded(null) {
                 skills.update(name) { s -> if (s.status == SkillStatus.active || s.status == SkillStatus.trial) SkillOutcomes.record(s, result, followed = true) else null }
             } ?: return@mapNotNull null
             when (next.status) {
-                SkillStatus.suspended -> SkillNote(tr(R.string.skill_suspended), suspended = name)
+                SkillStatus.suspended -> SkillNote(tr(R.string.skill_suspended, name), suspended = name)
                 SkillStatus.active -> if (uses.isNotEmpty() && result == SkillResult.verified) SkillNote(tr(R.string.skill_verified, name)) else null
                 else -> null
             }
@@ -136,7 +164,7 @@ class RunLearning(
         val runId = a.runId ?: return null
         if (!switches.learnSkills) return null
         if (events.any { it is RunEvent.Replay && it.matched }) return null
-        // 照着个人技能做成的只记一次结果,不再起草
+        // 照着个人技能做成的只记一次结果,不再起草;只是读过、没照着做的不挡起草(这次是自己办成的)
         val followed = used.firstOrNull().takeIf { SkillOutcomes.resultOf(a.end, a.outcome) == SkillResult.verified }
         val done = a.end as? TaskState.Succeeded
         if (Eligibility.check(events, followed, a.tools, done = LearnGate.done(a.end, a.outcome)) != null) return null
@@ -183,6 +211,17 @@ class RunLearning(
         throw e
     } catch (e: Exception) {
         fallback
+    }
+
+    /** 收尾长图:重放本次 events 得到屏/边片段,按屏 id 并进已存图。失败只计数、不影响任务结局。 */
+    private suspend fun growGraphs(a: RunAftermath, events: List<RunEvent>) {
+        val store = screenMaps ?: return
+        if (a.origin != RunOrigin.Ui) return
+        val fragments = ScreenMapBuilder().apply(a.runId ?: "", events)
+        if (fragments.isEmpty()) return
+        guarded(Unit) {
+            withContext(Dispatchers.IO) { ScreenMapGrower.grow(store, fragments) }
+        }
     }
 
     companion object {

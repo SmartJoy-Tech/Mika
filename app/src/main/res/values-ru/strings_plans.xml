@@ -34,6 +34,9 @@
     <string name="plans_repeat_weekly">Еженедельно</string>
     <string name="plans_interval_minutes">Повторять каждые (минуты)</string>
     <string name="plans_clock">Местное время (через запятую)</string>
+    <string name="plans_pick_time">Выбрать время</string>
+    <string name="plans_add_time">Добавить время</string>
+    <string name="plans_remove_time">Удалить это время</string>
     <string name="plans_zone">Идентификатор часового пояса</string>
     <string name="plans_condition_optional">Условие (необязательно)</string>
     <string name="plans_notify_change">При изменении</string>
@@ -81,4 +84,5 @@
     <string name="trigger_deleted">Задача по расписанию удалена</string>
     <string name="trigger_busy">Эта задача ещё выполняется</string>
     <string name="plans_run_history">История запусков</string>
+    <string name="plans_copy">Скопировать как новое расписание</string>
 </resources>

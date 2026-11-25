@@ -69,8 +69,9 @@
     <string name="speech_doubao_plan">Penagihan</string>
     <string name="speech_doubao_duration_note">Ditagih per waktu pengenalan</string>
     <string name="speech_doubao_concurrent_note">Ditagih per koneksi bersamaan</string>
-    <string name="speech_funasr_model">Fun-ASR (dihosting sendiri)</string>
-    <string name="speech_funasr_setup_hint">Kata-kata muncul saat Anda berbicara, dikenali oleh server Fun-ASR real-time yang Anda jalankan sendiri (serve_realtime_ws.py dari proyek Fun-ASR), biasanya di jaringan lokal. Tidak perlu akun atau kunci.</string>
+    <string name="speech_funasr_model">Qwen (dihosting sendiri)</string>
+    <string name="speech_funasr_setup_hint">Kata-kata muncul saat Anda berbicara, dikenali oleh server real-time yang Anda jalankan sendiri, biasanya di jaringan lokal. Tidak perlu akun atau kunci. Mendukung Fun-ASR-Nano dan Qwen3-ASR.</string>
+    <string name="speech_funasr_deploy_guide">Panduan penerapan</string>
     <string name="speech_funasr_server">Server</string>
     <string name="speech_funasr_address">Alamat</string>
     <string name="speech_funasr_enter_address">mis. 192.168.1.10:10095</string>
@@ -92,7 +93,7 @@
     <string name="speech_live_auth">Layanan menolak kunci. Periksa kunci dan pastikan berasal dari region yang dipilih.</string>
     <string name="speech_live_refused">Layanan menolak permintaan (%1$s).</string>
     <string name="speech_live_unreachable">Tidak dapat menjangkau layanan. Periksa alamat dan pastikan layanan berjalan.</string>
-    <string name="speech_funasr_service">Pengenalan suara real-time Fun-ASR</string>
+    <string name="speech_funasr_service">Pengenalan suara real-time Qwen</string>
     <string name="speech_funasr_choose_note">Server sendiri atau Alibaba Cloud Bailian</string>
     <string name="speech_funasr_tab_local">Dihosting sendiri</string>
     <string name="speech_bailian_tab">Bailian · %1$s</string>
@@ -140,4 +141,25 @@
     <string name="personal_replay_pause">Jeda</string>
     <string name="personal_replay_play">Putar</string>
     <string name="personal_replay_return_live">Kembali ke siaran langsung</string>
+    <string name="drawer_projects">Proyek</string>
+    <string name="drawer_new_project">Proyek baru</string>
+    <string name="drawer_project_new_title">Proyek baru</string>
+    <string name="drawer_project_name_hint">Nama proyek</string>
+    <string name="drawer_project_rename_title">Ganti nama proyek</string>
+    <string name="drawer_project_new_chat">Obrolan baru di proyek</string>
+    <string name="drawer_project_empty">Belum ada obrolan</string>
+    <string name="drawer_project_delete_title">Hapus proyek ini?</string>
+    <string name="drawer_project_delete_body">Semua obrolan dan berkas ruang kerja bersama di "%1$s" akan dihapus dan tidak dapat dipulihkan.</string>
+    <string name="drawer_project_actions">Tindakan proyek</string>
+    <string name="chat_project_shared">Proyek</string>
+    <string name="desk_report_line">%1$s: %2$s</string>
+    <string name="desk_report_started">Dimulai</string>
+    <string name="desk_report_needs_answer">Bertanya kepada Anda: %1$s</string>
+    <string name="desk_report_needs_confirm">Perlu konfirmasi Anda di ponsel</string>
+    <string name="desk_report_needs_takeover">Perlu Anda ambil alih di ponsel</string>
+    <string name="desk_report_needs_prerequisite">Perlu Anda bereskan sesuatu di ponsel agar bisa lanjut</string>
+    <string name="desk_report_succeeded">Selesai: %1$s</string>
+    <string name="desk_report_failed">Tidak berhasil: %1$s</string>
+    <string name="desk_report_cancelled">Dibatalkan</string>
+    <string name="desk_task_not_started">Tugas tidak sempat dimulai. Buka Mika lalu coba lagi.</string>
 </resources>

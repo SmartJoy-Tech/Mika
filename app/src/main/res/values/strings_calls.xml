@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="calls_title">AI phone calls</string>
-    <string name="calls_entry_sub">Cellular calls with Volcengine realtime voice</string>
+    <string name="calls_entry_sub">Cellular calls with realtime voice</string>
     <string name="calls_action_failed">The call action failed. Check readiness and retry.</string>
     <string name="calls_permissions_required">Phone and notification permissions are needed.</string>
     <string name="calls_ai_active">AI is handling the call</string>
@@ -19,23 +19,20 @@
     <string name="calls_sim">Outgoing SIM</string>
     <string name="calls_default">Default</string>
     <string name="calls_dial">Call with AI</string>
-    <string name="calls_call_note">Calls use the existing SIM. Carrier and Volcengine usage charges may apply. Set the purpose and greeting in Settings before dialing.</string>
+    <string name="calls_call_note">Calls use the existing SIM. Carrier and voice service usage charges may apply. Set the purpose and greeting in Settings before dialing.</string>
     <string name="calls_prepare">Check and prepare</string>
     <string name="calls_enable">Enable AI calling</string>
     <string name="calls_disable">Disable and restore normal calling</string>
     <string name="calls_provider">Volcengine Ark Doubao realtime voice interaction API</string>
-    <string name="calls_credentials">Volcengine Ark Doubao realtime voice interaction API credentials</string>
-    <string name="calls_key_saved">Credentials saved securely; service access still needs a real test</string>
     <string name="calls_key_missing">Not configured</string>
     <string name="calls_profile">Call configuration</string>
-    <string name="calls_model_label">Model %1$s · call audio route</string>
     <string name="calls_incoming">Incoming calls</string>
     <string name="calls_auto_answer">Answer incoming calls automatically</string>
     <string name="calls_all_incoming">Include all incoming numbers</string>
     <string name="calls_all_note">Includes numbers outside the list and unknown callers</string>
     <string name="calls_allowlist">Allowed incoming numbers</string>
     <string name="calls_allowlist_empty">Empty list: no automatic answering unless all callers is enabled</string>
-    <string name="calls_privacy_note">Call audio is sent to Volcengine only during AI handling. No audio recordings are saved. Transcripts stay encrypted on this phone; use Take over at any time.</string>
+    <string name="calls_privacy_note">Call audio is sent to the selected voice service only during AI handling. No audio recordings are saved. Transcripts stay encrypted on this phone; use Take over at any time.</string>
     <string name="calls_history_empty">No AI call records yet</string>
     <string name="calls_collapse">Collapse</string>
     <string name="calls_transcript">Show transcript</string>
@@ -52,15 +49,15 @@
     <string name="calls_cancel">Cancel</string>
     <string name="calls_greeting">Greeting</string>
     <string name="calls_instructions">Purpose and instructions</string>
-    <string name="calls_duration">Maximum AI seconds (15–600)</string>
-    <string name="calls_speaker">Volcengine voice id</string>
+    <string name="calls_duration">Maximum AI seconds (0 = unlimited, 15–600)</string>
+    <string name="calls_limits_unlimited">One call at a time · no limit on AI audio time</string>
+    <string name="calls_speaker">Voice ID</string>
     <string name="calls_audio_route">Call audio route</string>
     <string name="calls_audio_verified">I confirmed both parties can hear AI calls on this phone</string>
     <string name="calls_verify_note">First place or answer a manual test call and confirm both directions, then enable automatic answering.</string>
     <string name="calls_tool_state">Call state</string>
     <string name="calls_tool_dial">Place call</string>
     <string name="calls_tool_hangup">Hang up call</string>
-    <string name="calls_advanced">Advanced settings</string>
     <string name="calls_allowlist_hint">Enter one number per line, or separate numbers with commas.</string>
     <string name="calls_allowlist_invalid">Use valid phone numbers (up to %1$d).</string>
     <string name="calls_audio_direct">Direct phone audio</string>
@@ -89,7 +86,7 @@
     <string name="calls_original_transcript">Call transcript</string>
     <string name="calls_outgoing_title">Place a call</string>
     <string name="calls_rules">Answering rules</string>
-    <string name="calls_setup_credentials">Configure Volcengine realtime voice credentials.</string>
+    <string name="calls_setup_credentials">Configure realtime voice credentials.</string>
     <string name="calls_setup_shell">Connect the built-in Mika assistant first.</string>
     <string name="calls_sim_clear_preferred">Clear preferred SIM</string>
     <string name="calls_sim_preferred">Preferred SIM: %1$s</string>
@@ -143,4 +140,21 @@
     <string name="calls_notification_connecting_audio">Connecting call audio</string>
     <string name="calls_notification_connected_waiting">AI connected. Waiting for the other party to speak. You can take over anytime.</string>
     <string name="calls_notification_connected">AI connected. You can take over anytime.</string>
+    <string name="calls_only_types">Only selected call types</string>
+    <string name="calls_pick_types">Select at least one call type</string>
+    <string name="calls_type_note">Mika uses Accessibility to match the phone app’s label and number to the ringing call. Unrecognized calls are left for you.</string>
+    <string name="calls_type_accessibility">Open Accessibility settings</string>
+    <string name="calls_type_takeout">Food delivery</string>
+    <string name="calls_type_parcel">Parcels</string>
+    <string name="calls_type_delivery">Delivery or logistics (unspecified)</string>
+    <string name="calls_type_sales">Sales and advertising</string>
+    <string name="calls_type_broker">Brokers and agents</string>
+    <string name="calls_type_financial_sales">Insurance and investment sales</string>
+    <string name="calls_type_spam">Spam</string>
+    <string name="calls_type_fraud">Suspected fraud</string>
+    <string name="calls_type_high_risk">High risk</string>
+    <string name="calls_type_business">Businesses and customer service</string>
+    <string name="calls_type_transport">Taxis and ride services</string>
+    <string name="calls_only_strangers">Only numbers outside contacts</string>
+    <string name="calls_strangers_note">Allow Mika to read contacts. AI answers only when the number can be checked and is not saved. Hidden numbers and failed lookups are left for you.</string>
 </resources>

@@ -4,18 +4,19 @@ import org.junit.Rule
 import com.wangzan101.mika.i18n.ChineseTexts
 import com.wangzan101.mika.i18n.ResFileTexts
 import com.wangzan101.mika.i18n.UiText
-import com.wangzan101.mika.core.usage.UsageCounts
-import com.wangzan101.mika.core.usage.UsageKey
-import com.wangzan101.mika.core.usage.UsagePurpose
-import com.wangzan101.mika.core.usage.UsageQuery
-import com.wangzan101.mika.core.usage.UsageRange
-import com.wangzan101.mika.core.usage.UsageRow
-import com.wangzan101.mika.core.usage.UsageSnapshot
+import com.wangzan101.mika.core.model.usage.UsageCounts
+import com.wangzan101.mika.core.model.usage.UsageKey
+import com.wangzan101.mika.core.model.usage.UsagePurpose
+import com.wangzan101.mika.core.model.usage.UsageQuery
+import com.wangzan101.mika.core.model.usage.UsageRange
+import com.wangzan101.mika.core.model.usage.UsageRow
+import com.wangzan101.mika.core.model.usage.UsageSnapshot
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import com.wangzan101.mika.settings.ui.UsageCopy
 
 class UsageCopyTest {
     @get:Rule val texts = ChineseTexts()
@@ -46,6 +47,13 @@ class UsageCopyTest {
         assertEquals("占比按这一排算", 100.0 / 110, p1.first().share, 1e-9)
     }
 
+    @Test fun percentLabelsPositiveSharesBelowOnePercentBeforeRounding() {
+        assertEquals("0%", UsageCopy.percent(0.0))
+        assertEquals("<1%", UsageCopy.percent(0.007))
+        assertEquals("1%", UsageCopy.percent(0.01))
+        assertEquals("2%", UsageCopy.percent(0.016))
+    }
+
     @Test fun colorsFollowTheFixedOrderAndFoldBeyondThree() {
         // 连着的按连接先后:甲 0、丙 1、丁 2,删掉的排在后面
         assertEquals(mapOf("p1" to 0, "p3" to 1, "p4" to 2, "p2" to null), report.providers.associate { it.id to UsageCopy.colorSlot(it) })
@@ -59,6 +67,13 @@ class UsageCopyTest {
         assertEquals(400_000, UsageCopy.niceMax(312_345))
         assertEquals(1_000_000, UsageCopy.niceMax(812_345))
         assertEquals(1_000_000, UsageCopy.niceMax(1_000_000))
+    }
+
+    @Test fun conversationUsesKMBAndPromotesRoundedBoundaries() {
+        val cases = mapOf(0L to "0", 999L to "999", 1_000L to "1K", 1_249L to "1.2K",
+            1_250L to "1.3K", 999_949L to "999.9K", 999_950L to "1M", 1_200_000L to "1.2M",
+            999_950_000L to "1B", 1_200_000_000L to "1.2B", 3_000_000_000L to "3B")
+        cases.forEach { (tokens, expected) -> assertEquals(expected, UsageCopy.compactTokens(tokens)) }
     }
 
     @Test fun tokensUseWanAndYiWithThreeSignificantDigits() {

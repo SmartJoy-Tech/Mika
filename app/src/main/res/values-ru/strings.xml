@@ -69,8 +69,9 @@
     <string name="speech_doubao_plan">Оплата</string>
     <string name="speech_doubao_duration_note">Оплата за время распознавания</string>
     <string name="speech_doubao_concurrent_note">Оплата за одновременные подключения</string>
-    <string name="speech_funasr_model">Fun-ASR (свой сервер)</string>
-    <string name="speech_funasr_setup_hint">Слова появляются по ходу речи: их распознаёт сервер Fun-ASR в реальном времени, который вы запускаете сами (serve_realtime_ws.py из проекта Fun-ASR), обычно в локальной сети. Аккаунт и ключ не нужны.</string>
+    <string name="speech_funasr_model">Qwen (свой сервер)</string>
+    <string name="speech_funasr_setup_hint">Слова появляются по ходу речи: их распознаёт сервер реального времени, который вы запускаете сами, обычно в локальной сети. Аккаунт и ключ не нужны. Поддерживаются Fun-ASR-Nano и Qwen3-ASR.</string>
+    <string name="speech_funasr_deploy_guide">Инструкция по развёртыванию</string>
     <string name="speech_funasr_server">Сервер</string>
     <string name="speech_funasr_address">Адрес</string>
     <string name="speech_funasr_enter_address">например, 192.168.1.10:10095</string>
@@ -92,7 +93,7 @@
     <string name="speech_live_auth">Сервис отклонил ключ. Проверьте ключ и что он относится к выбранному региону.</string>
     <string name="speech_live_refused">Сервис отклонил запрос (%1$s).</string>
     <string name="speech_live_unreachable">Не удалось подключиться к сервису. Проверьте адрес и что сервис запущен.</string>
-    <string name="speech_funasr_service">Распознавание речи Fun-ASR в реальном времени</string>
+    <string name="speech_funasr_service">Распознавание речи Qwen в реальном времени</string>
     <string name="speech_funasr_choose_note">Свой сервер или Alibaba Cloud Bailian</string>
     <string name="speech_funasr_tab_local">Свой сервер</string>
     <string name="speech_bailian_tab">Bailian · %1$s</string>
@@ -140,4 +141,25 @@
     <string name="personal_replay_pause">Пауза</string>
     <string name="personal_replay_play">Воспроизвести</string>
     <string name="personal_replay_return_live">Вернуться к прямому эфиру</string>
+    <string name="drawer_projects">Проекты</string>
+    <string name="drawer_new_project">Новый проект</string>
+    <string name="drawer_project_new_title">Новый проект</string>
+    <string name="drawer_project_name_hint">Название проекта</string>
+    <string name="drawer_project_rename_title">Переименовать проект</string>
+    <string name="drawer_project_new_chat">Новый чат в проекте</string>
+    <string name="drawer_project_empty">Пока нет чатов</string>
+    <string name="drawer_project_delete_title">Удалить этот проект?</string>
+    <string name="drawer_project_delete_body">Все чаты и общие файлы рабочего пространства в «%1$s» будут удалены без возможности восстановления.</string>
+    <string name="drawer_project_actions">Действия с проектом</string>
+    <string name="chat_project_shared">Проект</string>
+    <string name="desk_report_line">%1$s: %2$s</string>
+    <string name="desk_report_started">Начато</string>
+    <string name="desk_report_needs_answer">Спрашивает вас: %1$s</string>
+    <string name="desk_report_needs_confirm">Нужно ваше подтверждение на телефоне</string>
+    <string name="desk_report_needs_takeover">Нужно, чтобы вы взяли управление на телефоне</string>
+    <string name="desk_report_needs_prerequisite">Чтобы продолжить, нужно кое-что сделать на телефоне</string>
+    <string name="desk_report_succeeded">Готово: %1$s</string>
+    <string name="desk_report_failed">Не получилось: %1$s</string>
+    <string name="desk_report_cancelled">Отменено</string>
+    <string name="desk_task_not_started">Задача так и не началась. Откройте Mika и попробуйте снова.</string>
 </resources>

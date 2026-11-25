@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="chat_confirmed_goals">Tujuan terkonfirmasi: %1$d/%2$d</string>
+    <string name="chat_last_confirmed_goals">Terakhir dikonfirmasi: %1$d/%2$d</string>
     <string name="chat_greeting_morning">Selamat pagi</string>
     <string name="chat_greeting_noon">Selamat siang</string>
     <string name="chat_greeting_afternoon">Selamat sore</string>
@@ -13,14 +15,14 @@
     <string name="chat_example_replace_title">Ganti draf saat ini?</string>
     <string name="chat_example_replace_body">Tugas yang direkomendasikan akan mengganti teks yang sudah Anda ketik.</string>
     <string name="chat_example_replace_action">Ganti draf</string>
-    <string name="recommendations_title">Tugas rekomendasi</string>
+    <string name="recommendations_title">Tugas tersimpan</string>
     <string name="recommendations_drag">Seret untuk mengubah urutan</string>
     <string name="recommendations_drag_hint">Seret pegangan untuk mengubah urutan tampilan.</string>
     <string name="recommendations_move_up">Pindahkan ke atas</string>
     <string name="recommendations_move_down">Pindahkan ke bawah</string>
     <string name="recommendations_sub">Kelola tugas dan prompt yang tampil di beranda</string>
-    <string name="recommendations_add">Tambah tugas rekomendasi</string>
-    <string name="recommendations_edit">Edit tugas rekomendasi</string>
+    <string name="recommendations_add">Tambah tugas</string>
+    <string name="recommendations_edit">Edit tugas</string>
     <string name="recommendations_empty">Belum ada tugas rekomendasi</string>
     <string name="recommendations_empty_sub">Tugas yang ditambahkan muncul di chat baru</string>
     <string name="recommendations_title_label">Judul</string>
@@ -78,6 +80,7 @@
     <string name="chat_attach_rejected">Gagal menambahkan: %1$s (setiap berkas harus di bawah 200 MB)</string>
     <string name="chat_stop">Hentikan</string>
     <string name="chat_send">Kirim</string>
+    <string name="chat_scroll_to_bottom">Gulir ke bawah</string>
     <string name="drawer_running_task">Tugas berjalan</string>
     <string name="drawer_running">Berjalan</string>
     <string name="drawer_yesterday">Kemarin</string>
@@ -213,6 +216,9 @@
     <string name="zoom_in">Perbesar</string>
     <string name="chat_message_actions">Opsi pesan</string>
     <string name="chat_copy">Salin</string>
+    <string name="share_card_question">Pertanyaan</string>
+    <string name="share_card_answer">Jawaban</string>
+    <string name="share_card_made_by">Diselesaikan oleh Mika</string>
     <string name="chat_quote">Kutip</string>
     <string name="chat_select_text">Pilih teks</string>
     <string name="chat_copied">Disalin</string>
@@ -225,7 +231,7 @@
     <string name="chat_branch_retry">Tanya ulang dari sini</string>
     <string name="chat_branch_attachments_readd">Tambahkan ulang lampiran yang ingin disertakan</string>
     <string name="chat_attach_unavailable">Tidak dapat menambahkan: %1$s. Pastikan berkas tersedia dan tidak melebihi batas ukuran.</string>
-    <string name="chat_attach_too_large">%1$s: melebihi batas 200 MiB</string>
+    <string name="chat_attach_too_large">%1$s: melebihi batas %2$s</string>
     <string name="chat_attach_low_device_space">%1$s: ruang penyimpanan ponsel tidak cukup; kosongkan ruang lalu coba lagi</string>
     <string name="chat_attach_workspace_limit">%1$s: penyimpanan ruang kerja mencapai batas; hapus berkas di ruang kerja lalu coba lagi</string>
     <string name="chat_attach_io_error">%1$s: tidak dapat membaca atau menyalin berkas; pastikan berkas tersedia lalu coba lagi</string>
@@ -247,6 +253,9 @@
     <string name="pip_closed_hint">Ditutup untuk tugas ini. Ketuk “Tampilkan layar” di kanan bawah, atau buka “Layar latar belakang” di menu samping.</string>
     <string name="chat_conversation_tokens">Percakapan ini: %1$s</string>
     <string name="chat_conversation_tokens_partial">Percakapan ini: setidaknya %1$s</string>
+    <string name="chat_task_cost_estimate">Perkiraan %1$s</string>
+    <string name="chat_task_cost_partial">%1$s (sebagian)</string>
+    <string name="chat_task_cost_unavailable">Biaya tidak tersedia</string>
     <string name="follow_up_steer">Arahkan</string>
     <string name="follow_up_queue">Antrekan</string>
     <string name="follow_up_steer_hint">Langkah berikutnya akan menyesuaikan tugas saat ini</string>
@@ -268,4 +277,58 @@
     <plurals name="drawer_archive_many_skipped">
         <item quantity="other">%1$d tidak diarsipkan</item>
     </plurals>
+    <string name="chat_example_github_star_title">Beri bintang pada proyek GitHub</string>
+    <string name="chat_example_follow_title">Ikuti seorang kreator</string>
+    <string name="chat_example_group_summary_title">Ringkas obrolan grup</string>
+    <string name="chat_example_alarms_title">Atur beberapa alarm</string>
+    <string name="chat_example_pdf_title">Ringkas PDF</string>
+    <string name="chat_example_schedule_title">Atur pengingat harian</string>
+    <string name="chat_example_pdf">Ringkas PDF yang saya kirim menjadi intisari singkat.</string>
+    <string name="chat_example_schedule">Setiap pagi jam 8, ingatkan saya untuk memeriksa cuaca.</string>
+    <string name="chat_empty_value">Cukup satu kalimat, saya urus di ponselmu</string>
+    <string name="saved_task_save">Simpan sebagai tugas</string>
+    <string name="task_field_add">Tambah isian</string>
+    <string name="task_field_name">Nama isian</string>
+    <string name="task_field_name_invalid">Gunakan 1–40 karakter, tanpa kurung kurawal atau baris baru.</string>
+    <string name="task_field_insert">Sisipkan</string>
+    <string name="task_fields_too_many">Gunakan maksimal %1$d isian berbeda.</string>
+    <string name="task_fill_apply">Isi kotak pesan</string>
+    <string name="chat_read_aloud">Read aloud</string>
+    <string name="chat_stop_speaking">Stop speaking</string>
+    <string name="chat_audio">Audio</string>
+    <string name="chat_audio_play">Play</string>
+    <string name="chat_audio_stop">Stop</string>
+    <string name="plus_sub_album">Pilih dari foto, boleh beberapa</string>
+    <string name="plus_sub_files">Dokumen, PDF, arsip</string>
+    <string name="plus_sub_device">Jelajahi folder di ponsel ini</string>
+    <string name="plus_clipboard">Papan klip</string>
+    <string name="plus_sub_clipboard">Tempel yang baru saja disalin</string>
+    <string name="plus_sub_teach">Tunjukkan sekali, Mika akan belajar</string>
+    <string name="plus_sub_skills">Pilih skill untuk giliran ini</string>
+    <string name="plus_sub_tasks">Isi tugas tersimpan ke kolom input</string>
+    <string name="plus_sub_browser">Browser bawaan</string>
+    <string name="plus_skills_empty">Belum ada skill pribadi. Skill yang dipelajari Mika dari tugas yang selesai akan muncul di sini.</string>
+    <string name="plus_clipboard_empty">Tidak ada teks untuk ditempel dari papan klip</string>
+    <string name="plus_skill_directive">Gunakan skill “%1$s”: </string>
+    <string name="plus_reuse">Tersimpan</string>
+    <string name="plus_reuse_hint">Frasa · daftar · alur</string>
+    <string name="plus_reuse_phrases">Frasa tersimpan</string>
+    <string name="drawer_calls">Panggilan AI</string>
+    <!-- 空对话滚动条里的灵感示例;点了填进输入框 -->
+    <string name="chat_idea_maps">Arahkan ke kedai kopi terdekat</string>
+    <string name="chat_idea_camera">Buka kamera dan ambil foto</string>
+    <string name="chat_idea_sms">SMS ke Ibu: aku sudah di rumah</string>
+    <string name="chat_idea_news">Cari berita teknologi hari ini</string>
+    <string name="chat_idea_dark">Nyalakan mode gelap</string>
+    <string name="chat_idea_music">Putar musik yang santai</string>
+    <string name="chat_idea_email">Apa isi email terbaru saya?</string>
+    <string name="chat_idea_screenshot">Temukan tangkapan layar terbaru saya</string>
+    <string name="chat_idea_meeting">Tambahkan rapat besok pukul 15.00</string>
+    <!-- 空对话推广卡上的一句话说明;完整提示词点了才填进输入框 -->
+    <string name="chat_example_github_star_blurb">Dukung proyek sumber terbuka Mika</string>
+    <string name="chat_example_follow_blurb">Ikuti pembuatnya dan gabung obrolan</string>
+    <string name="chat_example_group_summary_blurb">Ringkas pesan belum dibaca hari ini</string>
+    <string name="chat_example_share_title">Bagikan Mika ke teman</string>
+    <string name="chat_example_share_blurb">Rekomendasikan ke yang butuh</string>
+    <string name="chat_example_share">Bagikan tautan proyek Mika https://github.com/wangzan101/mika ke seorang teman, dan bilang Mika bisa mengoperasikan ponsel untuknya.</string>
 </resources>

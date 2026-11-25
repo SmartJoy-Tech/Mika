@@ -2,6 +2,7 @@
 <resources>
     <string name="rec_a11y">Aktifkan aksesibilitas untuk saya</string>
     <string name="rec_default_on">Aktif secara default</string>
+    <string name="rec_learn_what">Apa fungsi opsi ini?</string>
     <string name="rec_a11y_body">Mika memakai Aksesibilitas untuk membaca teks dan tombol di layar. Dengan ini aktif, Mika mengaktifkan layanan aksesibilitasnya sendiri di setelan sistem untuk Anda; layanan aksesibilitas lain yang Anda aktifkan tidak terpengaruh. Jika dinonaktifkan, Mika mematikan layanannya sendiri.</string>
     <string name="rec_battery">Baterai tanpa batasan</string>
     <string name="rec_battery_body">Dengan ini aktif, Mika menambahkan dirinya ke pengecualian optimalisasi baterai sistem, sehingga tidak dihentikan di latar belakang untuk menghemat daya dan kontrol ponsel lebih jarang terputus. Baterai mungkin sedikit lebih boros. Nonaktifkan untuk kembali ke default sistem.</string>
@@ -20,4 +21,5 @@
     <string name="rec_setting_unavailable">Ponsel ini tidak mengizinkan Mika mengaktifkan Proses debug nirkabel saat mulai. Setelah dimulai ulang, aktifkan sendiri dan Mika akan menyambung.</string>
     <string name="rec_not_recovered">Gagal menyambung kembali otomatis saat mulai terakhir. Pastikan Anda berada di Wi-Fi tepercaya dengan Proses debug nirkabel aktif, dan Mika akan menyambung.</string>
     <string name="rec_needs_pairing">Hanya bekerja setelah memasangkan Proses debug nirkabel. Pembantu dimulai dengan perintah USB, jadi jalankan lagi perintahnya setelah ponsel dimulai ulang.</string>
+    <string name="rec_shizuku_no_wireless">Wireless debugging tidak digunakan saat Shizuku dipilih. Mika tersambung kembali melalui Shizuku begitu Shizuku berjalan.</string>
 </resources>

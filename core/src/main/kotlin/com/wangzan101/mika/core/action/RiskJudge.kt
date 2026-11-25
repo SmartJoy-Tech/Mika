@@ -1,10 +1,10 @@
 package com.wangzan101.mika.core.action
 
-import com.wangzan101.mika.core.risk.IrrevAction
-import com.wangzan101.mika.core.gate.Irreversible
-import com.wangzan101.mika.core.gate.IrreversibleDetector
-import com.wangzan101.mika.core.uistate.ScreenSnapshot
-import com.wangzan101.mika.core.uistate.UiElement
+import com.wangzan101.mika.core.safety.gate.IrrevAction
+import com.wangzan101.mika.core.safety.gate.Irreversible
+import com.wangzan101.mika.core.safety.gate.IrreversibleDetector
+import com.wangzan101.mika.core.screen.uistate.ScreenSnapshot
+import com.wangzan101.mika.core.screen.uistate.UiElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
@@ -37,7 +37,7 @@ object ClassifiedRisk : RiskJudge {
         // 金额是页面内容,不等于这一步要花钱。明确付款/下单始终拦;其余动作要有合计或付款面板等应付上下文。
         val payment = when (hit.action) {
             IrrevAction.pay, IrrevAction.order -> true
-            IrrevAction.send -> false
+            IrrevAction.send, IrrevAction.submit -> false
             else -> screen()?.let(IrreversibleDetector::hasPayableAmount) == true
         }
         return Risk(level, payment)

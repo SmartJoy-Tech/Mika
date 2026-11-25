@@ -1,6 +1,9 @@
 package com.wangzan101.mika.core
 
 import com.wangzan101.mika.core.assembly.knownToolNames
+import com.wangzan101.mika.core.frontdesk.DeskToolSet
+import com.wangzan101.mika.core.frontdesk.DeskTools
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -60,6 +63,15 @@ class DocsConsistencyTest {
     private val notIdentifier = Regex("""[\s<>*…{}()=:"'$,;|#]""")
     private val pathExtensions = setOf("kt", "kts", "java", "md", "json", "xml", "txt", "yml", "yaml", "gradle", "toml", "properties", "py", "sh", "js", "html", "pro", "aidl", "cpp", "h")
     private val tool = Regex("""[a-z][a-z0-9]*(_[a-z0-9]+)+""")
+    // 状态码不是模型工具名,即使其前缀与工具相同;微信消息里的字段名也一样(不是发给模型的工具)。
+    private val nonToolNames = setOf("copy_not_found", "copy_not_opened", "task_progress", "image_item")
+
+    /**
+     * 前台(聊天、通话)注册给模型的工具:定义在 [DeskTools],不在 Agent 的工具表里,文档提到它们时按「确实存在」放过。
+     * 另加早先通话设计稿里的 `mika_request`:前台上线后已由这些工具取代,设计稿记的是当时的方案,不改。
+     */
+    private val sessionToolNames: Set<String> =
+        DeskToolSet.entries.flatMap(DeskTools::specs).map { it["name"]!!.jsonPrimitive.content }.toSet() + "mika_request"
     private val classLike = Regex("""[A-Z][A-Za-z0-9]*""")
 
     private val toolNames: Set<String> by lazy { knownToolNames() }
@@ -125,7 +137,7 @@ class DocsConsistencyTest {
             if (notIdentifier.containsMatchIn(s)) return@mapNotNull null
             when {
                 isPath(s) -> if (pathExists(s)) null else "$rel: 路径 `$s` 在仓库里找不到"
-                tool.matches(s) -> if (s in remoteApiNames || s.substringBefore('_') !in toolPrefixes || s in toolNames) null else "$rel: 工具名 `$s` 不在现有工具里"
+                tool.matches(s) -> if (s in remoteApiNames || s in nonToolNames || s in sessionToolNames || s.substringBefore('_') !in toolPrefixes || s in toolNames) null else "$rel: 工具名 `$s` 不在现有工具里"
                 classLike.matches(s) && s.count { it.isUpperCase() } >= 2 && s.any { it.isLowerCase() } ->
                     if (classExists(s) || importedFromOutside(s)) null else "$rel: 类名 `$s` 在 core/app 的源码里找不到"
                 else -> null
@@ -169,11 +181,16 @@ class DocsConsistencyTest {
         assertTrue("没找到文档", docs().size >= 5)
         assertTrue(toolNames.contains("knowledge_read"))
         assertTrue(classExists("ToolDef"))
+        // 前台的工具(聊天、通话都注册)文档里提到时算存在
+        assertTrue(sessionToolNames.containsAll(listOf("dispatch_task", "add_to_task", "answer_task", "cancel_task", "ask_owner")))
         assertTrue(spans(docs().joinToString("\n") { it.readText() }).size > 50)
     }
 
     @Test fun docsMentionOnlyThingsThatExist() {
-        val bad = docs().flatMap(::problems)
+        // Implementation plans intentionally name files and classes that later tasks will create.
+        val bad = docs().filterNot {
+            it.relativeTo(root).invariantSeparatorsPath.startsWith("docs/design/plans/")
+        }.flatMap(::problems)
         assertTrue("文档里提到了仓库里没有的东西:\n" + bad.joinToString("\n"), bad.isEmpty())
     }
 }

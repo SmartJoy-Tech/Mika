@@ -1,0 +1,2068 @@
+{
+ "formatVersion": 1,
+ "presets": [
+  {
+   "id": "filesystem",
+   "name": "Filesystem",
+   "summary": {
+    "en": "Read, write and search files",
+    "zh": "读写和搜索文件",
+    "zh-Hant": "讀寫和搜尋檔案",
+    "ar": "قراءة الملفات وكتابتها والبحث فيها",
+    "fa": "خواندن، نوشتن و جست‌وجوی فایل‌ها",
+    "ja": "ファイルの読み書きと検索",
+    "ko": "파일 읽기, 쓰기 및 검색",
+    "es": "Leer, escribir y buscar archivos",
+    "pt": "Ler, escrever e buscar arquivos",
+    "ru": "Чтение, запись и поиск файлов",
+    "id": "Membaca, menulis, dan mencari berkas",
+    "tr": "Dosyaları okuma, yazma ve arama"
+   },
+   "category": "files",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://www.npmjs.com/package/@modelcontextprotocol/server-filesystem",
+   "command": [
+    "mcp-server-filesystem",
+    "/workspace"
+   ],
+   "packageSpec": {
+    "ecosystem": "npm",
+    "name": "@modelcontextprotocol/server-filesystem",
+    "version": "2.4.0",
+    "source": "https://www.npmjs.com/package/@modelcontextprotocol/server-filesystem"
+   }
+  },
+  {
+   "id": "memory",
+   "name": "Memory",
+   "summary": {
+    "en": "Persistent knowledge and memory",
+    "zh": "持久化知识与记忆",
+    "zh-Hant": "持久化知識與記憶",
+    "ar": "المعرفة الدائمة والذاكرة",
+    "fa": "دانش پایدار و حافظه",
+    "ja": "永続的な知識と記憶",
+    "ko": "영구 지식 및 메모리",
+    "es": "Conocimiento persistente y memoria",
+    "pt": "Conhecimento persistente e memória",
+    "ru": "Постоянное знание и память",
+    "id": "Pengetahuan persisten dan memori",
+    "tr": "Kalıcı bilgi ve hafıza"
+   },
+   "category": "memory",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://www.npmjs.com/package/@modelcontextprotocol/server-memory",
+   "command": [
+    "mcp-server-memory"
+   ],
+   "packageSpec": {
+    "ecosystem": "npm",
+    "name": "@modelcontextprotocol/server-memory",
+    "version": "2.2.1",
+    "source": "https://www.npmjs.com/package/@modelcontextprotocol/server-memory"
+   }
+  },
+  {
+   "id": "sequential-thinking",
+   "name": "Sequential Thinking",
+   "summary": {
+    "en": "Large language models",
+    "zh": "大语言模型",
+    "zh-Hant": "大型語言模型",
+    "ar": "نماذج اللغة الكبيرة",
+    "fa": "مدل‌های زبانی بزرگ",
+    "ja": "大規模言語モデル",
+    "ko": "대규모 언어 모델",
+    "es": "Modelos de lenguaje grandes",
+    "pt": "Modelos de linguagem grandes",
+    "ru": "Большие языковые модели",
+    "id": "Model bahasa besar",
+    "tr": "Büyük dil modelleri"
+   },
+   "category": "llm",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://www.npmjs.com/package/@modelcontextprotocol/server-sequential-thinking",
+   "command": [
+    "mcp-server-sequential-thinking"
+   ],
+   "packageSpec": {
+    "ecosystem": "npm",
+    "name": "@modelcontextprotocol/server-sequential-thinking",
+    "version": "2.2.0",
+    "source": "https://www.npmjs.com/package/@modelcontextprotocol/server-sequential-thinking"
+   }
+  },
+  {
+   "id": "everything",
+   "name": "Everything",
+   "summary": {
+    "en": "Read, write and search files",
+    "zh": "读写和搜索文件",
+    "zh-Hant": "讀寫和搜尋檔案",
+    "ar": "قراءة الملفات وكتابتها والبحث فيها",
+    "fa": "خواندن، نوشتن و جست‌وجوی فایل‌ها",
+    "ja": "ファイルの読み書きと検索",
+    "ko": "파일 읽기, 쓰기 및 검색",
+    "es": "Leer, escribir y buscar archivos",
+    "pt": "Ler, escrever e buscar arquivos",
+    "ru": "Чтение, запись и поиск файлов",
+    "id": "Membaca, menulis, dan mencari berkas",
+    "tr": "Dosyaları okuma, yazma ve arama"
+   },
+   "category": "files",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://www.npmjs.com/package/@modelcontextprotocol/server-everything",
+   "command": [
+    "mcp-server-everything",
+    "/workspace"
+   ],
+   "packageSpec": {
+    "ecosystem": "npm",
+    "name": "@modelcontextprotocol/server-everything",
+    "version": "2.3.1",
+    "source": "https://www.npmjs.com/package/@modelcontextprotocol/server-everything"
+   }
+  },
+  {
+   "id": "postgres",
+   "name": "PostgreSQL",
+   "summary": {
+    "en": "Query and manage a database",
+    "zh": "查询和管理数据库",
+    "zh-Hant": "查詢和管理資料庫",
+    "ar": "الاستعلام عن قاعدة البيانات وإدارتها",
+    "fa": "پرس‌وجو و مدیریت پایگاه داده",
+    "ja": "データベースのクエリと管理",
+    "ko": "데이터베이스 쿼리 및 관리",
+    "es": "Consultar y administrar una base de datos",
+    "pt": "Consultar e gerenciar um banco de dados",
+    "ru": "Запросы к базе данных и её управление",
+    "id": "Mengkueri dan mengelola basis data",
+    "tr": "Veritabanını sorgulama ve yönetme"
+   },
+   "category": "database",
+   "transport": "stdio",
+   "auth": "fields",
+   "officialSource": "https://www.npmjs.com/package/@modelcontextprotocol/server-postgres",
+   "command": [
+    "mcp-server-postgres"
+   ],
+   "packageSpec": {
+    "ecosystem": "npm",
+    "name": "@modelcontextprotocol/server-postgres",
+    "version": "0.6.2",
+    "source": "https://www.npmjs.com/package/@modelcontextprotocol/server-postgres"
+   },
+   "fields": [
+    {
+     "id": "connection_string",
+     "label": {
+      "en": "Secret",
+      "zh": "密钥",
+      "zh-Hant": "密鑰",
+      "ar": "سر",
+      "fa": "کلید مخفی",
+      "ja": "シークレット",
+      "ko": "시크릿",
+      "es": "Secreto",
+      "pt": "Segredo",
+      "ru": "Секрет",
+      "id": "Rahasia",
+      "tr": "Gizli anahtar"
+     },
+     "secret": true,
+     "required": true,
+     "target": "env",
+     "name": "DATABASE_URL"
+    }
+   ]
+  },
+  {
+   "id": "redis",
+   "name": "Redis",
+   "summary": {
+    "en": "Query and manage a database",
+    "zh": "查询和管理数据库",
+    "zh-Hant": "查詢和管理資料庫",
+    "ar": "الاستعلام عن قاعدة البيانات وإدارتها",
+    "fa": "پرس‌وجو و مدیریت پایگاه داده",
+    "ja": "データベースのクエリと管理",
+    "ko": "데이터베이스 쿼리 및 관리",
+    "es": "Consultar y administrar una base de datos",
+    "pt": "Consultar e gerenciar um banco de dados",
+    "ru": "Запросы к базе данных и её управление",
+    "id": "Mengkueri dan mengelola basis data",
+    "tr": "Veritabanını sorgulama ve yönetme"
+   },
+   "category": "database",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://www.npmjs.com/package/@modelcontextprotocol/server-redis",
+   "command": [
+    "mcp-server-redis"
+   ],
+   "packageSpec": {
+    "ecosystem": "npm",
+    "name": "@modelcontextprotocol/server-redis",
+    "version": "2025.4.25",
+    "source": "https://www.npmjs.com/package/@modelcontextprotocol/server-redis"
+   }
+  },
+  {
+   "id": "puppeteer",
+   "name": "Puppeteer",
+   "summary": {
+    "en": "Automate a web browser",
+    "zh": "自动化网页浏览器",
+    "zh-Hant": "自動化網頁瀏覽器",
+    "ar": "أتمتة متصفح الويب",
+    "fa": "خودکارسازی مرورگر وب",
+    "ja": "Web ブラウザの自動化",
+    "ko": "웹 브라우저 자동화",
+    "es": "Automatizar un navegador web",
+    "pt": "Automatizar um navegador web",
+    "ru": "Автоматизация веб-браузера",
+    "id": "Mengotomatiskan peramban web",
+    "tr": "Web tarayıcısını otomatikleştirme"
+   },
+   "category": "browser",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://www.npmjs.com/package/@modelcontextprotocol/server-puppeteer",
+   "command": [
+    "mcp-server-puppeteer"
+   ],
+   "packageSpec": {
+    "ecosystem": "npm",
+    "name": "@modelcontextprotocol/server-puppeteer",
+    "version": "2025.5.12",
+    "source": "https://www.npmjs.com/package/@modelcontextprotocol/server-puppeteer"
+   }
+  },
+  {
+   "id": "brave-search",
+   "name": "Brave Search",
+   "summary": {
+    "en": "Search the web",
+    "zh": "搜索网页",
+    "zh-Hant": "搜尋網頁",
+    "ar": "البحث في الويب",
+    "fa": "جست‌وجو در وب",
+    "ja": "Web を検索",
+    "ko": "웹 검색",
+    "es": "Buscar en la web",
+    "pt": "Pesquisar na web",
+    "ru": "Поиск в интернете",
+    "id": "Mencari di web",
+    "tr": "Web'de arama"
+   },
+   "category": "search",
+   "transport": "stdio",
+   "auth": "fields",
+   "officialSource": "https://www.npmjs.com/package/@modelcontextprotocol/server-brave-search",
+   "command": [
+    "mcp-server-brave-search"
+   ],
+   "packageSpec": {
+    "ecosystem": "npm",
+    "name": "@modelcontextprotocol/server-brave-search",
+    "version": "0.6.2",
+    "source": "https://www.npmjs.com/package/@modelcontextprotocol/server-brave-search"
+   },
+   "fields": [
+    {
+     "id": "api_key",
+     "label": {
+      "en": "API Key",
+      "zh": "API 密钥",
+      "zh-Hant": "API 金鑰",
+      "ar": "مفتاح API",
+      "fa": "کلید API",
+      "ja": "API キー",
+      "ko": "API 키",
+      "es": "Clave de API",
+      "pt": "Chave de API",
+      "ru": "Ключ API",
+      "id": "Kunci API",
+      "tr": "API anahtarı"
+     },
+     "secret": true,
+     "required": true,
+     "target": "env",
+     "name": "BRAVE_API_KEY"
+    }
+   ]
+  },
+  {
+   "id": "google-maps",
+   "name": "Google Maps",
+   "summary": {
+    "en": "Maps and geolocation",
+    "zh": "地图与地理定位",
+    "zh-Hant": "地圖與地理定位",
+    "ar": "الخرائط وتحديد الموقع",
+    "fa": "نقشه و موقعیت‌یابی",
+    "ja": "地図と位置情報",
+    "ko": "지도 및 위치",
+    "es": "Mapas y geolocalización",
+    "pt": "Mapas e geolocalização",
+    "ru": "Карты и геолокация",
+    "id": "Peta dan geolokasi",
+    "tr": "Haritalar ve konum"
+   },
+   "category": "maps",
+   "transport": "stdio",
+   "auth": "fields",
+   "officialSource": "https://www.npmjs.com/package/@modelcontextprotocol/server-google-maps",
+   "command": [
+    "mcp-server-google-maps"
+   ],
+   "packageSpec": {
+    "ecosystem": "npm",
+    "name": "@modelcontextprotocol/server-google-maps",
+    "version": "0.6.2",
+    "source": "https://www.npmjs.com/package/@modelcontextprotocol/server-google-maps"
+   },
+   "fields": [
+    {
+     "id": "api_key",
+     "label": {
+      "en": "API Key",
+      "zh": "API 密钥",
+      "zh-Hant": "API 金鑰",
+      "ar": "مفتاح API",
+      "fa": "کلید API",
+      "ja": "API キー",
+      "ko": "API 키",
+      "es": "Clave de API",
+      "pt": "Chave de API",
+      "ru": "Ключ API",
+      "id": "Kunci API",
+      "tr": "API anahtarı"
+     },
+     "secret": true,
+     "required": true,
+     "target": "env",
+     "name": "GOOGLE_MAPS_API_KEY"
+    }
+   ]
+  },
+  {
+   "id": "slack",
+   "name": "Slack",
+   "summary": {
+    "en": "Send and read messages",
+    "zh": "发送和阅读消息",
+    "zh-Hant": "傳送和閱讀訊息",
+    "ar": "إرسال الرسائل وقراءتها",
+    "fa": "ارسال و خواندن پیام‌ها",
+    "ja": "メッセージの送受信",
+    "ko": "메시지 보내기 및 읽기",
+    "es": "Enviar y leer mensajes",
+    "pt": "Enviar e ler mensagens",
+    "ru": "Отправка и чтение сообщений",
+    "id": "Mengirim dan membaca pesan",
+    "tr": "Mesaj gönderme ve okuma"
+   },
+   "category": "chat",
+   "transport": "stdio",
+   "auth": "fields",
+   "officialSource": "https://www.npmjs.com/package/@modelcontextprotocol/server-slack",
+   "command": [
+    "mcp-server-slack"
+   ],
+   "packageSpec": {
+    "ecosystem": "npm",
+    "name": "@modelcontextprotocol/server-slack",
+    "version": "2025.4.25",
+    "source": "https://www.npmjs.com/package/@modelcontextprotocol/server-slack"
+   },
+   "fields": [
+    {
+     "id": "token",
+     "label": {
+      "en": "Token",
+      "zh": "令牌",
+      "zh-Hant": "權杖",
+      "ar": "رمز",
+      "fa": "توکن",
+      "ja": "トークン",
+      "ko": "토큰",
+      "es": "Token",
+      "pt": "Token",
+      "ru": "Токен",
+      "id": "Token",
+      "tr": "Belirteç"
+     },
+     "secret": true,
+     "required": true,
+     "target": "env",
+     "name": "SLACK_BOT_TOKEN"
+    }
+   ]
+  },
+  {
+   "id": "playwright",
+   "name": "Playwright",
+   "summary": {
+    "en": "Automate a web browser",
+    "zh": "自动化网页浏览器",
+    "zh-Hant": "自動化網頁瀏覽器",
+    "ar": "أتمتة متصفح الويب",
+    "fa": "خودکارسازی مرورگر وب",
+    "ja": "Web ブラウザの自動化",
+    "ko": "웹 브라우저 자동화",
+    "es": "Automatizar un navegador web",
+    "pt": "Automatizar um navegador web",
+    "ru": "Автоматизация веб-браузера",
+    "id": "Mengotomatiskan peramban web",
+    "tr": "Web tarayıcısını otomatikleştirme"
+   },
+   "category": "browser",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://www.npmjs.com/package/@executeautomation/playwright-mcp-server",
+   "command": [
+    "playwright-mcp-server"
+   ],
+   "packageSpec": {
+    "ecosystem": "npm",
+    "name": "@executeautomation/playwright-mcp-server",
+    "version": "1.0.12",
+    "source": "https://www.npmjs.com/package/@executeautomation/playwright-mcp-server"
+   }
+  },
+  {
+   "id": "fetch",
+   "name": "Fetch",
+   "summary": {
+    "en": "Fetch and read web pages",
+    "zh": "抓取和阅读网页",
+    "zh-Hant": "擷取和閱讀網頁",
+    "ar": "جلب صفحات الويب وقراءتها",
+    "fa": "واکشی و خواندن صفحات وب",
+    "ja": "Web ページの取得と読み取り",
+    "ko": "웹 페이지 가져오기 및 읽기",
+    "es": "Obtener y leer páginas web",
+    "pt": "Buscar e ler páginas da web",
+    "ru": "Получение и чтение веб-страниц",
+    "id": "Mengambil dan membaca halaman web",
+    "tr": "Web sayfalarını getirme ve okuma"
+   },
+   "category": "web",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://pypi.org/project/mcp-server-fetch/",
+   "command": [
+    "mcp-server-fetch"
+   ],
+   "packageSpec": {
+    "ecosystem": "pypi",
+    "name": "mcp-server-fetch",
+    "version": "2026.11.18",
+    "source": "https://pypi.org/project/mcp-server-fetch/"
+   }
+  },
+  {
+   "id": "time",
+   "name": "Time",
+   "summary": {
+    "en": "Time and scheduling helpers",
+    "zh": "时间与日程辅助",
+    "zh-Hant": "時間與排程輔助",
+    "ar": "أدوات الوقت والجدولة",
+    "fa": "ابزارهای زمان و زمان‌بندی",
+    "ja": "時刻とスケジュールの補助",
+    "ko": "시간 및 일정 도우미",
+    "es": "Ayudas de tiempo y programación",
+    "pt": "Auxiliares de hora e agendamento",
+    "ru": "Вспомогательные инструменты времени",
+    "id": "Pembantu waktu dan jadwal",
+    "tr": "Zaman ve planlama yardımcıları"
+   },
+   "category": "time",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://pypi.org/project/mcp-server-time/",
+   "command": [
+    "mcp-server-time"
+   ],
+   "packageSpec": {
+    "ecosystem": "pypi",
+    "name": "mcp-server-time",
+    "version": "2026.11.18",
+    "source": "https://pypi.org/project/mcp-server-time/"
+   }
+  },
+  {
+   "id": "git",
+   "name": "Git",
+   "summary": {
+    "en": "Git repositories and version control",
+    "zh": "Git 仓库与版本控制",
+    "zh-Hant": "Git 儲存庫與版本控制",
+    "ar": "مستودعات Git والتحكم بالإصدارات",
+    "fa": "مخازن Git و کنترل نسخه",
+    "ja": "Git リポジトリとバージョン管理",
+    "ko": "Git 저장소 및 버전 관리",
+    "es": "Repositorios Git y control de versiones",
+    "pt": "Repositórios Git e controle de versão",
+    "ru": "Репозитории Git и контроль версий",
+    "id": "Repositori Git dan kontrol versi",
+    "tr": "Git depoları ve sürüm kontrolü"
+   },
+   "category": "git",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://pypi.org/project/mcp-server-git/",
+   "command": [
+    "mcp-server-git"
+   ],
+   "packageSpec": {
+    "ecosystem": "pypi",
+    "name": "mcp-server-git",
+    "version": "2026.11.18",
+    "source": "https://pypi.org/project/mcp-server-git/"
+   }
+  },
+  {
+   "id": "sqlite",
+   "name": "SQLite",
+   "summary": {
+    "en": "Query and manage a database",
+    "zh": "查询和管理数据库",
+    "zh-Hant": "查詢和管理資料庫",
+    "ar": "الاستعلام عن قاعدة البيانات وإدارتها",
+    "fa": "پرس‌وجو و مدیریت پایگاه داده",
+    "ja": "データベースのクエリと管理",
+    "ko": "데이터베이스 쿼리 및 관리",
+    "es": "Consultar y administrar una base de datos",
+    "pt": "Consultar e gerenciar um banco de dados",
+    "ru": "Запросы к базе данных и её управление",
+    "id": "Mengkueri dan mengelola basis data",
+    "tr": "Veritabanını sorgulama ve yönetme"
+   },
+   "category": "database",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://pypi.org/project/mcp-server-sqlite/",
+   "command": [
+    "mcp-server-sqlite"
+   ],
+   "packageSpec": {
+    "ecosystem": "pypi",
+    "name": "mcp-server-sqlite",
+    "version": "2025.4.25",
+    "source": "https://pypi.org/project/mcp-server-sqlite/"
+   }
+  },
+  {
+   "id": "mariadb",
+   "name": "MariaDB",
+   "summary": {
+    "en": "Query and manage a database",
+    "zh": "查询和管理数据库",
+    "zh-Hant": "查詢和管理資料庫",
+    "ar": "الاستعلام عن قاعدة البيانات وإدارتها",
+    "fa": "پرس‌وجو و مدیریت پایگاه داده",
+    "ja": "データベースのクエリと管理",
+    "ko": "데이터베이스 쿼리 및 관리",
+    "es": "Consultar y administrar una base de datos",
+    "pt": "Consultar e gerenciar um banco de dados",
+    "ru": "Запросы к базе данных и её управление",
+    "id": "Mengkueri dan mengelola basis data",
+    "tr": "Veritabanını sorgulama ve yönetme"
+   },
+   "category": "database",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://pypi.org/project/mcp-server-mariadb/",
+   "command": [
+    "mcp-server-mariadb"
+   ],
+   "packageSpec": {
+    "ecosystem": "pypi",
+    "name": "mcp-server-mariadb",
+    "version": "0.1.2",
+    "source": "https://pypi.org/project/mcp-server-mariadb/"
+   }
+  },
+  {
+   "id": "mysql",
+   "name": "MySQL",
+   "summary": {
+    "en": "Query and manage a database",
+    "zh": "查询和管理数据库",
+    "zh-Hant": "查詢和管理資料庫",
+    "ar": "الاستعلام عن قاعدة البيانات وإدارتها",
+    "fa": "پرس‌وجو و مدیریت پایگاه داده",
+    "ja": "データベースのクエリと管理",
+    "ko": "데이터베이스 쿼리 및 관리",
+    "es": "Consultar y administrar una base de datos",
+    "pt": "Consultar e gerenciar um banco de dados",
+    "ru": "Запросы к базе данных и её управление",
+    "id": "Mengkueri dan mengelola basis data",
+    "tr": "Veritabanını sorgulama ve yönetme"
+   },
+   "category": "database",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://pypi.org/project/mcp-server-mysql/",
+   "command": [
+    "mcp-server-mysql"
+   ],
+   "packageSpec": {
+    "ecosystem": "pypi",
+    "name": "mcp-server-mysql",
+    "version": "0.1.4",
+    "source": "https://pypi.org/project/mcp-server-mysql/"
+   }
+  },
+  {
+   "id": "docker",
+   "name": "Docker",
+   "summary": {
+    "en": "Builds, deployments and CI/CD",
+    "zh": "构建、部署与 CI/CD",
+    "zh-Hant": "建置、部署與 CI/CD",
+    "ar": "البناء والنشر و CI/CD",
+    "fa": "ساخت، استقرار و CI/CD",
+    "ja": "ビルド・デプロイ・CI/CD",
+    "ko": "빌드, 배포 및 CI/CD",
+    "es": "Compilaciones, despliegues y CI/CD",
+    "pt": "Builds, deploys e CI/CD",
+    "ru": "Сборки, развертывание и CI/CD",
+    "id": "Build, deployment, dan CI/CD",
+    "tr": "Derleme, dağıtım ve CI/CD"
+   },
+   "category": "ci",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://pypi.org/project/mcp-server-docker/",
+   "command": [
+    "mcp-server-docker"
+   ],
+   "packageSpec": {
+    "ecosystem": "pypi",
+    "name": "mcp-server-docker",
+    "version": "0.3.0",
+    "source": "https://pypi.org/project/mcp-server-docker/"
+   }
+  },
+  {
+   "id": "kubernetes",
+   "name": "Kubernetes",
+   "summary": {
+    "en": "Manage cloud resources",
+    "zh": "管理云资源",
+    "zh-Hant": "管理雲端資源",
+    "ar": "إدارة موارد السحابة",
+    "fa": "مدیریت منابع ابری",
+    "ja": "クラウドリソースの管理",
+    "ko": "클라우드 리소스 관리",
+    "es": "Administrar recursos en la nube",
+    "pt": "Gerenciar recursos de nuvem",
+    "ru": "Управление облачными ресурсами",
+    "id": "Mengelola sumber daya cloud",
+    "tr": "Bulut kaynaklarını yönetme"
+   },
+   "category": "cloud",
+   "transport": "stdio",
+   "auth": "none",
+   "officialSource": "https://pypi.org/project/mcp-server-kubernetes/",
+   "command": [
+    "mcp-server-kubernetes"
+   ],
+   "packageSpec": {
+    "ecosystem": "pypi",
+    "name": "mcp-server-kubernetes",
+    "version": "0.1.6",
+    "source": "https://pypi.org/project/mcp-server-kubernetes/"
+   }
+  },
+  {
+   "id": "huggingface",
+   "name": "Hugging Face",
+   "summary": {
+    "en": "Large language models",
+    "zh": "大语言模型",
+    "zh-Hant": "大型語言模型",
+    "ar": "نماذج اللغة الكبيرة",
+    "fa": "مدل‌های زبانی بزرگ",
+    "ja": "大規模言語モデル",
+    "ko": "대규모 언어 모델",
+    "es": "Modelos de lenguaje grandes",
+    "pt": "Modelos de linguagem grandes",
+    "ru": "Большие языковые модели",
+    "id": "Model bahasa besar",
+    "tr": "Büyük dil modelleri"
+   },
+   "category": "llm",
+   "transport": "streamable-http",
+   "auth": "fields",
+   "officialSource": "https://huggingface.co/settings/mcp",
+   "endpoint": "https://huggingface.co/mcp",
+   "fields": [
+    {
+     "id": "token",
+     "label": {
+      "en": "Token",
+      "zh": "令牌",
+      "zh-Hant": "權杖",
+      "ar": "رمز",
+      "fa": "توکن",
+      "ja": "トークン",
+      "ko": "토큰",
+      "es": "Token",
+      "pt": "Token",
+      "ru": "Токен",
+      "id": "Token",
+      "tr": "Belirteç"
+     },
+     "secret": true,
+     "required": false,
+     "target": "bearer",
+     "name": ""
+    }
+   ]
+  },
+  {
+   "id": "replicate",
+   "name": "Replicate",
+   "summary": {
+    "en": "Large language models",
+    "zh": "大语言模型",
+    "zh-Hant": "大型語言模型",
+    "ar": "نماذج اللغة الكبيرة",
+    "fa": "مدل‌های زبانی بزرگ",
+    "ja": "大規模言語モデル",
+    "ko": "대규모 언어 모델",
+    "es": "Modelos de lenguaje grandes",
+    "pt": "Modelos de linguagem grandes",
+    "ru": "Большие языковые модели",
+    "id": "Model bahasa besar",
+    "tr": "Büyük dil modelleri"
+   },
+   "category": "llm",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://replicate.com/docs/reference/mcp",
+   "endpoint": "https://mcp.replicate.com/mcp"
+  },
+  {
+   "id": "exa",
+   "name": "Exa",
+   "summary": {
+    "en": "Search the web",
+    "zh": "搜索网页",
+    "zh-Hant": "搜尋網頁",
+    "ar": "البحث في الويب",
+    "fa": "جست‌وجو در وب",
+    "ja": "Web を検索",
+    "ko": "웹 검색",
+    "es": "Buscar en la web",
+    "pt": "Pesquisar na web",
+    "ru": "Поиск в интернете",
+    "id": "Mencari di web",
+    "tr": "Web'de arama"
+   },
+   "category": "search",
+   "transport": "streamable-http",
+   "auth": "none",
+   "officialSource": "https://exa.ai",
+   "endpoint": "https://mcp.exa.ai/mcp"
+  },
+  {
+   "id": "tavily",
+   "name": "Tavily",
+   "summary": {
+    "en": "Search the web",
+    "zh": "搜索网页",
+    "zh-Hant": "搜尋網頁",
+    "ar": "البحث في الويب",
+    "fa": "جست‌وجو در وب",
+    "ja": "Web を検索",
+    "ko": "웹 검색",
+    "es": "Buscar en la web",
+    "pt": "Pesquisar na web",
+    "ru": "Поиск в интернете",
+    "id": "Mencari di web",
+    "tr": "Web'de arama"
+   },
+   "category": "search",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://docs.tavily.com/documentation/mcp",
+   "endpoint": "https://mcp.tavily.com/mcp"
+  },
+  {
+   "id": "you",
+   "name": "You.com",
+   "summary": {
+    "en": "Search the web",
+    "zh": "搜索网页",
+    "zh-Hant": "搜尋網頁",
+    "ar": "البحث في الويب",
+    "fa": "جست‌وجو در وب",
+    "ja": "Web を検索",
+    "ko": "웹 검색",
+    "es": "Buscar en la web",
+    "pt": "Pesquisar na web",
+    "ru": "Поиск в интернете",
+    "id": "Mencari di web",
+    "tr": "Web'de arama"
+   },
+   "category": "search",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://documentation.you.com/developer-resources/mcp-server",
+   "endpoint": "https://api.you.com/mcp"
+  },
+  {
+   "id": "serpapi",
+   "name": "SerpAPI",
+   "summary": {
+    "en": "Search the web",
+    "zh": "搜索网页",
+    "zh-Hant": "搜尋網頁",
+    "ar": "البحث في الويب",
+    "fa": "جست‌وجو در وب",
+    "ja": "Web を検索",
+    "ko": "웹 검색",
+    "es": "Buscar en la web",
+    "pt": "Pesquisar na web",
+    "ru": "Поиск в интернете",
+    "id": "Mencari di web",
+    "tr": "Web'de arama"
+   },
+   "category": "search",
+   "transport": "streamable-http",
+   "auth": "fields",
+   "officialSource": "https://github.com/serpapi/serpapi-mcp",
+   "endpoint": "https://mcp.serpapi.com/mcp",
+   "fields": [
+    {
+     "id": "api_key",
+     "label": {
+      "en": "API Key",
+      "zh": "API 密钥",
+      "zh-Hant": "API 金鑰",
+      "ar": "مفتاح API",
+      "fa": "کلید API",
+      "ja": "API キー",
+      "ko": "API 키",
+      "es": "Clave de API",
+      "pt": "Chave de API",
+      "ru": "Ключ API",
+      "id": "Kunci API",
+      "tr": "API anahtarı"
+     },
+     "secret": true,
+     "required": true,
+     "target": "bearer",
+     "name": ""
+    }
+   ]
+  },
+  {
+   "id": "neon",
+   "name": "Neon",
+   "summary": {
+    "en": "Query and manage a database",
+    "zh": "查询和管理数据库",
+    "zh-Hant": "查詢和管理資料庫",
+    "ar": "الاستعلام عن قاعدة البيانات وإدارتها",
+    "fa": "پرس‌وجو و مدیریت پایگاه داده",
+    "ja": "データベースのクエリと管理",
+    "ko": "데이터베이스 쿼리 및 관리",
+    "es": "Consultar y administrar una base de datos",
+    "pt": "Consultar e gerenciar um banco de dados",
+    "ru": "Запросы к базе данных и её управление",
+    "id": "Mengkueri dan mengelola basis data",
+    "tr": "Veritabanını sorgulama ve yönetme"
+   },
+   "category": "database",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://neon.com/docs/ai/neon-mcp-server",
+   "endpoint": "https://mcp.neon.tech/mcp"
+  },
+  {
+   "id": "supabase",
+   "name": "Supabase",
+   "summary": {
+    "en": "Query and manage a database",
+    "zh": "查询和管理数据库",
+    "zh-Hant": "查詢和管理資料庫",
+    "ar": "الاستعلام عن قاعدة البيانات وإدارتها",
+    "fa": "پرس‌وجو و مدیریت پایگاه داده",
+    "ja": "データベースのクエリと管理",
+    "ko": "데이터베이스 쿼리 및 관리",
+    "es": "Consultar y administrar una base de datos",
+    "pt": "Consultar e gerenciar um banco de dados",
+    "ru": "Запросы к базе данных и её управление",
+    "id": "Mengkueri dan mengelola basis data",
+    "tr": "Veritabanını sorgulama ve yönetme"
+   },
+   "category": "database",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://supabase.com/docs/guides/getting-started/mcp",
+   "endpoint": "https://mcp.supabase.com/mcp"
+  },
+  {
+   "id": "planetscale",
+   "name": "PlanetScale",
+   "summary": {
+    "en": "Query and manage a database",
+    "zh": "查询和管理数据库",
+    "zh-Hant": "查詢和管理資料庫",
+    "ar": "الاستعلام عن قاعدة البيانات وإدارتها",
+    "fa": "پرس‌وجو و مدیریت پایگاه داده",
+    "ja": "データベースのクエリと管理",
+    "ko": "데이터베이스 쿼리 및 관리",
+    "es": "Consultar y administrar una base de datos",
+    "pt": "Consultar e gerenciar um banco de dados",
+    "ru": "Запросы к базе данных и её управление",
+    "id": "Mengkueri dan mengelola basis data",
+    "tr": "Veritabanını sorgulama ve yönetme"
+   },
+   "category": "database",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://planetscale.com/docs/connect/mcp",
+   "endpoint": "https://mcp.pscale.dev/mcp/planetscale"
+  },
+  {
+   "id": "clickhouse",
+   "name": "ClickHouse",
+   "summary": {
+    "en": "Query and manage a database",
+    "zh": "查询和管理数据库",
+    "zh-Hant": "查詢和管理資料庫",
+    "ar": "الاستعلام عن قاعدة البيانات وإدارتها",
+    "fa": "پرس‌وجو و مدیریت پایگاه داده",
+    "ja": "データベースのクエリと管理",
+    "ko": "데이터베이스 쿼리 및 관리",
+    "es": "Consultar y administrar una base de datos",
+    "pt": "Consultar e gerenciar um banco de dados",
+    "ru": "Запросы к базе данных и её управление",
+    "id": "Mengkueri dan mengelola basis data",
+    "tr": "Veritabanını sorgulama ve yönetme"
+   },
+   "category": "database",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://clickhouse.com/docs/use-cases/AI/MCP/remote_mcp",
+   "endpoint": "https://mcp.clickhouse.cloud/mcp"
+  },
+  {
+   "id": "cockroachdb",
+   "name": "CockroachDB",
+   "summary": {
+    "en": "Query and manage a database",
+    "zh": "查询和管理数据库",
+    "zh-Hant": "查詢和管理資料庫",
+    "ar": "الاستعلام عن قاعدة البيانات وإدارتها",
+    "fa": "پرس‌وجو و مدیریت پایگاه داده",
+    "ja": "データベースのクエリと管理",
+    "ko": "데이터베이스 쿼리 및 관리",
+    "es": "Consultar y administrar una base de datos",
+    "pt": "Consultar e gerenciar um banco de dados",
+    "ru": "Запросы к базе данных и её управление",
+    "id": "Mengkueri dan mengelola basis data",
+    "tr": "Veritabanını sorgulama ve yönetme"
+   },
+   "category": "database",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://www.cockroachlabs.com/docs/cockroachcloud/connect-to-the-cockroachdb-cloud-mcp-server",
+   "endpoint": "https://cockroachlabs.cloud/mcp"
+  },
+  {
+   "id": "github",
+   "name": "GitHub",
+   "summary": {
+    "en": "Git repositories and version control",
+    "zh": "Git 仓库与版本控制",
+    "zh-Hant": "Git 儲存庫與版本控制",
+    "ar": "مستودعات Git والتحكم بالإصدارات",
+    "fa": "مخازن Git و کنترل نسخه",
+    "ja": "Git リポジトリとバージョン管理",
+    "ko": "Git 저장소 및 버전 관리",
+    "es": "Repositorios Git y control de versiones",
+    "pt": "Repositórios Git e controle de versão",
+    "ru": "Репозитории Git и контроль версий",
+    "id": "Repositori Git dan kontrol versi",
+    "tr": "Git depoları ve sürüm kontrolü"
+   },
+   "category": "git",
+   "transport": "streamable-http",
+   "auth": "fields",
+   "officialSource": "https://github.com/github/github-mcp-server",
+   "endpoint": "https://api.githubcopilot.com/mcp/",
+   "fields": [
+    {
+     "id": "token",
+     "label": {
+      "en": "Token",
+      "zh": "令牌",
+      "zh-Hant": "權杖",
+      "ar": "رمز",
+      "fa": "توکن",
+      "ja": "トークン",
+      "ko": "토큰",
+      "es": "Token",
+      "pt": "Token",
+      "ru": "Токен",
+      "id": "Token",
+      "tr": "Belirteç"
+     },
+     "secret": true,
+     "required": true,
+     "target": "bearer",
+     "name": ""
+    }
+   ]
+  },
+  {
+   "id": "gitlab",
+   "name": "GitLab",
+   "summary": {
+    "en": "Git repositories and version control",
+    "zh": "Git 仓库与版本控制",
+    "zh-Hant": "Git 儲存庫與版本控制",
+    "ar": "مستودعات Git والتحكم بالإصدارات",
+    "fa": "مخازن Git و کنترل نسخه",
+    "ja": "Git リポジトリとバージョン管理",
+    "ko": "Git 저장소 및 버전 관리",
+    "es": "Repositorios Git y control de versiones",
+    "pt": "Repositórios Git e controle de versão",
+    "ru": "Репозитории Git и контроль версий",
+    "id": "Repositori Git dan kontrol versi",
+    "tr": "Git depoları ve sürüm kontrolü"
+   },
+   "category": "git",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/",
+   "endpoint": "https://gitlab.com/api/v4/mcp"
+  },
+  {
+   "id": "gitee",
+   "name": "Gitee",
+   "summary": {
+    "en": "Git repositories and version control",
+    "zh": "Git 仓库与版本控制",
+    "zh-Hant": "Git 儲存庫與版本控制",
+    "ar": "مستودعات Git والتحكم بالإصدارات",
+    "fa": "مخازن Git و کنترل نسخه",
+    "ja": "Git リポジトリとバージョン管理",
+    "ko": "Git 저장소 및 버전 관리",
+    "es": "Repositorios Git y control de versiones",
+    "pt": "Repositórios Git e controle de versão",
+    "ru": "Репозитории Git и контроль версий",
+    "id": "Repositori Git dan kontrol versi",
+    "tr": "Git depoları ve sürüm kontrolü"
+   },
+   "category": "git",
+   "transport": "streamable-http",
+   "auth": "fields",
+   "officialSource": "https://gitee.com/oschina/mcp-gitee",
+   "endpoint": "https://api.gitee.com/mcp",
+   "fields": [
+    {
+     "id": "token",
+     "label": {
+      "en": "Access token",
+      "zh": "访问令牌",
+      "zh-Hant": "存取權杖",
+      "ar": "رمز الوصول",
+      "fa": "نشانه دسترسی",
+      "ja": "アクセストークン",
+      "ko": "액세스 토큰",
+      "es": "Token de acceso",
+      "pt": "Token de acesso",
+      "ru": "Токен доступа",
+      "id": "Token akses",
+      "tr": "Erişim belirteci"
+     },
+     "secret": true,
+     "required": true,
+     "target": "bearer",
+     "name": ""
+    }
+   ]
+  },
+  {
+   "id": "buildkite",
+   "name": "Buildkite",
+   "summary": {
+    "en": "Builds, deployments and CI/CD",
+    "zh": "构建、部署与 CI/CD",
+    "zh-Hant": "建置、部署與 CI/CD",
+    "ar": "البناء والنشر و CI/CD",
+    "fa": "ساخت، استقرار و CI/CD",
+    "ja": "ビルド・デプロイ・CI/CD",
+    "ko": "빌드, 배포 및 CI/CD",
+    "es": "Compilaciones, despliegues y CI/CD",
+    "pt": "Builds, deploys e CI/CD",
+    "ru": "Сборки, развертывание и CI/CD",
+    "id": "Build, deployment, dan CI/CD",
+    "tr": "Derleme, dağıtım ve CI/CD"
+   },
+   "category": "ci",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://buildkite.com/docs/apis/mcp-server",
+   "endpoint": "https://mcp.buildkite.com/mcp"
+  },
+  {
+   "id": "datadog",
+   "name": "Datadog",
+   "summary": {
+    "en": "Query and visualize data",
+    "zh": "查询和可视化数据",
+    "zh-Hant": "查詢和視覺化資料",
+    "ar": "الاستعلام عن البيانات وتصويرها",
+    "fa": "پرس‌وجو و تصویرسازی داده‌ها",
+    "ja": "データのクエリと可視化",
+    "ko": "데이터 쿼리 및 시각화",
+    "es": "Consultar y visualizar datos",
+    "pt": "Consultar e visualizar dados",
+    "ru": "Запросы к данным и визуализация",
+    "id": "Mengkueri dan memvisualisasikan data",
+    "tr": "Verileri sorgulama ve görselleştirme"
+   },
+   "category": "analytics",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://docs.datadoghq.com/bits_ai/mcp_server/",
+   "endpoint": "https://mcp.datadoghq.com/api/unstable/mcp-server/mcp"
+  },
+  {
+   "id": "grafana",
+   "name": "Grafana",
+   "summary": {
+    "en": "Query and visualize data",
+    "zh": "查询和可视化数据",
+    "zh-Hant": "查詢和視覺化資料",
+    "ar": "الاستعلام عن البيانات وتصويرها",
+    "fa": "پرس‌وجو و تصویرسازی داده‌ها",
+    "ja": "データのクエリと可視化",
+    "ko": "데이터 쿼리 및 시각화",
+    "es": "Consultar y visualizar datos",
+    "pt": "Consultar e visualizar dados",
+    "ru": "Запросы к данным и визуализация",
+    "id": "Mengkueri dan memvisualisasikan data",
+    "tr": "Verileri sorgulama ve görselleştirme"
+   },
+   "category": "analytics",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://grafana.com/docs/grafana-cloud/",
+   "endpoint": "https://mcp.grafana.com/mcp"
+  },
+  {
+   "id": "sentry",
+   "name": "Sentry",
+   "summary": {
+    "en": "Query and visualize data",
+    "zh": "查询和可视化数据",
+    "zh-Hant": "查詢和視覺化資料",
+    "ar": "الاستعلام عن البيانات وتصويرها",
+    "fa": "پرس‌وجو و تصویرسازی داده‌ها",
+    "ja": "データのクエリと可視化",
+    "ko": "데이터 쿼리 및 시각화",
+    "es": "Consultar y visualizar datos",
+    "pt": "Consultar e visualizar dados",
+    "ru": "Запросы к данным и визуализация",
+    "id": "Mengkueri dan memvisualisasikan data",
+    "tr": "Verileri sorgulama ve görselleştirme"
+   },
+   "category": "analytics",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://docs.sentry.io/product/sentry-mcp/",
+   "endpoint": "https://mcp.sentry.dev/mcp"
+  },
+  {
+   "id": "newrelic",
+   "name": "New Relic",
+   "summary": {
+    "en": "Query and visualize data",
+    "zh": "查询和可视化数据",
+    "zh-Hant": "查詢和視覺化資料",
+    "ar": "الاستعلام عن البيانات وتصويرها",
+    "fa": "پرس‌وجو و تصویرسازی داده‌ها",
+    "ja": "データのクエリと可視化",
+    "ko": "데이터 쿼리 및 시각화",
+    "es": "Consultar y visualizar datos",
+    "pt": "Consultar e visualizar dados",
+    "ru": "Запросы к данным и визуализация",
+    "id": "Mengkueri dan memvisualisasikan data",
+    "tr": "Verileri sorgulama ve görselleştirme"
+   },
+   "category": "analytics",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://docs.newrelic.com/docs/agentic-ai/mcp/overview/",
+   "endpoint": "https://mcp.newrelic.com/mcp/"
+  },
+  {
+   "id": "vercel",
+   "name": "Vercel",
+   "summary": {
+    "en": "Manage cloud resources",
+    "zh": "管理云资源",
+    "zh-Hant": "管理雲端資源",
+    "ar": "إدارة موارد السحابة",
+    "fa": "مدیریت منابع ابری",
+    "ja": "クラウドリソースの管理",
+    "ko": "클라우드 리소스 관리",
+    "es": "Administrar recursos en la nube",
+    "pt": "Gerenciar recursos de nuvem",
+    "ru": "Управление облачными ресурсами",
+    "id": "Mengelola sumber daya cloud",
+    "tr": "Bulut kaynaklarını yönetme"
+   },
+   "category": "cloud",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://vercel.com/docs/mcp/vercel-mcp",
+   "endpoint": "https://mcp.vercel.com"
+  },
+  {
+   "id": "netlify",
+   "name": "Netlify",
+   "summary": {
+    "en": "Manage cloud resources",
+    "zh": "管理云资源",
+    "zh-Hant": "管理雲端資源",
+    "ar": "إدارة موارد السحابة",
+    "fa": "مدیریت منابع ابری",
+    "ja": "クラウドリソースの管理",
+    "ko": "클라우드 리소스 관리",
+    "es": "Administrar recursos en la nube",
+    "pt": "Gerenciar recursos de nuvem",
+    "ru": "Управление облачными ресурсами",
+    "id": "Mengelola sumber daya cloud",
+    "tr": "Bulut kaynaklarını yönetme"
+   },
+   "category": "cloud",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://docs.netlify.com/build/build-with-ai/netlify-mcp-server/",
+   "endpoint": "https://netlify-mcp.netlify.app/mcp"
+  },
+  {
+   "id": "cloudflare",
+   "name": "Cloudflare",
+   "summary": {
+    "en": "Manage cloud resources",
+    "zh": "管理云资源",
+    "zh-Hant": "管理雲端資源",
+    "ar": "إدارة موارد السحابة",
+    "fa": "مدیریت منابع ابری",
+    "ja": "クラウドリソースの管理",
+    "ko": "클라우드 리소스 관리",
+    "es": "Administrar recursos en la nube",
+    "pt": "Gerenciar recursos de nuvem",
+    "ru": "Управление облачными ресурсами",
+    "id": "Mengelola sumber daya cloud",
+    "tr": "Bulut kaynaklarını yönetme"
+   },
+   "category": "cloud",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developers.cloudflare.com/agents/model-context-protocol/mcp-servers-for-cloudflare/",
+   "endpoint": "https://mcp.cloudflare.com/mcp"
+  },
+  {
+   "id": "heroku",
+   "name": "Heroku",
+   "summary": {
+    "en": "Manage cloud resources",
+    "zh": "管理云资源",
+    "zh-Hant": "管理雲端資源",
+    "ar": "إدارة موارد السحابة",
+    "fa": "مدیریت منابع ابری",
+    "ja": "クラウドリソースの管理",
+    "ko": "클라우드 리소스 관리",
+    "es": "Administrar recursos en la nube",
+    "pt": "Gerenciar recursos de nuvem",
+    "ru": "Управление облачными ресурсами",
+    "id": "Mengelola sumber daya cloud",
+    "tr": "Bulut kaynaklarını yönetme"
+   },
+   "category": "cloud",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://devcenter.heroku.com/articles/heroku-mcp-server",
+   "endpoint": "https://mcp.heroku.com/mcp"
+  },
+  {
+   "id": "render",
+   "name": "Render",
+   "summary": {
+    "en": "Manage cloud resources",
+    "zh": "管理云资源",
+    "zh-Hant": "管理雲端資源",
+    "ar": "إدارة موارد السحابة",
+    "fa": "مدیریت منابع ابری",
+    "ja": "クラウドリソースの管理",
+    "ko": "클라우드 리소스 관리",
+    "es": "Administrar recursos en la nube",
+    "pt": "Gerenciar recursos de nuvem",
+    "ru": "Управление облачными ресурсами",
+    "id": "Mengelola sumber daya cloud",
+    "tr": "Bulut kaynaklarını yönetme"
+   },
+   "category": "cloud",
+   "transport": "streamable-http",
+   "auth": "fields",
+   "officialSource": "https://render.com/docs/mcp-server",
+   "endpoint": "https://mcp.render.com/mcp",
+   "fields": [
+    {
+     "id": "api_key",
+     "label": {
+      "en": "API Key",
+      "zh": "API 密钥",
+      "zh-Hant": "API 金鑰",
+      "ar": "مفتاح API",
+      "fa": "کلید API",
+      "ja": "API キー",
+      "ko": "API 키",
+      "es": "Clave de API",
+      "pt": "Chave de API",
+      "ru": "Ключ API",
+      "id": "Kunci API",
+      "tr": "API anahtarı"
+     },
+     "secret": true,
+     "required": true,
+     "target": "bearer",
+     "name": ""
+    }
+   ]
+  },
+  {
+   "id": "railway",
+   "name": "Railway",
+   "summary": {
+    "en": "Manage cloud resources",
+    "zh": "管理云资源",
+    "zh-Hant": "管理雲端資源",
+    "ar": "إدارة موارد السحابة",
+    "fa": "مدیریت منابع ابری",
+    "ja": "クラウドリソースの管理",
+    "ko": "클라우드 리소스 관리",
+    "es": "Administrar recursos en la nube",
+    "pt": "Gerenciar recursos de nuvem",
+    "ru": "Управление облачными ресурсами",
+    "id": "Mengelola sumber daya cloud",
+    "tr": "Bulut kaynaklarını yönetme"
+   },
+   "category": "cloud",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://railway.com",
+   "endpoint": "https://mcp.railway.com/mcp"
+  },
+  {
+   "id": "digitalocean",
+   "name": "DigitalOcean",
+   "summary": {
+    "en": "Manage cloud resources",
+    "zh": "管理云资源",
+    "zh-Hant": "管理雲端資源",
+    "ar": "إدارة موارد السحابة",
+    "fa": "مدیریت منابع ابری",
+    "ja": "クラウドリソースの管理",
+    "ko": "클라우드 리소스 관리",
+    "es": "Administrar recursos en la nube",
+    "pt": "Gerenciar recursos de nuvem",
+    "ru": "Управление облачными ресурсами",
+    "id": "Mengelola sumber daya cloud",
+    "tr": "Bulut kaynaklarını yönetme"
+   },
+   "category": "cloud",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://docs.digitalocean.com/reference/mcp/",
+   "endpoint": "https://apps.mcp.digitalocean.com/mcp"
+  },
+  {
+   "id": "notion",
+   "name": "Notion",
+   "summary": {
+    "en": "Notes, documents and wikis",
+    "zh": "笔记、文档与维基",
+    "zh-Hant": "筆記、文件與維基",
+    "ar": "الملاحظات والمستندات والويكي",
+    "fa": "یادداشت‌ها، اسناد و ویکی‌ها",
+    "ja": "ノート・文書・Wiki",
+    "ko": "메모, 문서 및 위키",
+    "es": "Notas, documentos y wikis",
+    "pt": "Notas, documentos e wikis",
+    "ru": "Заметки, документы и вики",
+    "id": "Catatan, dokumen, dan wiki",
+    "tr": "Notlar, belgeler ve wikiler"
+   },
+   "category": "docs",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developers.notion.com/docs/mcp",
+   "endpoint": "https://mcp.notion.com/mcp"
+  },
+  {
+   "id": "confluence",
+   "name": "Confluence",
+   "summary": {
+    "en": "Notes, documents and wikis",
+    "zh": "笔记、文档与维基",
+    "zh-Hant": "筆記、文件與維基",
+    "ar": "الملاحظات والمستندات والويكي",
+    "fa": "یادداشت‌ها، اسناد و ویکی‌ها",
+    "ja": "ノート・文書・Wiki",
+    "ko": "메모, 문서 및 위키",
+    "es": "Notas, documentos y wikis",
+    "pt": "Notas, documentos e wikis",
+    "ru": "Заметки, документы и вики",
+    "id": "Catatan, dokumen, dan wiki",
+    "tr": "Notlar, belgeler ve wikiler"
+   },
+   "category": "docs",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://www.atlassian.com/platform/remote-mcp-server",
+   "endpoint": "https://mcp.atlassian.com/v1/mcp"
+  },
+  {
+   "id": "dropbox",
+   "name": "Dropbox",
+   "summary": {
+    "en": "Notes, documents and wikis",
+    "zh": "笔记、文档与维基",
+    "zh-Hant": "筆記、文件與維基",
+    "ar": "الملاحظات والمستندات والويكي",
+    "fa": "یادداشت‌ها، اسناد و ویکی‌ها",
+    "ja": "ノート・文書・Wiki",
+    "ko": "메모, 문서 및 위키",
+    "es": "Notas, documentos y wikis",
+    "pt": "Notas, documentos e wikis",
+    "ru": "Заметки, документы и вики",
+    "id": "Catatan, dokumen, dan wiki",
+    "tr": "Notlar, belgeler ve wikiler"
+   },
+   "category": "docs",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://www.dropbox.com/developers",
+   "endpoint": "https://mcp.dropbox.com/mcp"
+  },
+  {
+   "id": "airtable",
+   "name": "Airtable",
+   "summary": {
+    "en": "Notes, documents and wikis",
+    "zh": "笔记、文档与维基",
+    "zh-Hant": "筆記、文件與維基",
+    "ar": "الملاحظات والمستندات والويكي",
+    "fa": "یادداشت‌ها، اسناد و ویکی‌ها",
+    "ja": "ノート・文書・Wiki",
+    "ko": "메모, 문서 및 위키",
+    "es": "Notas, documentos y wikis",
+    "pt": "Notas, documentos e wikis",
+    "ru": "Заметки, документы и вики",
+    "id": "Catatan, dokumen, dan wiki",
+    "tr": "Notlar, belgeler ve wikiler"
+   },
+   "category": "docs",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://support.airtable.com/docs/using-the-airtable-mcp-server",
+   "endpoint": "https://mcp.airtable.com/mcp"
+  },
+  {
+   "id": "coda",
+   "name": "Coda",
+   "summary": {
+    "en": "Notes, documents and wikis",
+    "zh": "笔记、文档与维基",
+    "zh-Hant": "筆記、文件與維基",
+    "ar": "الملاحظات والمستندات والويكي",
+    "fa": "یادداشت‌ها، اسناد و ویکی‌ها",
+    "ja": "ノート・文書・Wiki",
+    "ko": "메모, 문서 및 위키",
+    "es": "Notas, documentos y wikis",
+    "pt": "Notas, documentos e wikis",
+    "ru": "Заметки, документы и вики",
+    "id": "Catatan, dokumen, dan wiki",
+    "tr": "Notlar, belgeler ve wikiler"
+   },
+   "category": "docs",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://coda.io/developers",
+   "endpoint": "https://coda.io/apis/mcp"
+  },
+  {
+   "id": "readwise",
+   "name": "Readwise",
+   "summary": {
+    "en": "Notes, documents and wikis",
+    "zh": "笔记、文档与维基",
+    "zh-Hant": "筆記、文件與維基",
+    "ar": "الملاحظات والمستندات والويكي",
+    "fa": "یادداشت‌ها، اسناد و ویکی‌ها",
+    "ja": "ノート・文書・Wiki",
+    "ko": "메모, 문서 및 위키",
+    "es": "Notas, documentos y wikis",
+    "pt": "Notas, documentos e wikis",
+    "ru": "Заметки, документы и вики",
+    "id": "Catatan, dokumen, dan wiki",
+    "tr": "Notlar, belgeler ve wikiler"
+   },
+   "category": "docs",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://readwise.io/mcp",
+   "endpoint": "https://mcp2.readwise.io/mcp"
+  },
+  {
+   "id": "todoist",
+   "name": "Todoist",
+   "summary": {
+    "en": "Tasks, projects and issues",
+    "zh": "任务、项目与问题跟踪",
+    "zh-Hant": "任務、專案與問題追蹤",
+    "ar": "المهام والمشاريع وتتبع المشكلات",
+    "fa": "وظایف، پروژه‌ها و پیگیری مشکلات",
+    "ja": "タスク・プロジェクト・課題",
+    "ko": "작업, 프로젝트 및 이슈",
+    "es": "Tareas, proyectos e incidencias",
+    "pt": "Tarefas, projetos e problemas",
+    "ru": "Задачи, проекты и тикеты",
+    "id": "Tugas, proyek, dan isu",
+    "tr": "Görevler, projeler ve sorunlar"
+   },
+   "category": "tasks",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developer.todoist.com",
+   "endpoint": "https://ai.todoist.net/mcp"
+  },
+  {
+   "id": "linear",
+   "name": "Linear",
+   "summary": {
+    "en": "Tasks, projects and issues",
+    "zh": "任务、项目与问题跟踪",
+    "zh-Hant": "任務、專案與問題追蹤",
+    "ar": "المهام والمشاريع وتتبع المشكلات",
+    "fa": "وظایف، پروژه‌ها و پیگیری مشکلات",
+    "ja": "タスク・プロジェクト・課題",
+    "ko": "작업, 프로젝트 및 이슈",
+    "es": "Tareas, proyectos e incidencias",
+    "pt": "Tarefas, projetos e problemas",
+    "ru": "Задачи, проекты и тикеты",
+    "id": "Tugas, proyek, dan isu",
+    "tr": "Görevler, projeler ve sorunlar"
+   },
+   "category": "tasks",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://linear.app/docs/mcp",
+   "endpoint": "https://mcp.linear.app/mcp"
+  },
+  {
+   "id": "clickup",
+   "name": "ClickUp",
+   "summary": {
+    "en": "Tasks, projects and issues",
+    "zh": "任务、项目与问题跟踪",
+    "zh-Hant": "任務、專案與問題追蹤",
+    "ar": "المهام والمشاريع وتتبع المشكلات",
+    "fa": "وظایف، پروژه‌ها و پیگیری مشکلات",
+    "ja": "タスク・プロジェクト・課題",
+    "ko": "작업, 프로젝트 및 이슈",
+    "es": "Tareas, proyectos e incidencias",
+    "pt": "Tarefas, projetos e problemas",
+    "ru": "Задачи, проекты и тикеты",
+    "id": "Tugas, proyek, dan isu",
+    "tr": "Görevler, projeler ve sorunlar"
+   },
+   "category": "tasks",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://clickup.com",
+   "endpoint": "https://mcp.clickup.com/mcp"
+  },
+  {
+   "id": "monday",
+   "name": "monday.com",
+   "summary": {
+    "en": "Tasks, projects and issues",
+    "zh": "任务、项目与问题跟踪",
+    "zh-Hant": "任務、專案與問題追蹤",
+    "ar": "المهام والمشاريع وتتبع المشكلات",
+    "fa": "وظایف، پروژه‌ها و پیگیری مشکلات",
+    "ja": "タスク・プロジェクト・課題",
+    "ko": "작업, 프로젝트 및 이슈",
+    "es": "Tareas, proyectos e incidencias",
+    "pt": "Tarefas, projetos e problemas",
+    "ru": "Задачи, проекты и тикеты",
+    "id": "Tugas, proyek, dan isu",
+    "tr": "Görevler, projeler ve sorunlar"
+   },
+   "category": "tasks",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developer.monday.com/apps/docs/mondaycom-mcp-integration",
+   "endpoint": "https://mcp.monday.com/mcp"
+  },
+  {
+   "id": "shortcut",
+   "name": "Shortcut",
+   "summary": {
+    "en": "Tasks, projects and issues",
+    "zh": "任务、项目与问题跟踪",
+    "zh-Hant": "任務、專案與問題追蹤",
+    "ar": "المهام والمشاريع وتتبع المشكلات",
+    "fa": "وظایف، پروژه‌ها و پیگیری مشکلات",
+    "ja": "タスク・プロジェクト・課題",
+    "ko": "작업, 프로젝트 및 이슈",
+    "es": "Tareas, proyectos e incidencias",
+    "pt": "Tarefas, projetos e problemas",
+    "ru": "Задачи, проекты и тикеты",
+    "id": "Tugas, proyek, dan isu",
+    "tr": "Görevler, projeler ve sorunlar"
+   },
+   "category": "tasks",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developer.shortcut.com",
+   "endpoint": "https://mcp.shortcut.com/mcp"
+  },
+  {
+   "id": "basecamp",
+   "name": "Basecamp",
+   "summary": {
+    "en": "Tasks, projects and issues",
+    "zh": "任务、项目与问题跟踪",
+    "zh-Hant": "任務、專案與問題追蹤",
+    "ar": "المهام والمشاريع وتتبع المشكلات",
+    "fa": "وظایف، پروژه‌ها و پیگیری مشکلات",
+    "ja": "タスク・プロジェクト・課題",
+    "ko": "작업, 프로젝트 및 이슈",
+    "es": "Tareas, proyectos e incidencias",
+    "pt": "Tarefas, projetos e problemas",
+    "ru": "Задачи, проекты и тикеты",
+    "id": "Tugas, proyek, dan isu",
+    "tr": "Görevler, projeler ve sorunlar"
+   },
+   "category": "tasks",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://basecamp.com",
+   "endpoint": "https://mcp.basecamp.com/mcp"
+  },
+  {
+   "id": "intercom",
+   "name": "Intercom",
+   "summary": {
+    "en": "Send and read messages",
+    "zh": "发送和阅读消息",
+    "zh-Hant": "傳送和閱讀訊息",
+    "ar": "إرسال الرسائل وقراءتها",
+    "fa": "ارسال و خواندن پیام‌ها",
+    "ja": "メッセージの送受信",
+    "ko": "메시지 보내기 및 읽기",
+    "es": "Enviar y leer mensajes",
+    "pt": "Enviar e ler mensagens",
+    "ru": "Отправка и чтение сообщений",
+    "id": "Mengirim dan membaca pesan",
+    "tr": "Mesaj gönderme ve okuma"
+   },
+   "category": "chat",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developers.intercom.com/docs/guides/mcp",
+   "endpoint": "https://mcp.intercom.com/mcp"
+  },
+  {
+   "id": "resend",
+   "name": "Resend",
+   "summary": {
+    "en": "Send and read email",
+    "zh": "发送和阅读邮件",
+    "zh-Hant": "傳送和閱讀電子郵件",
+    "ar": "إرسال البريد الإلكتروني وقراءته",
+    "fa": "ارسال و خواندن ایمیل",
+    "ja": "メールの送受信",
+    "ko": "이메일 보내기 및 읽기",
+    "es": "Enviar y leer correo electrónico",
+    "pt": "Enviar e ler e-mail",
+    "ru": "Отправка и чтение электронной почты",
+    "id": "Mengirim dan membaca surel",
+    "tr": "E-posta gönderme ve okuma"
+   },
+   "category": "email",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://resend.com/docs/knowledge-base/mcp-server",
+   "endpoint": "https://mcp.resend.com/mcp"
+  },
+  {
+   "id": "mailchimp",
+   "name": "Mailchimp",
+   "summary": {
+    "en": "Send and read email",
+    "zh": "发送和阅读邮件",
+    "zh-Hant": "傳送和閱讀電子郵件",
+    "ar": "إرسال البريد الإلكتروني وقراءته",
+    "fa": "ارسال و خواندن ایمیل",
+    "ja": "メールの送受信",
+    "ko": "이메일 보내기 및 읽기",
+    "es": "Enviar y leer correo electrónico",
+    "pt": "Enviar e ler e-mail",
+    "ru": "Отправка и чтение электронной почты",
+    "id": "Mengirim dan membaca surel",
+    "tr": "E-posta gönderme ve okuma"
+   },
+   "category": "email",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://mailchimp.com/developer/",
+   "endpoint": "https://mcp.mailchimp.com/mcp"
+  },
+  {
+   "id": "klaviyo",
+   "name": "Klaviyo",
+   "summary": {
+    "en": "Send and read email",
+    "zh": "发送和阅读邮件",
+    "zh-Hant": "傳送和閱讀電子郵件",
+    "ar": "إرسال البريد الإلكتروني وقراءته",
+    "fa": "ارسال و خواندن ایمیل",
+    "ja": "メールの送受信",
+    "ko": "이메일 보내기 및 읽기",
+    "es": "Enviar y leer correo electrónico",
+    "pt": "Enviar e ler e-mail",
+    "ru": "Отправка и чтение электронной почты",
+    "id": "Mengirim dan membaca surel",
+    "tr": "E-posta gönderme ve okuma"
+   },
+   "category": "email",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developers.klaviyo.com/en/docs/klaviyo_mcp_server",
+   "endpoint": "https://mcp.klaviyo.com/mcp"
+  },
+  {
+   "id": "customerio",
+   "name": "Customer.io",
+   "summary": {
+    "en": "Send and read email",
+    "zh": "发送和阅读邮件",
+    "zh-Hant": "傳送和閱讀電子郵件",
+    "ar": "إرسال البريد الإلكتروني وقراءته",
+    "fa": "ارسال و خواندن ایمیل",
+    "ja": "メールの送受信",
+    "ko": "이메일 보내기 및 읽기",
+    "es": "Enviar y leer correo electrónico",
+    "pt": "Enviar e ler e-mail",
+    "ru": "Отправка и чтение электронной почты",
+    "id": "Mengirim dan membaca surel",
+    "tr": "E-posta gönderme ve okuma"
+   },
+   "category": "email",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://docs.customer.io/ai/mcp-server/",
+   "endpoint": "https://mcp.customer.io/mcp"
+  },
+  {
+   "id": "figma",
+   "name": "Figma",
+   "summary": {
+    "en": "Design and collaborate",
+    "zh": "设计与协作",
+    "zh-Hant": "設計與協作",
+    "ar": "التصميم والتعاون",
+    "fa": "طراحی و همکاری",
+    "ja": "デザインとコラボレーション",
+    "ko": "디자인 및 협업",
+    "es": "Diseñar y colaborar",
+    "pt": "Projetar e colaborar",
+    "ru": "Дизайн и совместная работа",
+    "id": "Desain dan kolaborasi",
+    "tr": "Tasarım ve iş birliği"
+   },
+   "category": "design",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developers.figma.com/docs/figma-mcp-server/",
+   "endpoint": "https://mcp.figma.com/mcp"
+  },
+  {
+   "id": "canva",
+   "name": "Canva",
+   "summary": {
+    "en": "Design and collaborate",
+    "zh": "设计与协作",
+    "zh-Hant": "設計與協作",
+    "ar": "التصميم والتعاون",
+    "fa": "طراحی و همکاری",
+    "ja": "デザインとコラボレーション",
+    "ko": "디자인 및 협업",
+    "es": "Diseñar y colaborar",
+    "pt": "Projetar e colaborar",
+    "ru": "Дизайн и совместная работа",
+    "id": "Desain dan kolaborasi",
+    "tr": "Tasarım ve iş birliği"
+   },
+   "category": "design",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://www.canva.com",
+   "endpoint": "https://mcp.canva.com/mcp"
+  },
+  {
+   "id": "miro",
+   "name": "Miro",
+   "summary": {
+    "en": "Design and collaborate",
+    "zh": "设计与协作",
+    "zh-Hant": "設計與協作",
+    "ar": "التصميم والتعاون",
+    "fa": "طراحی و همکاری",
+    "ja": "デザインとコラボレーション",
+    "ko": "디자인 및 협업",
+    "es": "Diseñar y colaborar",
+    "pt": "Projetar e colaborar",
+    "ru": "Дизайн и совместная работа",
+    "id": "Desain dan kolaborasi",
+    "tr": "Tasarım ve iş birliği"
+   },
+   "category": "design",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developers.miro.com/docs/miro-mcp",
+   "endpoint": "https://mcp.miro.com/"
+  },
+  {
+   "id": "lucid",
+   "name": "Lucid",
+   "summary": {
+    "en": "Design and collaborate",
+    "zh": "设计与协作",
+    "zh-Hant": "設計與協作",
+    "ar": "التصميم والتعاون",
+    "fa": "طراحی و همکاری",
+    "ja": "デザインとコラボレーション",
+    "ko": "디자인 및 협업",
+    "es": "Diseñar y colaborar",
+    "pt": "Projetar e colaborar",
+    "ru": "Дизайн и совместная работа",
+    "id": "Desain dan kolaborasi",
+    "tr": "Tasarım ve iş birliği"
+   },
+   "category": "design",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://help.lucid.co",
+   "endpoint": "https://mcp.lucid.app/mcp"
+  },
+  {
+   "id": "salesforce",
+   "name": "Salesforce",
+   "summary": {
+    "en": "Customer relationship management",
+    "zh": "客户关系管理",
+    "zh-Hant": "客戶關係管理",
+    "ar": "إدارة علاقات العملاء",
+    "fa": "مدیریت ارتباط با مشتری",
+    "ja": "顧客関係管理",
+    "ko": "고객 관계 관리",
+    "es": "Gestión de relaciones con clientes",
+    "pt": "Gestão de relacionamento com clientes",
+    "ru": "Управление взаимоотношениями с клиентами",
+    "id": "Manajemen hubungan pelanggan",
+    "tr": "Müşteri ilişkileri yönetimi"
+   },
+   "category": "crm",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developer.salesforce.com",
+   "endpoint": "https://api.salesforce.com/platform/mcp/v1-beta.2/platform/sobject-all"
+  },
+  {
+   "id": "close",
+   "name": "Close",
+   "summary": {
+    "en": "Customer relationship management",
+    "zh": "客户关系管理",
+    "zh-Hant": "客戶關係管理",
+    "ar": "إدارة علاقات العملاء",
+    "fa": "مدیریت ارتباط با مشتری",
+    "ja": "顧客関係管理",
+    "ko": "고객 관계 관리",
+    "es": "Gestión de relaciones con clientes",
+    "pt": "Gestão de relacionamento com clientes",
+    "ru": "Управление взаимоотношениями с клиентами",
+    "id": "Manajemen hubungan pelanggan",
+    "tr": "Müşteri ilişkileri yönetimi"
+   },
+   "category": "crm",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://www.close.com",
+   "endpoint": "https://mcp.close.com/mcp"
+  },
+  {
+   "id": "stripe",
+   "name": "Stripe",
+   "summary": {
+    "en": "Payments and billing",
+    "zh": "支付与账单",
+    "zh-Hant": "支付與帳單",
+    "ar": "المدفوعات والفوترة",
+    "fa": "پرداخت‌ها و صورتحساب",
+    "ja": "決済と請求",
+    "ko": "결제 및 청구",
+    "es": "Pagos y facturación",
+    "pt": "Pagamentos e cobrança",
+    "ru": "Платежи и выставление счетов",
+    "id": "Pembayaran dan penagihan",
+    "tr": "Ödemeler ve faturalandırma"
+   },
+   "category": "payments",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://docs.stripe.com/mcp",
+   "endpoint": "https://mcp.stripe.com"
+  },
+  {
+   "id": "square",
+   "name": "Square",
+   "summary": {
+    "en": "Payments and billing",
+    "zh": "支付与账单",
+    "zh-Hant": "支付與帳單",
+    "ar": "المدفوعات والفوترة",
+    "fa": "پرداخت‌ها و صورتحساب",
+    "ja": "決済と請求",
+    "ko": "결제 및 청구",
+    "es": "Pagos y facturación",
+    "pt": "Pagamentos e cobrança",
+    "ru": "Платежи и выставление счетов",
+    "id": "Pembayaran dan penagihan",
+    "tr": "Ödemeler ve faturalandırma"
+   },
+   "category": "payments",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developer.squareup.com/docs/mcp",
+   "endpoint": "https://mcp.squareup.com/mcp"
+  },
+  {
+   "id": "paypal",
+   "name": "PayPal",
+   "summary": {
+    "en": "Payments and billing",
+    "zh": "支付与账单",
+    "zh-Hant": "支付與帳單",
+    "ar": "المدفوعات والفوترة",
+    "fa": "پرداخت‌ها و صورتحساب",
+    "ja": "決済と請求",
+    "ko": "결제 및 청구",
+    "es": "Pagos y facturación",
+    "pt": "Pagamentos e cobrança",
+    "ru": "Платежи и выставление счетов",
+    "id": "Pembayaran dan penagihan",
+    "tr": "Ödemeler ve faturalandırma"
+   },
+   "category": "payments",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://developer.paypal.com/tools/mcp-server/",
+   "endpoint": "https://mcp.paypal.com/mcp"
+  },
+  {
+   "id": "cloudinary",
+   "name": "Cloudinary",
+   "summary": {
+    "en": "Generate and edit images",
+    "zh": "生成和编辑图像",
+    "zh-Hant": "生成和編輯影像",
+    "ar": "إنشاء الصور وتحريرها",
+    "fa": "تولید و ویرایش تصاویر",
+    "ja": "画像の生成と編集",
+    "ko": "이미지 생성 및 편집",
+    "es": "Generar y editar imágenes",
+    "pt": "Gerar e editar imagens",
+    "ru": "Генерация и редактирование изображений",
+    "id": "Membuat dan mengedit gambar",
+    "tr": "Görüntü oluşturma ve düzenleme"
+   },
+   "category": "media",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://cloudinary.com/documentation/cloudinary_llm_mcp",
+   "endpoint": "https://asset-management.mcp.cloudinary.com/mcp"
+  },
+  {
+   "id": "mux",
+   "name": "Mux",
+   "summary": {
+    "en": "Generate and edit images",
+    "zh": "生成和编辑图像",
+    "zh-Hant": "生成和編輯影像",
+    "ar": "إنشاء الصور وتحريرها",
+    "fa": "تولید و ویرایش تصاویر",
+    "ja": "画像の生成と編集",
+    "ko": "이미지 생성 및 편집",
+    "es": "Generar y editar imágenes",
+    "pt": "Gerar e editar imagens",
+    "ru": "Генерация и редактирование изображений",
+    "id": "Membuat dan mengedit gambar",
+    "tr": "Görüntü oluşturma ve düzenleme"
+   },
+   "category": "media",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://www.mux.com/docs/integrations/mcp-server",
+   "endpoint": "https://mcp.mux.com/mcp"
+  },
+  {
+   "id": "mapbox",
+   "name": "Mapbox",
+   "summary": {
+    "en": "Maps and geolocation",
+    "zh": "地图与地理定位",
+    "zh-Hant": "地圖與地理定位",
+    "ar": "الخرائط وتحديد الموقع",
+    "fa": "نقشه و موقعیت‌یابی",
+    "ja": "地図と位置情報",
+    "ko": "지도 및 위치",
+    "es": "Mapas y geolocalización",
+    "pt": "Mapas e geolocalização",
+    "ru": "Карты и геолокация",
+    "id": "Peta dan geolokasi",
+    "tr": "Haritalar ve konum"
+   },
+   "category": "maps",
+   "transport": "streamable-http",
+   "auth": "oauth",
+   "officialSource": "https://docs.mapbox.com/api/guides/mcp-server/",
+   "endpoint": "https://mcp.mapbox.com/mcp"
+  }
+ ]
+}

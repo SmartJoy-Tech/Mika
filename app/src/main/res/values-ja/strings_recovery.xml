@@ -2,6 +2,7 @@
 <resources>
     <string name="rec_a11y">ユーザー補助を自動でオンにする</string>
     <string name="rec_default_on">デフォルトでオン</string>
+    <string name="rec_learn_what">これらは何をするもの？</string>
     <string name="rec_a11y_body">Mika は、ユーザー補助を使って画面上のテキストやボタンを読み取ります。これをオンにすると、Mika が自分のユーザー補助サービスをシステム設定で代わりにオンにします。オンにしているほかのユーザー補助サービスには影響しません。これをオフにすると、Mika は自分のサービスをオフにします。</string>
     <string name="rec_battery">バッテリーを制限しない</string>
     <string name="rec_battery_body">オンにすると、Mika がシステムのバッテリー最適化の対象外に自分を追加します。節電のためにバックグラウンドで停止されにくくなり、スマホの操作が途切れにくくなります。バッテリーの消費が少し増えることがあります。オフにすると、システムのデフォルトに戻ります。</string>
@@ -20,4 +21,5 @@
     <string name="rec_setting_unavailable">このスマホでは、Mika が起動時にワイヤレス デバッグをオンにできません。再起動後はご自身でオンにすると、Mika が接続します。</string>
     <string name="rec_not_recovered">前回の起動時に自動で再接続できませんでした。信頼済みの Wi-Fi に接続して、ワイヤレス デバッグがオンになっているか確認してください。Mika が接続します。</string>
     <string name="rec_needs_pairing">ワイヤレス デバッグのペア設定後にだけ使えます。ヘルパーは USB コマンドで起動したため、スマホの再起動後はもう一度コマンドを実行してください。</string>
+    <string name="rec_shizuku_no_wireless">Shizuku 選択中はワイヤレスデバッグを使いません。Shizuku が動き出せば Mika は Shizuku 経由で再接続します。</string>
 </resources>

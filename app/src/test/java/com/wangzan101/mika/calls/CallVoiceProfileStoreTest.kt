@@ -90,6 +90,23 @@ class CallVoiceProfileStoreTest {
         assertEquals(2, reopened.state.value.size)
     }
 
+    @Test fun openAiCredentialsStayBoundToTheirProviderAndEndpoint() {
+        val backend = Backend()
+        val store = store(backend)
+        val volc = store.save(CallVoiceProfile(id = "original", name = "Doubao"), credentials("volc-test"))
+        val openAi = CallVoiceProfile(id = "openai", name = "OpenAI", protocol = CallVoiceProtocol.OPENAI_REALTIME,
+            model = OpenAiCallProtocol.MODEL, endpoint = OpenAiCallProtocol.ENDPOINT, speaker = "")
+        assertTrue(runCatching { store.save(openAi.copy(id = volc.id)) }.isFailure)
+        assertTrue(runCatching { store.save(openAi, VolcRealtimeCredentials(appId = "app", accessKey = "legacy")) }.isFailure)
+        val saved = store.save(openAi, credentials("openai-test"))
+        assertTrue(runCatching { store.save(saved.copy(endpoint = "wss://voice.example.com")) }.isFailure)
+        val reopened = store(backend)
+        assertEquals(CallVoiceProtocol.VOLC_DUPLEX, reopened.get(volc.id)?.protocol)
+        assertEquals(OpenAiCallProtocol.VOICE, reopened.get(saved.id)?.speaker)
+        assertEquals("openai-test", reopened.credentials(saved.id)?.apiKey)
+        assertEquals("volc-test", reopened.credentials(volc.id)?.apiKey)
+    }
+
     @Test fun activeProfileCannotBeDeletedAndInvalidEndpointsAreRejected() {
         val store = store(Backend())
         store.save(CallVoiceProfile(id = "active", name = "Active"), credentials("secret"))
@@ -104,6 +121,14 @@ class CallVoiceProfileStoreTest {
         }.isFailure)
         assertEquals(VolcRealtimeConfig.DEFAULT_SPEAKER,
             store.save(CallVoiceProfile(id = "blank-voice", name = "Blank voice", speaker = "")).speaker)
+    }
+
+    @Test fun realtimeProfileUsesUserSuppliedModelAndSpeakerIds() {
+        val store = store(Backend())
+        val saved = store.save(CallVoiceProfile(name = "Realtime", model = "fishaudio/drama-3-int4", speaker = "custom_tts_voice"))
+        assertEquals("fishaudio/drama-3-int4", saved.model)
+        assertEquals("custom_tts_voice", saved.speaker)
+        assertEquals(saved, store.get(saved.id))
     }
 
     @Test fun unreadableStoreFallsBackWithoutOverwritingEncryptedData() {

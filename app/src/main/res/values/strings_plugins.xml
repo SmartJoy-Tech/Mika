@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plugins_title">Plugins</string>
+    <string name="plugins_install">Install plugin</string>
+    <string name="plugins_installing">Installing…</string>
+    <string name="plugins_empty">No plugins yet</string>
+    <string name="plugins_empty_sub">Install a plugin zip to add skills Mika can read. A plugin cannot change app settings or read your other data.</string>
+    <string name="plugins_enabled">Enabled</string>
+    <string name="plugins_disabled">Disabled</string>
+    <string name="plugins_skills">Skills</string>
+    <string name="plugins_no_skills">No skills</string>
+    <string name="plugins_permissions">Permissions</string>
+    <string name="plugins_none">None</string>
+    <string name="plugins_version">Version %1$s</string>
+    <string name="plugins_uninstall">Uninstall</string>
+    <string name="plugins_uninstall_body">Remove this plugin and its skills? Conversations and memories are not affected.</string>
+    <string name="plugins_install_failed">Installation failed: %1$s</string>
+    <string name="plugins_unsupported_in_version">This version only supports plugins that contain skills.</string>
+    <string name="plugins_error_too_new">This plugin needs a newer version of Mika.</string>
+    <string name="plugins_error_unsafe">The package contains an unsafe path and was rejected.</string>
+    <string name="plugins_error_too_large">The package is too large.</string>
+    <string name="plugins_error_missing_manifest">The package has no manifest.json at its root.</string>
+    <string name="plugins_error_invalid">The package is not a valid plugin.</string>
+    <plurals name="plugins_skill_count">
+        <item quantity="one">%1$d skill</item>
+        <item quantity="other">%1$d skills</item>
+    </plurals>
+    <plurals name="plugins_count">
+        <item quantity="one">%1$d plugin</item>
+        <item quantity="other">%1$d plugins</item>
+    </plurals>
+    <string name="env_vars_title">Environment variables</string>
+    <string name="env_vars_add">Add variable</string>
+    <string name="env_vars_name">Name</string>
+    <string name="env_vars_value">Value</string>
+    <string name="env_vars_empty">No environment variables yet</string>
+    <string name="plugins_disclosure_title">What this plugin can do</string>
+    <string name="plugins_disclosure_prompt">Rewrites the system prompt</string>
+    <string name="plugins_disclosure_reads">Can read your conversations, memory, and model keys</string>
+    <string name="plugins_rules">Prompt rules</string>
+    <string name="plugins_rules_view">View</string>
+    <string name="plugins_rules_restore">Restore default</string>
+</resources>

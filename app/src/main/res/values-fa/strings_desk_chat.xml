@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="desk_tool_added">به «%1$s» اضافه شد</string>
+    <string name="desk_tool_answered">در «%1$s» پاسخ داده شد</string>
+    <string name="desk_tool_cancelled">«%1$s» لغو شد</string>
+    <string name="desk_reply_failed">الان نتوانستم جواب بدهم. دوباره می‌گویید؟</string>
+    <string name="desk_thinking">در حال فکر</string>
+    <string name="desk_phase_running">در حال انجام</string>
+    <string name="desk_phase_queued">در صف</string>
+    <string name="desk_phase_queued_at">در صف · شماره %1$d</string>
+    <string name="desk_phase_needs_you">به شما نیاز دارد</string>
+    <string name="desk_phase_done">انجام شد</string>
+    <string name="desk_phase_failed">نشد</string>
+    <string name="desk_phase_cancelled">لغو شد</string>
+    <string name="desk_tray_expand">نمایش کارها</string>
+    <string name="desk_tray_collapse">پنهان کردن کارها</string>
+    <string name="chat_time_yesterday">دیروز %1$s</string>
+    <string name="desk_need_choose">یکی را انتخاب کن · %1$s</string>
+    <string name="desk_need_answer">پاسخ تو لازم است · %1$s</string>
+    <string name="desk_need_takeover">کنترل را به دست بگیر · %1$s</string>
+    <string name="desk_need_handle">به تو نیاز دارد · %1$s</string>
+    <string name="desk_need_choose_foot">هیچ‌کدام؟ پایین بنویس یا نگه دار و حرف بزن.</string>
+    <string name="desk_need_answer_foot">پایین بنویس یا نگه دار و حرف بزن.</string>
+    <string name="desk_need_takeover_foot">وقتی روی صفحه تمامش کردی، من ادامه می‌دهم.</string>
+    <string name="desk_need_stop">این کار را متوقف کن</string>
+    <string name="desk_tray_stop">توقف</string>
+    <string name="desk_tray_detail">دیدن جزئیات روند ›</string>
+    <string name="chat_menu_tasks">کارهای این گفتگو</string>
+    <string name="desk_tasks_empty">هنوز در این گفتگو کاری سپرده نشده است.</string>
+</resources>

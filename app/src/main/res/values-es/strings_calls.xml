@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="calls_title">Llamadas con IA</string>
-    <string name="calls_entry_sub">Llamadas por la red móvil con voz en tiempo real de Volcengine</string>
+    <string name="calls_entry_sub">Llamadas por la red móvil con voz en tiempo real</string>
     <string name="calls_action_failed">No se pudo realizar la acción. Comprueba que el servicio esté listo e inténtalo de nuevo.</string>
     <string name="calls_permissions_required">Se necesitan permisos de teléfono y notificaciones.</string>
     <string name="calls_ai_active">La IA está atendiendo la llamada</string>
@@ -19,23 +19,20 @@
     <string name="calls_sim">SIM para llamadas salientes</string>
     <string name="calls_default">Predeterminada</string>
     <string name="calls_dial">Llamar con IA</string>
-    <string name="calls_call_note">Las llamadas usan la SIM actual. Pueden aplicarse cargos del operador y de Volcengine. Antes de llamar, indica el propósito y el saludo en Ajustes.</string>
+    <string name="calls_call_note">Las llamadas usan la SIM actual. Pueden aplicarse cargos del operador y de tu servicio de voz. Antes de llamar, indica el propósito y el saludo en Ajustes.</string>
     <string name="calls_prepare">Comprobar y preparar</string>
     <string name="calls_enable">Activar las llamadas con IA</string>
     <string name="calls_disable">Desactivar y restaurar las llamadas normales</string>
     <string name="calls_provider">Voz en tiempo real de Volcengine 3.0</string>
-    <string name="calls_credentials">Credenciales de voz en tiempo real</string>
-    <string name="calls_key_saved">Las credenciales se guardaron de forma segura; falta probar el acceso al servicio en una llamada real</string>
     <string name="calls_key_missing">Sin configurar</string>
     <string name="calls_profile">Saludo y propósito de la llamada</string>
-    <string name="calls_model_label">Modelo %1$s · ruta de audio de la llamada</string>
     <string name="calls_incoming">Llamadas entrantes</string>
     <string name="calls_auto_answer">Contestar automáticamente las llamadas entrantes</string>
     <string name="calls_all_incoming">Incluir todos los números entrantes</string>
     <string name="calls_all_note">Incluye números que no están en la lista y llamadas con número oculto</string>
     <string name="calls_allowlist">Números autorizados para la respuesta automática</string>
     <string name="calls_allowlist_empty">Lista vacía: solo se contestará automáticamente si se habilita la opción para todas las llamadas</string>
-    <string name="calls_privacy_note">El audio solo se envía a Volcengine mientras la IA atiende la llamada. No se guardan grabaciones. Las transcripciones se guardan cifradas en este teléfono; puedes tomar el control en cualquier momento.</string>
+    <string name="calls_privacy_note">El audio solo se envía a tu servicio de voz mientras la IA atiende la llamada. No se guardan grabaciones. Las transcripciones se guardan cifradas en este teléfono; puedes tomar el control en cualquier momento.</string>
     <string name="calls_history_empty">Todavía no hay llamadas con IA en el historial</string>
     <string name="calls_collapse">Contraer</string>
     <string name="calls_transcript">Mostrar transcripción</string>
@@ -52,15 +49,15 @@
     <string name="calls_cancel">Cancelar</string>
     <string name="calls_greeting">Saludo</string>
     <string name="calls_instructions">Propósito e instrucciones</string>
-    <string name="calls_duration">Duración máxima de la IA (15–600 segundos)</string>
-    <string name="calls_speaker">ID de voz de Volcengine</string>
+    <string name="calls_duration">Duración máxima de la IA (0 = sin límite, 15–600 segundos)</string>
+    <string name="calls_limits_unlimited">Una llamada a la vez · sin límite de audio con IA</string>
+    <string name="calls_speaker">ID de voz</string>
     <string name="calls_audio_route">Ruta de audio de la llamada</string>
     <string name="calls_audio_verified">He comprobado que ambas partes oyen el audio de las llamadas con IA en este teléfono</string>
     <string name="calls_verify_note">Haz o contesta primero una llamada de prueba manualmente y comprueba que haya audio en ambos sentidos. Después, activa la respuesta automática.</string>
     <string name="calls_tool_state">Estado de la llamada</string>
     <string name="calls_tool_dial">Realizar llamada</string>
     <string name="calls_tool_hangup">Colgar la llamada</string>
-    <string name="calls_advanced">Ajustes avanzados</string>
     <string name="calls_allowlist_hint">Escriba un número por línea o sepárelos con comas.</string>
     <string name="calls_allowlist_invalid">Use números válidos (hasta %1$d).</string>
     <string name="calls_audio_direct">Audio telefónico directo</string>
@@ -89,7 +86,7 @@
     <string name="calls_original_transcript">Transcripción de la llamada</string>
     <string name="calls_outgoing_title">Hacer una llamada</string>
     <string name="calls_rules">Reglas de respuesta</string>
-    <string name="calls_setup_credentials">Configure las credenciales de voz en tiempo real de Volcengine.</string>
+    <string name="calls_setup_credentials">Configura las credenciales del servicio de voz.</string>
     <string name="calls_setup_shell">Conecte primero el asistente integrado de Mika.</string>
     <string name="calls_sim_clear_preferred">Borrar SIM preferida</string>
     <string name="calls_sim_preferred">SIM preferida: %1$s</string>
@@ -143,4 +140,21 @@
     <string name="calls_notification_connecting_audio">Conectando el audio de la llamada</string>
     <string name="calls_notification_connected_waiting">IA conectada. Esperando a que hable la otra persona. Puedes intervenir en cualquier momento.</string>
     <string name="calls_notification_connected">IA conectada. Puedes hablar personalmente en cualquier momento.</string>
+    <string name="calls_only_types">Solo tipos de llamada seleccionados</string>
+    <string name="calls_pick_types">Selecciona al menos un tipo de llamada</string>
+    <string name="calls_type_note">Mika usa Accesibilidad para cotejar la etiqueta y el número de la aplicación de teléfono con la llamada entrante. Si no puede identificarlos, podrás contestar tú.</string>
+    <string name="calls_type_accessibility">Abrir los ajustes de accesibilidad</string>
+    <string name="calls_type_takeout">Comida a domicilio</string>
+    <string name="calls_type_parcel">Paquetería</string>
+    <string name="calls_type_delivery">Reparto o logística sin especificar</string>
+    <string name="calls_type_sales">Ventas y publicidad</string>
+    <string name="calls_type_broker">Intermediarios y agencias</string>
+    <string name="calls_type_financial_sales">Venta de seguros e inversiones</string>
+    <string name="calls_type_spam">Llamadas no deseadas</string>
+    <string name="calls_type_fraud">Posible fraude</string>
+    <string name="calls_type_high_risk">Alto riesgo</string>
+    <string name="calls_type_business">Empresas y atención al cliente</string>
+    <string name="calls_type_transport">Taxis y transporte con conductor</string>
+    <string name="calls_only_strangers">Solo números no guardados</string>
+    <string name="calls_strangers_note">Permite que Mika lea tus contactos. La IA solo contesta si confirma que el número no está guardado. Si está oculto o falla la consulta, podrás contestar tú.</string>
 </resources>

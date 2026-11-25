@@ -29,7 +29,7 @@ class SnapshotIdentityTest {
     }
 
     @Test fun productionIdentityRemainsPersonalWithoutSnapshotNormalization() {
-        assertTrue(Prompts.system("identity").startsWith("You are TinyFox, "))
+        assertTrue(Prompts.system("identity").startsWith("You are {{assistant}}, "))
         assertTrue(SystemPrompt.identity().startsWith("You are TinyFox, "))
     }
 

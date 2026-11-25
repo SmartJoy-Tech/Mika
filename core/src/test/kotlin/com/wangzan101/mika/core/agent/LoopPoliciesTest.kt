@@ -1,9 +1,9 @@
 package com.wangzan101.mika.core.agent
 
-import com.wangzan101.mika.core.observation.Place
+import com.wangzan101.mika.core.screen.observation.Place
 import com.wangzan101.mika.core.tool.placeAfter
-import com.wangzan101.mika.core.guard.GuardVerdict
-import com.wangzan101.mika.core.guard.Severity
+import com.wangzan101.mika.core.safety.guard.GuardVerdict
+import com.wangzan101.mika.core.safety.guard.Severity
 import com.wangzan101.mika.core.model.ModelError
 import com.wangzan101.mika.core.model.ToolSpec
 import com.wangzan101.mika.core.prompt.Feedback
@@ -221,6 +221,7 @@ class LoopPoliciesTest {
 
     @Test fun retryAfterIsHonouredAndCapped() {
         assertEquals(5000L, fixed.delayFor(ModelError.RateLimited(5000), 0))
+        assertEquals(1_000L, fixed.delayFor(ModelError.RateLimited(0), 0))
         assertEquals(30_000L, fixed.delayFor(ModelError.RateLimited(600_000), 0))
         assertNull(fixed.delayFor(ModelError.RateLimited(5000), 3))
     }

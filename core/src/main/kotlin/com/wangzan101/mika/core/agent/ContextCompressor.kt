@@ -1,6 +1,6 @@
 package com.wangzan101.mika.core.agent
 
-import com.wangzan101.mika.core.context.StepSummary
+import com.wangzan101.mika.core.agent.StepSummary
 import com.wangzan101.mika.core.model.Author
 import com.wangzan101.mika.core.model.Message
 import com.wangzan101.mika.core.model.Part
@@ -44,6 +44,8 @@ class ContextCompressor(
     private val structured: Boolean = false,
     private val diffScreens: Boolean = false,
     private val triggerOverride: Int? = null,
+    /** 按轮数触发:活着的工具往返超过 [keepRecent] + [foldEvery] 时把最早的折进摘要(null=不按轮数,只按大小,即现状)。 */
+    private val foldEvery: Int? = null,
 ) {
     /** 「真实 / 粗估」比值:每次用量回来就平滑更新([TokenEstimate.calibrated]);只决定什么时候压缩、压到哪一级,不改发过的内容。 */
     private var observed: Double? = null
@@ -98,8 +100,11 @@ class ContextCompressor(
             maxOf(limits.trigger, UsageMeter.estimate(it.estimate + fixedOverhead, scale) + limits.margin).coerceAtMost(limits.usable)
         } ?: limits.trigger
         val compact = (last != null && view == null) || (aggressive && view?.aggressive != true) || size > trigger
-        if (!compact) return Compressed(HistoryPruner.limitImages(sent, maxImages), view?.folded ?: 0)
-        val next = compact(history, limits, fixedOverhead, aggressive)
+        // 轮数触发:只为控历史长度。大小还没超、模型没报超长时,只把最早超出的往返折进摘要(见 [foldEvery]);
+        // 大小/超长照旧走下面的阶梯。压缩后历史回到 keepRecent 轮,之后只追加,直到又攒够 foldEvery 轮才再折(锯齿,不每步都压)。
+        val roundOver = foldEvery != null && toolRounds(sent) > keepRecent + foldEvery
+        if (!compact && !roundOver) return Compressed(HistoryPruner.limitImages(sent, maxImages), view?.folded ?: 0)
+        val next = if (compact) compact(history, limits, fixedOverhead, aggressive) else foldToRecent(history)
         views[contextTokens] = next
         return Compressed(HistoryPruner.limitImages(next.base, maxImages), next.folded, rewritten = true)
     }
@@ -153,6 +158,16 @@ class ContextCompressor(
         return View(history.toList(), chosen.messages.toList(), chosen.foldedSteps, aggressive)
     }
 
+    /** 只为控轮数:大小没超、模型没报超长,把最早超出的往返折进摘要,留最近 [keepRecent] 个原样(不做按目标的整段缩短,也不换更狠的档)。 */
+    private fun foldToRecent(history: List<Message>): View {
+        val pruned = HistoryPruner.prune(history, tools, HistoryPruner.Cut(keepRecent))
+        val folded = fold(pruned, keepRecent, aggressive = false)
+        return View(history.toList(), folded.messages.toList(), folded.foldedSteps, aggressive = false)
+    }
+
+    /** 一段消息里模型发起工具调用的往返数(折叠摘要没有工具调用,不计)。 */
+    private fun toolRounds(ms: List<Message>) = ms.count { it.role == Role.Assistant && it.parts.any { p -> p is Part.ToolCall } }
+
     private fun fold(pruned: List<Message>, keep: Int, aggressive: Boolean): Compressed {
         // 一个往返 = 一条助手消息及其后到下一条助手消息之前的消息;之前的是开头(任务原话、标准等)
         val starts = pruned.indices.filter { pruned[it].role == Role.Assistant }
@@ -183,8 +198,9 @@ class ContextCompressor(
         starts.takeWhile { it < cut }.forEachIndexed { k, start ->
             val end = starts.getOrElse(k + 1) { pruned.size }
             val round = pruned.subList(start, end)
-            // 每轮只执行第一个调用,其余都以 parallel_tool_call_skipped 退回,所以按第一个调用判断要不要保留
-            val call = round.first().parts.filterIsInstance<Part.ToolCall>().firstOrNull()
+            // 一轮最多执行一个动作,但误写成调用的 task_progress 可能排在它前面:
+            // 按真正执行的动作判断要不要保留,否则会把这轮连同用户回答一起折掉。
+            val call = round.first().parts.firstActionCall()
             if (tools.verb(call?.name) in PINNED_VERBS || (anchor >= 0 && k >= anchor && screenRounds[k] != ScreenKind.NONE)) {
                 closeBlock()
                 out += round

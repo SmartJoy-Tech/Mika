@@ -6,7 +6,7 @@
     <string name="parallel_second_display_failed">第二塊虛擬螢幕沒能建起來,這次執行期間一次只進行一個任務</string>
     <string name="parallel_needs_14">Android 14 以上才支援同時進行多個任務</string>
     <string name="parallel_low_ram">這臺手機記憶體較小,一次只進行一個任務</string>
-    <string name="skill_suspended">這項技能最近不靈,先停用了</string>
+    <string name="skill_suspended">這項技能最近不靈,先停用了:%1$s</string>
     <string name="skill_verified">這項技能用它辦成了事，轉為正式:%1$s</string>
     <string name="skill_learned">Mika 學會了一項技能:%1$s</string>
     <string name="skill_app_draft">Mika 記下了幾條關於%1$s的知識，等你確認</string>
@@ -54,6 +54,15 @@
     <string name="task_too_old">手機 App 操作需要 Android 12 及以上。仍然可以聊天、使用網頁和沙盒。</string>
     <string name="task_shell_died">手機操作助手中斷了,虛擬螢幕隨之關閉;等它重新連上後再試</string>
     <string name="task_running">正在執行</string>
+    <string name="chip_thinking">正在思考</string>
+    <string name="chip_read_screen">查看螢幕</string>
+    <string name="chip_use_phone">操作手機</string>
+    <string name="chip_browse">瀏覽網頁</string>
+    <string name="chip_take_over">等你接手</string>
+    <string name="chip_route_step">第%1$d/%2$d步</string>
+    <string name="chip_count">進度%1$d/%2$d</string>
+    <string name="chip_done">已完成 %1$d</string>
+    <string name="chip_wait_app">等待應用程式</string>
     <string name="channel_task_accepted">收到，任務已登記。</string>
     <string name="task_step_note">第 %1$d 步:%2$s</string>
     <string name="task_wait_unlock">等待解鎖</string>
@@ -78,4 +87,8 @@
     <string name="screens_waiting">等待中</string>
     <string name="screens_needs_you">等你處理</string>
     <string name="screens_zoom">放大這塊螢幕</string>
+    <string name="task_trigger_time_limit">定時任務執行超過 %1$d 分鐘，已停下。</string>
+    <string name="trigger_failed_streak">定時任務已連續失敗 %1$d 次</string>
+    <string name="trigger_failed_streak_hint">可以在定時任務頁暫停或修改這個計畫。</string>
+    <string name="task_no_phone_helper_shizuku">手機控制尚未就緒。請先啟動 Shizuku 並給 Mika 授權（或到「設定 › 手機控制」裡檢查）。網頁和檔案任務不受影響。</string>
 </resources>

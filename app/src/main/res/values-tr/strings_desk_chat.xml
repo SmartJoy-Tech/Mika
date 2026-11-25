@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="desk_tool_added">“%1$s” görevine eklendi</string>
+    <string name="desk_tool_answered">“%1$s” için yanıt verildi</string>
+    <string name="desk_tool_cancelled">“%1$s” iptal edildi</string>
+    <string name="desk_reply_failed">Az önce yanıt veremedim. Tekrar söyler misin?</string>
+    <string name="desk_thinking">Düşünüyor</string>
+    <string name="desk_phase_running">Yapılıyor</string>
+    <string name="desk_phase_queued">Sırada</string>
+    <string name="desk_phase_queued_at">Sırada · %1$d.</string>
+    <string name="desk_phase_needs_you">Sana ihtiyaç var</string>
+    <string name="desk_phase_done">Bitti</string>
+    <string name="desk_phase_failed">Olmadı</string>
+    <string name="desk_phase_cancelled">İptal edildi</string>
+    <string name="desk_tray_expand">Görevleri göster</string>
+    <string name="desk_tray_collapse">Görevleri gizle</string>
+    <string name="chat_time_yesterday">Dün %1$s</string>
+    <string name="desk_need_choose">Birini seç · %1$s</string>
+    <string name="desk_need_answer">Cevabın gerekiyor · %1$s</string>
+    <string name="desk_need_takeover">Devral · %1$s</string>
+    <string name="desk_need_handle">Sana ihtiyaç var · %1$s</string>
+    <string name="desk_need_choose_foot">Hiçbiri değil mi? Aşağıya yaz ya da basılı tutup konuş.</string>
+    <string name="desk_need_answer_foot">Aşağıya yaz ya da basılı tutup konuş.</string>
+    <string name="desk_need_takeover_foot">Ekranda bitirdiğinde ben devam ederim.</string>
+    <string name="desk_need_stop">Bu görevi durdur</string>
+    <string name="desk_tray_stop">Durdur</string>
+    <string name="desk_tray_detail">Ayrıntılı süreci gör ›</string>
+    <string name="chat_menu_tasks">Bu sohbetteki görevler</string>
+    <string name="desk_tasks_empty">Bu sohbette henüz görev verilmedi.</string>
+</resources>

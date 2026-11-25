@@ -9,7 +9,7 @@ import android.provider.Settings
 import android.telecom.TelecomManager
 import com.wangzan101.mika.shell.IMikaShell
 
-/** Only modifies Mika's own Telecom registration and single app-op; never changes the dialer. */
+/** Manages Mika's own Telecom registration and ongoing-call permission. */
 internal class CallTelecomAccess(private val context: Context) {
     private val telecom get() = context.getSystemService(TelecomManager::class.java)
     private val journal = context.getSharedPreferences("mika_call_access", Context.MODE_PRIVATE)
@@ -31,8 +31,15 @@ internal class CallTelecomAccess(private val context: Context) {
         return preparedHere && managePermission()
     }
 
+    /** Set up on an earlier boot and never undone: Android dropped it at restart, the user still wants it. */
+    fun preparedOnEarlierBoot(): Boolean =
+        preparedOnEarlierBoot(journal.getString(PREPARED, null), boot, currentBootPrepared)
+
     private fun managePermission(): Boolean = Build.VERSION.SDK_INT >= 31 &&
         runCatching { telecom?.hasManageOngoingCallsPermission() == true }.getOrDefault(false)
+
+    private fun packageManagePermission(): Boolean =
+        context.checkSelfPermission(Manifest.permission.MANAGE_ONGOING_CALLS) == PackageManager.PERMISSION_GRANTED
 
     fun prepare(shell: IMikaShell): String? {
         if (!supported) return "电话伴侣模式需要 Android 12 及以上、主用户及运营商通话功能"
@@ -44,9 +51,15 @@ internal class CallTelecomAccess(private val context: Context) {
         if (original != "allow") {
             if (!journal.edit().putString(PREVIOUS_OP, original).commit()) return "无法保存电话权限还原信息"
             val change = command(shell, "cmd appops set --user $user $pkg MANAGE_ONGOING_CALLS allow")
-            if (change != CallTelecomCommandOutcome.OK || readOp(shell) != "allow" || !managePermission()) {
+            val readBack = if (change == CallTelecomCommandOutcome.OK) readOp(shell) else null
+            val failure = if (original == "default" && readBack == "default") {
+                prepareDefaultPermission(shell)
+            } else {
+                change.verificationFailure(readBack, readBack == "allow" && managePermission())
+            }
+            if (failure != null) {
                 rollback(shell)
-                return change.appOpsFailureMessage
+                return failure
             }
         } else if (!managePermission()) {
             return "此系统不允许 Mika 管理运营商通话"
@@ -75,10 +88,23 @@ internal class CallTelecomAccess(private val context: Context) {
         return null
     }
 
+    private fun prepareDefaultPermission(shell: IMikaShell): String? {
+        // In default mode Android can use the package's grant. Some builds keep the app-op
+        // at default after appops set while accepting the grant through Package Manager.
+        if (!packageManagePermission()) {
+            if (!journal.edit().putBoolean(OWNS_PACKAGE_PERMISSION, true).commit()) return "无法保存电话权限还原信息"
+            if (command(shell, "pm grant --user $user $pkg ${Manifest.permission.MANAGE_ONGOING_CALLS}") !=
+                CallTelecomCommandOutcome.OK
+            ) return "系统未接受管理通话权限的直接授权"
+        }
+        return CallTelecomCommandOutcome.OK.verificationFailure("default", managePermission())
+    }
+
     fun rollback(shell: IMikaShell?): Boolean {
         currentBootPrepared = false
         val disabled = journal.edit().remove(PREPARED).commit()
-        if (!journal.getBoolean(COMPANION, false) && !journal.contains(PREVIOUS_OP)) return disabled
+        val ownsPackagePermission = journal.getBoolean(OWNS_PACKAGE_PERMISSION, false)
+        if (!journal.getBoolean(COMPANION, false) && !journal.contains(PREVIOUS_OP) && !ownsPackagePermission) return disabled
         if (shell == null) return false
         var restored = disabled
         if (journal.getBoolean(COMPANION, false)) {
@@ -98,6 +124,12 @@ internal class CallTelecomAccess(private val context: Context) {
                 if (!journal.edit().remove(PREVIOUS_OP).commit()) restored = false
             } else restored = false
         }
+        if (ownsPackagePermission) {
+            val revoked = !packageManagePermission() ||
+                (command(shell, "pm revoke --user $user $pkg ${Manifest.permission.MANAGE_ONGOING_CALLS}") ==
+                    CallTelecomCommandOutcome.OK && !packageManagePermission())
+            if (!revoked || !journal.edit().remove(OWNS_PACKAGE_PERMISSION).commit()) restored = false
+        }
         return restored
     }
 
@@ -115,6 +147,7 @@ internal class CallTelecomAccess(private val context: Context) {
         const val PREPARED = "prepared_boot"
         const val PREVIOUS_OP = "previous_call_op"
         const val COMPANION = "owns_companion"
+        const val OWNS_PACKAGE_PERMISSION = "owns_package_call_permission"
     }
 }
 
@@ -129,6 +162,17 @@ internal enum class CallTelecomCommandOutcome {
             SHELL_APP_OPS_DENIED -> "系统限制 ADB 修改通话管理权限（缺少 MANAGE_APP_OPS_MODES），无法启用电话伴侣"
             else -> "系统未授予管理通话权限"
         }
+
+    /** Report the verified post-command state, never raw shell output or a guessed permission. */
+    fun verificationFailure(readBack: String?, telecomGranted: Boolean): String? = when {
+        this != OK -> appOpsFailureMessage
+        readBack == "default" && telecomGranted -> null
+        readBack in setOf("default", "ignore", "deny", "errored", "foreground") ->
+            "已尝试授权，但系统读回的通话管理权限仍为 $readBack，无法启用电话伴侣"
+        readBack != "allow" -> "授权命令已执行，但无法读回通话管理权限状态，请重试"
+        !telecomGranted -> "通话管理权限已读回 allow，但系统通话服务仍未授权，无法启用电话伴侣"
+        else -> null
+    }
 
     companion object {
         private val shellAppOpsDenied = Regex(
@@ -145,3 +189,7 @@ internal enum class CallTelecomCommandOutcome {
         }
     }
 }
+
+/** A setup record from another boot, and none made in this one. */
+internal fun preparedOnEarlierBoot(saved: String?, boot: String?, preparedThisBoot: Boolean): Boolean =
+    !preparedThisBoot && saved != null && saved != boot

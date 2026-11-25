@@ -6,7 +6,7 @@
     <string name="parallel_second_display_failed">Não foi possível criar uma segunda tela virtual, então por enquanto só uma tarefa roda por vez</string>
     <string name="parallel_needs_14">Executar várias tarefas ao mesmo tempo exige Android 14 ou superior</string>
     <string name="parallel_low_ram">Este celular tem pouca memória, então uma tarefa roda por vez</string>
-    <string name="skill_suspended">Esta habilidade não tem funcionado bem ultimamente, então foi pausada</string>
+    <string name="skill_suspended">Esta habilidade não tem funcionado bem ultimamente, então foi pausada: %1$s</string>
     <string name="skill_verified">A habilidade funcionou e agora está em uso regular: %1$s</string>
     <string name="skill_learned">O Mika aprendeu uma habilidade: %1$s</string>
     <string name="skill_app_draft">O Mika anotou alguns fatos sobre %1$s para você revisar</string>
@@ -60,6 +60,15 @@
     <string name="task_too_old">O controle de apps do celular exige Android 12 ou superior. Conversa, web e tarefas no sandbox continuam disponíveis.</string>
     <string name="task_shell_died">O assistente de controle do celular desconectou e a tela virtual fechou. Tente de novo quando ele reconectar.</string>
     <string name="task_running">Em execução</string>
+    <string name="chip_thinking">Pensando</string>
+    <string name="chip_read_screen">Lendo a tela</string>
+    <string name="chip_use_phone">Usando o celular</string>
+    <string name="chip_browse">Navegando</string>
+    <string name="chip_take_over">Assuma o controle</string>
+    <string name="chip_route_step">Etapa %1$d/%2$d</string>
+    <string name="chip_count">%1$d/%2$d</string>
+    <string name="chip_done">Feito: %1$d</string>
+    <string name="chip_wait_app">Aguardando app</string>
     <string name="channel_task_accepted">Recebido: a tarefa foi registrada.</string>
     <string name="task_step_note">Passo %1$d: %2$s</string>
     <string name="task_wait_unlock">Aguardando desbloqueio</string>
@@ -84,4 +93,8 @@
     <string name="screens_waiting">Aguardando</string>
     <string name="screens_needs_you">Precisa de você</string>
     <string name="screens_zoom">Ampliar esta tela</string>
+    <string name="task_trigger_time_limit">A tarefa agendada passou de %1$d minutos e foi interrompida.</string>
+    <string name="trigger_failed_streak">A tarefa agendada falhou %1$d vezes seguidas</string>
+    <string name="trigger_failed_streak_hint">Você pode pausar ou alterar este plano na página de tarefas agendadas.</string>
+    <string name="task_no_phone_helper_shizuku">O controle do telefone não está pronto. Inicie o Shizuku e conceda permissão ao Mika (ou verifique o Controle do telefone nas Configurações). Tarefas de web e arquivos não são afetadas.</string>
 </resources>

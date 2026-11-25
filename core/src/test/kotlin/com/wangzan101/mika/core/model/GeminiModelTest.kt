@@ -49,6 +49,25 @@ class GeminiModelTest {
         assertEquals("gk", req.getHeader("x-goog-api-key"))
     }
 
+    /** 密钥被拒的回调要带上 HTTP 状态码(接线处据此区分 429 冷却与 401/403 耗尽),并就地换下一把 key 重试。 */
+    @Test fun keyRejectionCallbackCarriesStatusAndRotates() = runTest {
+        server.enqueue(MockResponse().setResponseCode(403).setBody("""{"error":{"message":"permission denied"}}"""))
+        server.enqueue(ok(cand("""[{"text":"ok"}]""")))
+        val keys = ArrayDeque(listOf("gk-bad", "gk-good"))
+        val rejected = mutableListOf<Triple<String, Long?, Int>>()
+        val m = GeminiModel(
+            server.url("/").toString().trimEnd('/'), "gk-static", "gemini-x",
+            Capabilities(true, false, 1000000, false), OkHttpClient(),
+            keySupplier = { keys.removeFirstOrNull() },
+            onKeyRejected = { key, retryMs, status -> rejected += Triple(key, retryMs, status) },
+        )
+        val r = m.complete("s", user, emptyList())
+        assertEquals(listOf(Triple("gk-bad", null, 403)), rejected)
+        assertEquals("gk-bad", server.takeRequest().getHeader("x-goog-api-key"))
+        assertEquals("gk-good", server.takeRequest().getHeader("x-goog-api-key"))
+        assertEquals(listOf(Part.Text("ok")), r.parts)
+    }
+
     @Test fun usesIdWhenPresent() = runTest {
         server.enqueue(ok(cand("""[{"functionCall":{"id":"c9","name":"phone_tap","args":{}}}]""")))
         assertEquals(Part.ToolCall("c9", "phone_tap", "{}"), model().complete("s", user, emptyList()).parts[0])
@@ -162,7 +181,7 @@ class GeminiModelTest {
 
     @Test fun mapsErrors() = runTest {
         assertTrue(errorOf(400, err(400, "INVALID_ARGUMENT", "The input token count (2000000) exceeds the maximum number of tokens allowed (1048576).")) is ModelError.ContextTooLong)
-        assertTrue(errorOf(400, err(400, "INVALID_ARGUMENT", "bad field")) is ModelError.BadResponse)
+        assertTrue(errorOf(400, err(400, "INVALID_ARGUMENT", "bad field")) is ModelError.Server)
         assertTrue(errorOf(401, err(401, "UNAUTHENTICATED", "no")) is ModelError.Auth)
         assertTrue(errorOf(403, err(403, "PERMISSION_DENIED", "no")) is ModelError.Auth)
         val rl = errorOf(429, err(429, "RESOURCE_EXHAUSTED", "slow down"), "Retry-After" to "3")

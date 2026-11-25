@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="chat_confirmed_goals">الأهداف المؤكدة: %1$d/%2$d</string>
+    <string name="chat_last_confirmed_goals">آخر تأكيد: %1$d/%2$d</string>
     <string name="chat_greeting_morning">صباح الخير</string>
     <string name="chat_greeting_noon">نهارك سعيد</string>
     <string name="chat_greeting_afternoon">مساء الخير</string>
@@ -13,14 +15,14 @@
     <string name="chat_example_replace_title">استبدال المسودة الحالية؟</string>
     <string name="chat_example_replace_body">ستستبدل المهمة المقترحة ما كتبته بالفعل.</string>
     <string name="chat_example_replace_action">استبدال المسودة</string>
-    <string name="recommendations_title">المهام المقترحة</string>
+    <string name="recommendations_title">المهام المحفوظة</string>
     <string name="recommendations_drag">اسحب لتغيير الترتيب</string>
     <string name="recommendations_drag_hint">اسحب المقبض لتغيير ترتيب العرض.</string>
     <string name="recommendations_move_up">نقل لأعلى</string>
     <string name="recommendations_move_down">نقل لأسفل</string>
     <string name="recommendations_sub">إدارة المهام والنصوص المعروضة في الشاشة الرئيسية</string>
-    <string name="recommendations_add">إضافة مهمة مقترحة</string>
-    <string name="recommendations_edit">تعديل مهمة مقترحة</string>
+    <string name="recommendations_add">إضافة مهمة</string>
+    <string name="recommendations_edit">تعديل مهمة</string>
     <string name="recommendations_empty">لا توجد مهام مقترحة</string>
     <string name="recommendations_empty_sub">تظهر المهام المضافة في محادثة جديدة</string>
     <string name="recommendations_title_label">العنوان</string>
@@ -83,6 +85,7 @@
     <string name="chat_attach_rejected">تعذّر الإضافة: %1$s (يجب أن يكون حجم كل ملف أقل من 200 MB)</string>
     <string name="chat_stop">إيقاف</string>
     <string name="chat_send">إرسال</string>
+    <string name="chat_scroll_to_bottom">الانتقال إلى الأسفل</string>
     <string name="drawer_running_task">مهمة قيد التشغيل</string>
     <string name="drawer_running">قيد التشغيل</string>
     <string name="drawer_yesterday">أمس</string>
@@ -273,6 +276,9 @@
     <string name="zoom_in">تكبير</string>
     <string name="chat_message_actions">خيارات الرسالة</string>
     <string name="chat_copy">نسخ</string>
+    <string name="share_card_question">سؤال</string>
+    <string name="share_card_answer">الإجابة</string>
+    <string name="share_card_made_by">أنجزها Mika</string>
     <string name="chat_quote">اقتباس</string>
     <string name="chat_select_text">تحديد النص</string>
     <string name="chat_copied">تم النسخ</string>
@@ -285,7 +291,7 @@
     <string name="chat_branch_retry">اسأل مجددًا من هنا</string>
     <string name="chat_branch_attachments_readd">أعد إضافة المرفقات التي تريد تضمينها</string>
     <string name="chat_attach_unavailable">تعذّرت إضافة: %1$s. تأكد من توفر الملفات وأن حجمها ضمن الحد المسموح.</string>
-    <string name="chat_attach_too_large">%1$s: يتجاوز حد 200 MiB</string>
+    <string name="chat_attach_too_large">%1$s: يتجاوز حد %2$s</string>
     <string name="chat_attach_low_device_space">%1$s: مساحة تخزين الهاتف غير كافية؛ أفرغ بعض المساحة وحاول مجددًا</string>
     <string name="chat_attach_workspace_limit">%1$s: بلغت مساحة تخزين مساحة العمل الحد الأقصى؛ احذف ملفات من مساحة العمل وحاول مجددًا</string>
     <string name="chat_attach_io_error">%1$s: تعذّرت قراءة الملف أو نسخه؛ تأكد من توفره وحاول مجددًا</string>
@@ -307,6 +313,9 @@
     <string name="pip_reopen">عرض الشاشة</string>
     <string name="pip_closed_needs_you">تتطلب تدخّلك</string>
     <string name="pip_closed_hint">أُغلقت لهذه المهمة. انقر على «عرض الشاشة» أسفل اليمين، أو افتح «الشاشات في الخلفية» من القائمة الجانبية.</string>
+    <string name="chat_task_cost_estimate">حوالي %1$s</string>
+    <string name="chat_task_cost_partial">%1$s (جزئيًا)</string>
+    <string name="chat_task_cost_unavailable">تعذّر تقدير التكلفة</string>
     <string name="follow_up_steer">توجيه</string>
     <string name="follow_up_queue">انتظار</string>
     <string name="follow_up_steer_hint">ستعدّل الخطوة التالية المهمة الحالية</string>
@@ -338,4 +347,58 @@
         <item quantity="many">%1$d غير مؤرشفة</item>
         <item quantity="other">%1$d غير مؤرشفة</item>
     </plurals>
+    <string name="chat_example_github_star_title">أضِف نجمة لمشروع على GitHub</string>
+    <string name="chat_example_follow_title">تابِع أحد صنّاع المحتوى</string>
+    <string name="chat_example_group_summary_title">لخّص دردشة مجموعة</string>
+    <string name="chat_example_alarms_title">اضبط بعض المنبّهات</string>
+    <string name="chat_example_pdf_title">لخّص ملف PDF</string>
+    <string name="chat_example_schedule_title">اضبط تذكيرًا يوميًا</string>
+    <string name="chat_example_pdf">لخّص ملف PDF الذي سأرسله في ملخص قصير</string>
+    <string name="chat_example_schedule">كل صباح في الثامنة، ذكّرني بمراجعة الطقس</string>
+    <string name="chat_empty_value">قل جملة واحدة وسأتولى الأمر على هاتفك</string>
+    <string name="saved_task_save">حفظ كمهمة</string>
+    <string name="task_field_add">إضافة حقل</string>
+    <string name="task_field_name">اسم الحقل</string>
+    <string name="task_field_name_invalid">استخدم من 1 إلى 40 حرفًا دون أقواس معقوفة أو أسطر جديدة.</string>
+    <string name="task_field_insert">إدراج</string>
+    <string name="task_fields_too_many">استخدم %1$d حقول مختلفة كحد أقصى.</string>
+    <string name="task_fill_apply">ملء مربع الإدخال</string>
+    <string name="chat_read_aloud">Read aloud</string>
+    <string name="chat_stop_speaking">Stop speaking</string>
+    <string name="chat_audio">Audio</string>
+    <string name="chat_audio_play">Play</string>
+    <string name="chat_audio_stop">Stop</string>
+    <string name="plus_sub_album">اختر من صورك، يمكن اختيار عدة صور</string>
+    <string name="plus_sub_files">مستندات وملفات PDF وأرشيفات</string>
+    <string name="plus_sub_device">تصفّح مجلدات هذا الهاتف</string>
+    <string name="plus_clipboard">الحافظة</string>
+    <string name="plus_sub_clipboard">الصق ما نسخته للتو</string>
+    <string name="plus_sub_teach">أظهرها مرة واحدة ليتعلّمها Mika</string>
+    <string name="plus_sub_skills">استخدم مهارة لهذه الجولة</string>
+    <string name="plus_sub_tasks">املأ مهمة محفوظة في حقل الإدخال</string>
+    <string name="plus_sub_browser">المتصفح المدمج</string>
+    <string name="plus_skills_empty">لا توجد مهارات شخصية بعد. المهارات التي يتعلّمها Mika من المهام المكتملة ستظهر هنا.</string>
+    <string name="plus_clipboard_empty">لا يوجد نص للصقه من الحافظة</string>
+    <string name="plus_skill_directive">استخدم مهارة «%1$s»: </string>
+    <string name="plus_reuse">المحفوظات</string>
+    <string name="plus_reuse_hint">عبارات · قوائم · مسارات</string>
+    <string name="plus_reuse_phrases">العبارات المحفوظة</string>
+    <string name="drawer_calls">مكالمات الذكاء الاصطناعي</string>
+    <!-- 空对话滚动条里的灵感示例;点了填进输入框 -->
+    <string name="chat_idea_maps">وجّهني إلى أقرب مقهى</string>
+    <string name="chat_idea_camera">افتح الكاميرا والتقط صورة</string>
+    <string name="chat_idea_sms">أرسل لأمي: وصلت إلى البيت</string>
+    <string name="chat_idea_news">ابحث عن أخبار التقنية اليوم</string>
+    <string name="chat_idea_dark">فعّل الوضع الداكن</string>
+    <string name="chat_idea_music">شغّل موسيقى هادئة</string>
+    <string name="chat_idea_email">ماذا تقول أحدث رسائل بريدي؟</string>
+    <string name="chat_idea_screenshot">اعثر على آخر لقطة شاشة</string>
+    <string name="chat_idea_meeting">أضف اجتماعًا غدًا الساعة 3 مساءً</string>
+    <!-- 空对话推广卡上的一句话说明;完整提示词点了才填进输入框 -->
+    <string name="chat_example_github_star_blurb">ادعم مشروع Mika مفتوح المصدر</string>
+    <string name="chat_example_follow_blurb">تابع المطوّر وانضم إلى المحادثة</string>
+    <string name="chat_example_group_summary_blurb">ملخّص رسائل اليوم غير المقروءة في سطر</string>
+    <string name="chat_example_share_title">شارك Mika مع صديق</string>
+    <string name="chat_example_share_blurb">انصح به من سيستفيد منه</string>
+    <string name="chat_example_share">شارك رابط مشروع Mika https://github.com/wangzan101/mika مع صديق، وأخبره أنه يستطيع تشغيل الهاتف نيابةً عنه.</string>
 </resources>

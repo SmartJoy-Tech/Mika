@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_auto_off_short">Выкл.</string>
+    <string name="calls_auto_standby_short">Ожидание</string>
+    <string name="calls_rule_delay">Ответить через</string>
+    <string name="calls_seconds_value">%1$d с</string>
+    <string name="calls_none_added">Нет</string>
+    <string name="calls_not_set">Не задано</string>
+    <string name="calls_is_set">Задано</string>
+    <string name="calls_numbers_count">Номеров: %1$d</string>
+    <string name="calls_scope_all_short">Все звонки</string>
+    <string name="calls_scope_strangers_short">Неизвестные номера</string>
+    <string name="calls_allowlist_empty_short">Список пуст</string>
+    <string name="calls_list_count_short">В списке: %1$d</string>
+    <string name="calls_not_confirmed">Не подтверждено</string>
+    <string name="calls_task_more">Вопросы, контекст, ограничения</string>
+    <string name="calls_this_call">Этот звонок</string>
+</resources>

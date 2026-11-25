@@ -3,6 +3,7 @@ package com.wangzan101.mika.ui.theme
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import com.wangzan101.mika.settings.ThemeAccent
 
 /**
@@ -21,6 +22,8 @@ class MikaColors(
     val ink: Color,
     val ink2: Color,
     val ink3: Color,
+    /** 正文与辅助之间:比正文淡一点点的字(插话收成小字后用它)。 */
+    val inkSoft: Color,
     /** 分隔线。 */
     val hair: Color,
     /** 卡片描边。 */
@@ -64,13 +67,50 @@ class MikaColors(
 ) {
     /** 换一种强调色,其余不变;淡底的透明度和原来一样(浅色 10%、深色 16%)。 */
     fun withAccent(accent: Color, onAccent: Color) = MikaColors(
-        bg = bg, surface = surface, fill = fill, ink = ink, ink2 = ink2, ink3 = ink3, hair = hair, edge = edge,
+        bg = bg, surface = surface, fill = fill, ink = ink, ink2 = ink2, ink3 = ink3, inkSoft = inkSoft, hair = hair, edge = edge,
         accent = accent, accentSoft = accent.copy(alpha = if (isDark) 0x29 / 255f else 0x1A / 255f), onAccent = onAccent,
         ok = ok, okSoft = okSoft, warn = warn, warnSolid = warnSolid, warnSoft = warnSoft, bad = bad, badSoft = badSoft,
         neutralSoft = neutralSoft, answer = answer, greySoft = greySoft, glass = glass, glassEdge = glassEdge,
         cardShadow = cardShadow, floatShadow = floatShadow, thumb = thumb, series = series, seriesOther = seriesOther,
         grid = grid, isDark = isDark,
     )
+
+    /**
+     * 聊天页用的颜色:浅色下页面是纯白,Mika 的回答是浅灰实色气泡,用户气泡是实色淡强调色;
+     * 深色下回答是比页面亮一级的实色。实色不叠透明黑,避免发灰发脏。
+     */
+    fun forChat(): MikaColors {
+        val page = if (isDark) bg else surface
+        return MikaColors(
+            bg = page, surface = surface, fill = fill, ink = ink, ink2 = ink2, ink3 = ink3, inkSoft = inkSoft, hair = hair, edge = edge,
+            accent = accent, accentSoft = accentSoft, onAccent = onAccent,
+            ok = ok, okSoft = okSoft, warn = warn, warnSolid = warnSolid, warnSoft = warnSoft, bad = bad, badSoft = badSoft,
+            neutralSoft = neutralSoft, answer = if (isDark) Color(0xFF1C1C1F) else Color(0xFFF4F5F7), greySoft = greySoft,
+            glass = if (isDark) glass else Color(0xF5FFFFFF), glassEdge = glassEdge,
+            cardShadow = cardShadow, floatShadow = floatShadow, thumb = thumb, series = series, seriesOther = seriesOther,
+            grid = grid, isDark = isDark,
+        )
+    }
+
+    /**
+     * 简约列表页(设置、AI 电话)的配色:浅灰页面上放纯白分组,分组不描边不投影。
+     * 深色下页面纯黑,分组深灰。
+     */
+    fun forPlainList(): MikaColors = MikaColors(
+        bg = if (isDark) Color(0xFF000000) else Color(0xFFF2F2F4),
+        surface = if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF),
+        fill = fill, ink = ink, ink2 = ink2, ink3 = ink3, inkSoft = inkSoft, hair = hair,
+        edge = Color.Transparent,
+        accent = accent, accentSoft = accentSoft, onAccent = onAccent,
+        ok = ok, okSoft = okSoft, warn = warn, warnSolid = warnSolid, warnSoft = warnSoft, bad = bad, badSoft = badSoft,
+        neutralSoft = neutralSoft, answer = answer, greySoft = greySoft, glass = glass, glassEdge = glassEdge,
+        cardShadow = Color.Transparent, floatShadow = floatShadow, thumb = thumb, series = series, seriesOther = seriesOther,
+        grid = grid, isDark = isDark,
+    )
+
+    /** 用户气泡的底:淡强调色压成实色。 */
+    val userBubble: Color
+        get() = accent.copy(alpha = if (isDark) 0.24f else 0.09f).compositeOver(if (isDark) bg else surface)
 }
 
 val LightColors = MikaColors(
@@ -80,6 +120,7 @@ val LightColors = MikaColors(
     ink = Color(0xFF1C1C1E),
     ink2 = Color(0xFF5F6068),
     ink3 = Color(0xFF9A9BA3),
+    inkSoft = Color(0xFF4A4A50),
     hair = Color(0x12000000),
     edge = Color(0x0D000000),
     accent = Color(0xFF0A7CFF),
@@ -113,6 +154,7 @@ val DarkColors = MikaColors(
     ink = Color(0xFFF2F2F4),
     ink2 = Color(0xFFA4A5AD),
     ink3 = Color(0xFF6C6D75),
+    inkSoft = Color(0xFFC6C6CD),
     hair = Color(0x14FFFFFF),
     edge = Color(0x0FFFFFFF),
     accent = Color(0xFF3D97FF),

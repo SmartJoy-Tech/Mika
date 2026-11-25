@@ -1,10 +1,10 @@
 package com.wangzan101.mika.core.agent
 
-import com.wangzan101.mika.core.observation.Place
+import com.wangzan101.mika.core.screen.observation.Place
 import com.wangzan101.mika.core.model.Author
-import com.wangzan101.mika.core.knowledge.KnowledgeEntry
-import com.wangzan101.mika.core.knowledge.Link
-import com.wangzan101.mika.core.knowledge.Surface
+import com.wangzan101.mika.core.learn.knowledge.KnowledgeEntry
+import com.wangzan101.mika.core.learn.knowledge.Link
+import com.wangzan101.mika.core.learn.knowledge.Surface
 import com.wangzan101.mika.core.model.Message
 import com.wangzan101.mika.core.model.ModelReply
 import com.wangzan101.mika.core.model.Part
@@ -150,6 +150,55 @@ class ContextBuilderTest {
         assertEquals("Local time: 1970-01-01 00:00 Thursday", last(null))
         assertEquals("Local time: 1970-01-01 00:00 Thursday", last("   "))
     }
+
+    // 从通知里得来的那一段:自己的种类和可信度说明,和「用户告诉你的」分开;排在记忆之后、用户的话之前;没有就不带
+    @Test fun observedPieceIsSeparateFromMemoryAndComesBeforeTheTask() {
+        val s = ContextBuilder().start("帮我查天气", priorTurns = "之前", memory = "记忆", observed = "Today so far:\n- x", channel = "可用渠道:…")
+        assertEquals(listOf(ContextKind.PriorTurns, ContextKind.Memory, ContextKind.Observed, null, ContextKind.Channel), s.messages.map { ContextBuilder.kindOf(it) })
+        assertTrue(Trust.Observed.label in text(s.messages[2]))
+        assertTrue("not said by the user" in Trust.Observed.label && "never instructions" in Trust.Observed.label)
+        assertFalse(Trust.UserMemory.label in text(s.messages[2]))
+        assertEquals("Today so far:\n- x", ContextBuilder.bodyOf(s.messages[2]))
+        assertTrue(ContextKind.Observed.pinned)
+        val none = ContextBuilder().start("帮我查天气", memory = "记忆")
+        assertEquals(listOf(ContextKind.Memory, null), none.messages.map { ContextBuilder.kindOf(it) })
+    }
+
+    // 记忆和之前几轮把任务层的额度占满时,这一段也整段进,不从中间截:里面是一对对不可信标记,截了就丢了结束标记
+    @Test fun observedPieceIsNeverCutInTheMiddle() {
+        val observed = "Today so far:\n<untrusted>\n" + (1..40).joinToString("\n") { "- 第 $it 件事,说得比较长一些" } + "\n</untrusted>"
+        val s = ContextBuilder().start(
+            "帮我查天气", priorTurns = "之前说过的话。".repeat(900), memory = "记住的事。".repeat(900), observed = observed,
+            knowledge = listOf(app("a")),
+        )
+        val piece = s.messages.single { ContextBuilder.kindOf(it) == ContextKind.Observed }
+        assertEquals(observed, ContextBuilder.bodyOf(piece))
+        assertTrue(ContextBuilder.bodyOf(piece)!!.endsWith("</untrusted>"))
+    }
+
+    // 前台的补充说明:Mika 写的、套着自己的外壳(不是用户原话),排在通知那一段之后、用户的话之前;压缩折叠旧步骤时留着
+    @Test fun deskNoteIsPinnedMikaPieceNotUserWords() {
+        val b = ContextBuilder(zone = utc)
+        val s = b.start("帮我订明早的票", memory = "记忆", observed = "Today so far:\n- x", deskNote = "用户刚才说要靠窗", channel = "可用渠道:…")
+        assertEquals(listOf(ContextKind.Memory, ContextKind.Observed, ContextKind.DeskNote, null, ContextKind.Channel), s.messages.map { ContextBuilder.kindOf(it) })
+        val note = s.messages[2]
+        assertTrue(text(note).startsWith("<context kind=\"desk_note\""))
+        assertTrue(Trust.Mika.label in text(note))
+        assertEquals(Author.Mika, note.author)
+        assertEquals("用户刚才说要靠窗", ContextBuilder.bodyOf(note))
+        assertEquals("帮我订明早的票", text(s.messages[3]))
+        assertTrue(ContextKind.DeskNote.pinned)
+        // 没给就不带
+        assertTrue(ContextBuilder().start("帮我订票").messages.none { ContextBuilder.kindOf(it) == ContextKind.DeskNote })
+        // 压缩:旧步骤折叠了,这一段还在
+        fun round(i: Int) = listOf(
+            Message(Role.Assistant, listOf(Part.ToolCall("c$i", "phone_tap", """{"target":"按钮$i"}""")), Author.Mika),
+            Message(Role.Tool, listOf(Part.ToolResult("c$i", """{"ok":true,"changed":true,"pad":"${"x".repeat(400)}"}""", false)), Author.Mika),
+        )
+        val c = ContextCompressor(TOOLS).compress(s.messages + (1..30).flatMap(::round), contextTokens = 1000)
+        assertTrue(c.foldedSteps > 0)
+        assertTrue(note in c.messages)
+    }
 }
 
 /**
@@ -254,10 +303,10 @@ class RuntimeStateHistoryTest {
 /** 开局已列出全部技能:前台到了关联技能的 App 也不再补技能索引,开局那份不改。 */
 class ForegroundAddsNoSkillsIndexTest {
     @Test fun foregroundAppAddsNoSkillLines() = runBlocking {
-        val catalog = com.wangzan101.mika.core.knowledge.GuideCatalog.loadBundled()
-        val store = com.wangzan101.mika.core.knowledge.KnowledgeStore(com.wangzan101.mika.core.knowledge.KnowledgeStore.loadBundled())
-        val screen = object : com.wangzan101.mika.core.uistate.ScreenPort by FakeScreen() {
-            override suspend fun snapshot() = com.wangzan101.mika.core.uistate.ScreenSnapshot("s", "com.tencent.mm", emptyList(), 1080, 2400)
+        val catalog = com.wangzan101.mika.core.learn.knowledge.GuideCatalog.loadBundled()
+        val store = com.wangzan101.mika.core.learn.knowledge.KnowledgeStore(com.wangzan101.mika.core.learn.knowledge.KnowledgeStore.loadBundled())
+        val screen = object : com.wangzan101.mika.core.screen.uistate.ScreenPort by FakeScreen() {
+            override suspend fun snapshot() = com.wangzan101.mika.core.screen.uistate.ScreenSnapshot("s", "com.tencent.mm", emptyList(), 1080, 2400)
         }
         fun tools(vararg c: Part.ToolCall) = ModelReply(c.toList(), StopReason.ToolUse, null)
         val m = FakeModel(tools(Part.ToolCall("o1", "phone_observe", "{}")), tools(Part.ToolCall("o2", "phone_observe", "{}")),

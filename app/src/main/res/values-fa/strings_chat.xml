@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="chat_confirmed_goals">هدف‌های تأییدشده: %1$d/%2$d</string>
+    <string name="chat_last_confirmed_goals">آخرین تأیید: %1$d/%2$d</string>
     <string name="chat_greeting_morning">صبح بخیر</string>
     <string name="chat_greeting_noon">بعدازظهر بخیر</string>
     <string name="chat_greeting_afternoon">بعدازظهر بخیر</string>
@@ -53,6 +55,7 @@
     <string name="chat_attach_rejected">افزودن ممکن نشد: %1$s (حجم هر فایل باید کمتر از ۲۰۰ مگابایت باشد)</string>
     <string name="chat_stop">توقف</string>
     <string name="chat_send">ارسال</string>
+    <string name="chat_scroll_to_bottom">رفتن به پایین</string>
     <string name="drawer_running_task">کار در حال اجرا</string>
     <string name="drawer_running">در حال اجرا</string>
     <string name="drawer_yesterday">دیروز</string>
@@ -192,6 +195,9 @@
     <string name="zoom_in">بزرگ‌نمایی</string>
     <string name="chat_message_actions">گزینه‌های پیام</string>
     <string name="chat_copy">کپی</string>
+    <string name="share_card_question">پرسش</string>
+    <string name="share_card_answer">پاسخ</string>
+    <string name="share_card_made_by">توسط Mika انجام شد</string>
     <string name="chat_quote">نقل‌قول</string>
     <string name="chat_select_text">انتخاب متن</string>
     <string name="chat_copied">کپی شد</string>
@@ -241,11 +247,11 @@
     <string name="drawer_search_results">نتایج جست‌وجو</string>
     <string name="drawer_search_truncated">نمایش اولین %1$d نتیجه</string>
     <string name="drawer_searching">در حال جست‌وجو…</string>
-    <string name="recommendations_add">افزودن کار پیشنهادی</string>
+    <string name="recommendations_add">افزودن کار</string>
     <string name="recommendations_delete">حذف</string>
     <string name="recommendations_delete_body">دیگر در صفحهٔ اصلی نمایش داده نمی‌شود.</string>
     <string name="recommendations_delete_title">این کار پیشنهادی حذف شود؟</string>
-    <string name="recommendations_edit">ویرایش کار پیشنهادی</string>
+    <string name="recommendations_edit">ویرایش کار</string>
     <string name="recommendations_empty">کار پیشنهادی وجود ندارد</string>
     <string name="recommendations_empty_sub">کارهای افزوده‌شده در گفتگوی جدید نمایش داده می‌شوند</string>
     <string name="recommendations_footer">در گفتگوی جدید، روی یک کار بزنید تا متن آن در ورودی قرار گیرد. به‌صورت خودکار ارسال نمی‌شود.</string>
@@ -255,7 +261,7 @@
     <string name="recommendations_reset_body">فایل غیرقابل‌خواندن با یک فهرست خالی جایگزین می‌شود.</string>
     <string name="recommendations_save_failed">ذخیره ممکن نشد. دوباره تلاش کنید.</string>
     <string name="recommendations_sub">مدیریت کارها و متن‌های صفحهٔ اصلی</string>
-    <string name="recommendations_title">کارهای پیشنهادی</string>
+    <string name="recommendations_title">کارهای ذخیره‌شده</string>
     <string name="recommendations_drag">برای تغییر ترتیب بکشید</string>
     <string name="recommendations_drag_hint">دستگیره را بکشید تا ترتیب نمایش تغییر کند.</string>
     <string name="recommendations_move_up">انتقال به بالا</string>
@@ -267,7 +273,7 @@
     <string name="recommendations_unreadable">کارهای پیشنهادی ذخیره‌شده خوانده نشدند، بنابراین فعلاً قابل تغییر نیستند.</string>
     <string name="share_draft_replace_body">این محتوای به‌اشتراک‌گذاشته‌شده جایگزین پیش‌نویس فعلی شما می‌شود.</string>
     <string name="chat_attach_unavailable">افزودن ممکن نشد: %1$s. بررسی کنید فایل‌ها در دسترس و در محدودهٔ حجم باشند.</string>
-    <string name="chat_attach_too_large">%1$s: از محدودیت 200 MiB بیشتر است</string>
+    <string name="chat_attach_too_large">%1$s: از محدودیت %2$s بیشتر است</string>
     <string name="chat_attach_low_device_space">%1$s: فضای ذخیره‌سازی گوشی کافی نیست؛ فضا را آزاد کنید و دوباره تلاش کنید</string>
     <string name="chat_attach_workspace_limit">%1$s: فضای ذخیره‌سازی محیط کار به سقف رسیده است؛ فایل‌های محیط کار را پاک کنید و دوباره تلاش کنید</string>
     <string name="chat_attach_io_error">%1$s: خواندن یا کپی کردن ممکن نیست؛ بررسی کنید فایل در دسترس باشد و دوباره تلاش کنید</string>
@@ -282,4 +288,61 @@
         <item quantity="one">%1$d بایگانی نشد</item>
         <item quantity="other">%1$d بایگانی نشد</item>
     </plurals>
+    <string name="chat_task_cost_estimate">تقریباً %1$s</string>
+    <string name="chat_task_cost_partial">%1$s (ناقص)</string>
+    <string name="chat_task_cost_unavailable">هزینه در دسترس نیست</string>
+    <string name="chat_example_github_star_title">به پروژه گیت‌هاب ستاره بده</string>
+    <string name="chat_example_follow_title">دنبال یک تولیدکننده محتوا</string>
+    <string name="chat_example_group_summary_title">خلاصه‌کردن گفتگوی گروهی</string>
+    <string name="chat_example_alarms_title">تنظیم چند زنگ هشدار</string>
+    <string name="chat_example_pdf_title">خلاصه‌کردن PDF</string>
+    <string name="chat_example_schedule_title">تنظیم یادآور روزانه</string>
+    <string name="chat_example_pdf">PDFای که میفرستم را در یک خلاصه کوتاه جمعبندی کن</string>
+    <string name="chat_example_schedule">هر روز صبح ساعت ۸ یادم بینداز هوا را چک کنم</string>
+    <string name="chat_empty_value">یک جمله بگو، بقیه‌اش با من روی گوشی</string>
+    <string name="saved_task_save">ذخیره به‌عنوان کار</string>
+    <string name="task_field_add">افزودن فیلد</string>
+    <string name="task_field_name">نام فیلد</string>
+    <string name="task_field_name_invalid">از ۱ تا ۴۰ نویسه، بدون آکولاد یا خط جدید استفاده کنید.</string>
+    <string name="task_field_insert">درج</string>
+    <string name="task_fields_too_many">حداکثر %1$d فیلد متفاوت استفاده کنید.</string>
+    <string name="task_fill_apply">پر کردن کادر ورودی</string>
+    <string name="chat_read_aloud">Read aloud</string>
+    <string name="chat_stop_speaking">Stop speaking</string>
+    <string name="chat_audio">Audio</string>
+    <string name="chat_audio_play">Play</string>
+    <string name="chat_audio_stop">Stop</string>
+    <string name="plus_sub_album">از عکس‌ها انتخاب کن، چندتا هم می‌شود</string>
+    <string name="plus_sub_files">سند، PDF، آرشیو</string>
+    <string name="plus_sub_device">پوشه‌های این گوشی را بگرد</string>
+    <string name="plus_clipboard">تخته‌شمار</string>
+    <string name="plus_sub_clipboard">آنچه تازه کپی کردی را بچسبان</string>
+    <string name="plus_sub_teach">یک بار نشان بده تا Mika یاد بگیرد</string>
+    <string name="plus_sub_skills">یک مهارت برای این نوبت انتخاب کن</string>
+    <string name="plus_sub_tasks">کار ذخیره‌شده را در کادر ورودی پر کن</string>
+    <string name="plus_sub_browser">مرورگر داخلی</string>
+    <string name="plus_skills_empty">هنوز مهارت شخصی نداری. مهارت‌هایی که Mika از کارهای انجام‌شده یاد می‌گیرد اینجا نمایش داده می‌شوند.</string>
+    <string name="plus_clipboard_empty">متنی برای چسباندن از تخته‌شمار نیست</string>
+    <string name="plus_skill_directive">از مهارت «%1$s» استفاده کن: </string>
+    <string name="plus_reuse">ذخیره‌شده‌ها</string>
+    <string name="plus_reuse_hint">عبارت · فهرست · روند</string>
+    <string name="plus_reuse_phrases">عبارت‌های ذخیره‌شده</string>
+    <string name="drawer_calls">تماس هوش مصنوعی</string>
+    <!-- 空对话滚动条里的灵感示例;点了填进输入框 -->
+    <string name="chat_idea_maps">مسیر نزدیک‌ترین کافه را نشان بده</string>
+    <string name="chat_idea_camera">دوربین را باز کن و عکس بگیر</string>
+    <string name="chat_idea_sms">به مامان پیام بده: رسیدم خانه</string>
+    <string name="chat_idea_news">اخبار فناوری امروز را جست‌وجو کن</string>
+    <string name="chat_idea_dark">حالت تاریک را روشن کن</string>
+    <string name="chat_idea_music">یک موسیقی آرام پخش کن</string>
+    <string name="chat_idea_email">آخرین ایمیل‌هایم چه می‌گویند؟</string>
+    <string name="chat_idea_screenshot">آخرین اسکرین‌شاتم را پیدا کن</string>
+    <string name="chat_idea_meeting">فردا ساعت ۳ بعدازظهر یک جلسه اضافه کن</string>
+    <!-- 空对话推广卡上的一句话说明;完整提示词点了才填进输入框 -->
+    <string name="chat_example_github_star_blurb">از پروژهٔ متن‌باز Mika حمایت کن</string>
+    <string name="chat_example_follow_blurb">سازنده را دنبال کن و به گفت‌وگو بپیوند</string>
+    <string name="chat_example_group_summary_blurb">خلاصهٔ پیام‌های خوانده‌نشدهٔ امروز در یک خط</string>
+    <string name="chat_example_share_title">Mika را با یک دوست به اشتراک بگذار</string>
+    <string name="chat_example_share_blurb">به کسی که لازمش دارد معرفی کن</string>
+    <string name="chat_example_share">لینک پروژه Mika https://github.com/wangzan101/mika را با یک دوست به اشتراک بگذار و بگو که می‌تواند گوشی را برایش کار کند.</string>
 </resources>

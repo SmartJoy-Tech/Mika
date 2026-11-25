@@ -6,7 +6,7 @@
     <string name="parallel_second_display_failed">تعذّر إنشاء شاشة افتراضية ثانية، لذا لا يمكن تشغيل أكثر من مهمة واحدة في الوقت الحالي</string>
     <string name="parallel_needs_14">يتطلب تشغيل عدة مهام في آنٍ واحد Android 14 أو أحدث</string>
     <string name="parallel_low_ram">ذاكرة هذا الهاتف قليلة، لذا تُشغّل مهمة واحدة في كل مرة</string>
-    <string name="skill_suspended">لم تكن هذه المهارة تعمل مؤخرًا، لذا أُوقفت مؤقتًا</string>
+    <string name="skill_suspended">لم تكن هذه المهارة تعمل مؤخرًا، لذا أُوقفت مؤقتًا: %1$s</string>
     <string name="skill_verified">نجحت المهارة، وهي الآن قيد الاستخدام المعتاد: %1$s</string>
     <string name="skill_learned">تعلّم Mika مهارة: %1$s</string>
     <string name="skill_app_draft">دوّن Mika بعض المعلومات عن %1$s لمراجعتها</string>
@@ -69,6 +69,15 @@
     <string name="task_too_old">يتطلب التحكم بتطبيقات الهاتف Android 12 أو أحدث. وما زالت مهام المحادثة والويب وبيئة العزل متاحة.</string>
     <string name="task_shell_died">انقطع اتصال مساعد التحكم بالهاتف وأُغلقت الشاشة الافتراضية. حاول مجددًا بعد إعادة الاتصال.</string>
     <string name="task_running">قيد التشغيل</string>
+    <string name="chip_thinking">جارٍ التفكير</string>
+    <string name="chip_read_screen">قراءة الشاشة</string>
+    <string name="chip_use_phone">استخدام الهاتف</string>
+    <string name="chip_browse">تصفح الويب</string>
+    <string name="chip_take_over">تولّ التحكم</string>
+    <string name="chip_route_step">خطوة %1$d/%2$d</string>
+    <string name="chip_count">%1$d/%2$d</string>
+    <string name="chip_done">تم: %1$d</string>
+    <string name="chip_wait_app">بانتظار التطبيق</string>
     <string name="channel_task_accepted">تم الاستلام — سُجّلت المهمة.</string>
     <string name="task_step_note">الخطوة %1$d: %2$s</string>
     <string name="task_wait_unlock">بانتظار إلغاء القفل</string>
@@ -93,4 +102,8 @@
     <string name="screens_waiting">بانتظار</string>
     <string name="screens_needs_you">تحتاج إليك</string>
     <string name="screens_zoom">تكبير هذه الشاشة</string>
+    <string name="task_trigger_time_limit">استغرقت المهمة المجدولة أكثر من %1$d دقيقة، لذا توقفت.</string>
+    <string name="trigger_failed_streak">المهمة المجدولة: عدد مرات الفشل المتتالية %1$d</string>
+    <string name="trigger_failed_streak_hint">يمكنك إيقاف هذه الخطة مؤقتًا أو تغييرها من صفحة المهام المجدولة.</string>
+    <string name="task_no_phone_helper_shizuku">التحكم بالهاتف غير جاهز. ابدأ Shizuku وامنح Mika الإذن (أو تحقق من التحكم بالهاتف في الإعدادات). مهام الويب والملفات غير متأثرة.</string>
 </resources>

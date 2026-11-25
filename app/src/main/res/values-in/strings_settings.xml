@@ -3,9 +3,13 @@
     <string name="settings_personal_start">Buka asisten pribadi saat aplikasi dimulai</string>
     <string name="settings_personal_start_sub">Jadikan asisten pribadi sebagai layar awal Mika</string>
     <string name="language_title">Bahasa</string>
+    <string name="language_prompt_title">Bahasa</string>
+    <string name="language_prompt_hint">Pilih bahasa yang digunakan Mika untuk berpikir, narasi langkah, dan menjawab.</string>
+    <string name="language_search_hint">Cari bahasa</string>
+    <string name="language_prompt_confirm">Konfirmasi</string>
+    <string name="language_prompt_dismiss">Nanti saja</string>
     <string name="language_system">Ikuti sistem</string>
     <string name="language_system_detail">Memakai bahasa sistem Anda jika Mika mendukungnya, jika tidak memakai bahasa Inggris</string>
-    <string name="settings_basic">Umum</string>
     <string name="settings_language_appearance">Bahasa &amp; tampilan</string>
     <string name="settings_model">Model</string>
     <string name="settings_model_sub">Model, penyedia &amp; penggunaan token</string>
@@ -14,7 +18,6 @@
     <string name="settings_during_work">Menjalankan tugas</string>
     <string name="settings_during_work_sub">Mode mandiri, kecepatan, batas langkah &amp; suara</string>
     <string name="settings_notif_sub">Saat muncul, ubah di setelan sistem</string>
-    <string name="settings_privacy">Data saya</string>
     <string name="settings_memory_data">Memori &amp; data</string>
     <string name="settings_memory_sub">Memori, keterampilan, rute tersimpan &amp; akun situs web</string>
     <string name="settings_saved_data">Data tersimpan</string>
@@ -22,10 +25,8 @@
     <plurals name="settings_count_sites">
         <item quantity="other">%1$d situs</item>
     </plurals>
-    <string name="settings_other">Lainnya</string>
-    <string name="settings_advanced">Lanjutan &amp; lainnya</string>
-    <string name="settings_advanced_sub">Proxy, komputasi, koneksi &amp; perbaikan</string>
-    <string name="settings_connections">Jaringan &amp; koneksi</string>
+    <string name="settings_advanced">Lanjutan</string>
+    <string name="settings_advanced_sub">Ekstensi, jaringan, runtime &amp; pemeliharaan</string>
     <string name="settings_maintenance">Pemeliharaan</string>
     <string name="settings_sandbox">Berkas &amp; lingkungan komputasi</string>
     <string name="settings_routes">Rute tersimpan</string>
@@ -54,6 +55,8 @@
     <string name="settings_notif_master">Semua notifikasi</string>
     <string name="settings_allowed">Diizinkan</string>
     <string name="settings_task_notifs">Notifikasi tugas</string>
+    <string name="settings_live_task_updates">Pembaruan tugas langsung</string>
+    <string name="settings_live_task_updates_detail">Pilih apakah tugas yang sedang berjalan ditampilkan di bilah status</string>
     <string name="settings_keep_on">Biarkan layar menyala</string>
     <string name="settings_keep_on_sub">Layar tetap menyala selama tugas berjalan (tetap meredup seperti biasa saat tidak dipakai), lalu kembali normal</string>
     <string name="settings_mute">Bisukan aplikasi yang dipakai</string>
@@ -66,6 +69,15 @@
     <string name="settings_pace_human">Seperti manusia</string>
     <string name="settings_pace_human_detail">Lambat di semua aplikasi, membaca tiap layar sebelum lanjut</string>
     <string name="settings_pace_foot">Beberapa aplikasi mengeluarkan Anda atau meminta verifikasi jika dipakai terlalu cepat. Semakin lambat kecepatannya, semakin lama tugas selesai.</string>
+    <string name="settings_pace_per_app">Pace per aplikasi</string>
+    <string name="settings_pace_per_app_sub">Perlambat aplikasi dengan pemeriksaan bot ketat, atau percepat yang santai; sisanya mengikuti pace global</string>
+    <string name="settings_pace_per_app_intro">Aplikasi dalam daftar ini memakai pace sendiri; sisanya mengikuti pace global (sekarang %1$s).</string>
+    <string name="settings_pace_per_app_empty">Belum ada aplikasi yang diatur per aplikasi.</string>
+    <string name="settings_pace_per_app_add">Tambah aplikasi</string>
+    <string name="settings_pace_per_app_search">Cari aplikasi</string>
+    <string name="settings_pace_per_app_none">Tidak ada aplikasi yang cocok</string>
+    <string name="settings_pace_per_app_pick">Pilih</string>
+    <string name="settings_pace_per_app_remove">Hapus (ikuti pace global)</string>
     <string name="settings_parallel">Tugas sekaligus</string>
     <string name="settings_parallel_sub">Tugas dari obrolan berbeda masing-masing mendapat layar virtual sendiri</string>
     <plurals name="settings_count_tasks">
@@ -102,6 +114,8 @@
     <string name="net_proxy">Proksi jaringan</string>
     <string name="net_proxy_row_sub">Untuk panggilan model, pembaruan, browser bawaan, dan perintah</string>
     <string name="net_proxy_hint">Dipakai untuk panggilan model Mika (obrolan, daftar model, masuk dengan akun), unduhan pembaruan di dalam aplikasi, browser bawaan, dan perintah di Berkas &amp; lingkungan komputasi selama akses jaringan di sana aktif. Alamat di ponsel ini atau jaringan lokal (localhost, 192.168.x.x, 10.x.x.x, nama yang berakhiran .local) selalu tersambung langsung, jadi model lokal tetap bisa dipakai. Bisa menyertakan user:password@, yang disimpan terenkripsi di ponsel ini. Kosongkan untuk koneksi langsung.</string>
+    <string name="net_proxy_summary">Permintaan model, pembaruan, peramban bawaan, dan perintah lingkungan file memakai proxy ini.</string>
+    <string name="details">Detail</string>
     <string name="net_proxy_invalid">Tulis sebagai http://host:port (socks5, socks5h, dan https juga bisa), opsional dengan user:password@ sebelum host.</string>
     <string name="net_proxy_container_only">Proksi https:// hanya dipakai oleh perintah di Berkas &amp; lingkungan komputasi; koneksi Mika sendiri tetap langsung. Pakai http:// atau socks5:// agar semuanya lewat proksi.</string>
     <string name="net_proxy_browser_unsupported">WebView di ponsel ini tidak mendukung proksi khusus aplikasi, jadi browser bawaan tersambung langsung.</string>
@@ -152,7 +166,7 @@
     <string name="skin_accent_follow">Warna aksen dari gambar</string>
     <string name="skin_accent_follow_sub">Memakai warna utama gambar sebagai ganti warna aksen di atas, jika ada</string>
     <string name="settings_self_config">Biarkan Mika mengubah pengaturannya sendiri</string>
-    <string name="settings_self_config_sub">Jika aktif, tugas mendapat satu alat untuk membaca dan mengubah preferensi ini (kecepatan, bisu, kapsul, tampilan, warna aksen, layar menyala). Model, kunci API, jaringan kontainer, dan apa pun yang menghapus data tidak pernah disertakan</string>
+    <string name="settings_self_config_sub">Hanya mengubah preferensi yang tercantum; tidak pernah menyentuh model, kunci, jaringan, atau menghapus data.</string>
     <string name="settings_step_limit">Batas langkah per tugas</string>
     <string name="settings_step_limit_sub">Mati berarti tanpa batas. Saat batas tercapai, tugas berhenti dan menyebutkan di mana berhentinya.</string>
     <string name="settings_step_limit_off">Tanpa batas</string>
@@ -192,6 +206,60 @@
     <string name="mcp_servers_status_fail">Gagal terhubung: %1$s</string>
     <string name="mcp_servers_refresh_all">Uji semua</string>
     <string name="mcp_servers_allowlist">Alat yang diizinkan (dipisah koma, kosong = semua)</string>
+    <string name="mcp_category_all">Semua</string>
+    <string name="mcp_category_ai">AI</string>
+    <string name="mcp_category_data">Data</string>
+    <string name="mcp_category_dev">Alat pengembang</string>
+    <string name="mcp_category_comm">Komunikasi</string>
+    <string name="mcp_category_prod">Produktivitas</string>
+    <string name="mcp_category_design">Desain &amp; media</string>
+    <string name="mcp_category_cloud">Cloud</string>
+    <string name="mcp_category_web">Pencarian &amp; web</string>
+    <string name="mcp_category_maps">Peta</string>
+    <string name="mcp_category_local">Di perangkat ini</string>
+    <string name="mcp_catalog_title">Layanan MCP</string>
+    <string name="mcp_catalog_search_hint">Cari layanan</string>
+    <string name="mcp_catalog_no_results">Tidak ada layanan yang cocok</string>
+    <string name="mcp_catalog_no_results_sub">Coba kata kunci atau kategori lain, atau atur server kustom.</string>
+    <string name="mcp_catalog_custom">Server MCP kustom</string>
+    <string name="mcp_catalog_browse">Jelajahi katalog layanan</string>
+    <string name="mcp_catalog_custom_server">Server kustom</string>
+    <string name="mcp_connect_auth_oauth">Masuk dengan akun Anda</string>
+    <string name="mcp_connect_auth_fields">Kunci API</string>
+    <string name="mcp_connect_auth_none">Tidak perlu masuk</string>
+    <string name="mcp_connect_auth_stdio">Berjalan di perangkat ini</string>
+    <string name="mcp_connect_authorize">Masuk dan hubungkan</string>
+    <string name="mcp_connect_connect">Hubungkan</string>
+    <string name="mcp_connect_connecting">Menghubungkan…</string>
+    <string name="mcp_connect_cancel">Batal</string>
+    <string name="mcp_connect_retry">Coba lagi</string>
+    <string name="mcp_connect_success_title">Terhubung</string>
+    <string name="mcp_connect_success_tools">%1$d alat tersedia</string>
+    <string name="mcp_connect_done">Selesai</string>
+    <string name="mcp_connect_view_tools">Lihat alat</string>
+    <string name="mcp_connect_data_note">Permintaan dan data Anda dikirim ke layanan ini.</string>
+    <string name="mcp_connect_package_title">Perlu mengunduh</string>
+    <string name="mcp_connect_package_body">Untuk menggunakan server ini, Mika akan mengunduh dan menyimpan paket ini di perangkat:\n%1$s %2$s\ndari %3$s</string>
+    <string name="mcp_connect_package_confirm">Unduh dan hubungkan</string>
+    <string name="mcp_connect_help">Dapatkan kunci API</string>
+    <string name="mcp_connect_official">Dokumentasi resmi</string>
+    <string name="mcp_connect_about">Tentang layanan ini</string>
+    <string name="mcp_manage_test">Uji sekarang</string>
+    <string name="mcp_manage_reauthorize">Masuk lagi</string>
+    <string name="mcp_manage_replace">Ganti kredensial</string>
+    <string name="mcp_manage_replace_hint">Biarkan kolom kosong untuk mempertahankan nilai saat ini.</string>
+    <string name="mcp_manage_edit">Edit detail</string>
+    <string name="mcp_manage_delete_note">Menghapus akan menghapus server ini dan kredensial tersimpannya dari Mika. Ini tidak mencabut akses yang Anda berikan di situs resmi layanan.</string>
+    <string name="mcp_custom_headers">Header permintaan</string>
+    <string name="mcp_custom_header_name">Nama header</string>
+    <string name="mcp_custom_header_value">Nilai header</string>
+    <string name="mcp_custom_add_header">Tambah header</string>
+    <string name="mcp_custom_advanced">Lanjutan</string>
+    <string name="mcp_custom_timeout">Waktu tunggu koneksi (detik)</string>
+    <string name="mcp_custom_preview">Panjang pratinjau hasil</string>
+    <string name="mcp_custom_budget">Anggaran biaya per tugas</string>
+    <string name="settings_show_task_cost">Tampilkan biaya tugas</string>
+    <string name="settings_show_task_cost_sub">Perkirakan biaya API DeepSeek untuk tugas baru dalam yuan.</string>
     <string name="quit_title">Keluar dari Mika sepenuhnya</string>
     <string name="quit_row_sub">Menghentikan tugas latar belakang dan menyembunyikan kapsul mengambang</string>
     <string name="quit_confirm_body">Tugas yang sedang berjalan akan berhenti, kapsul mengambang dan notifikasi akan hilang. Saat Mika dibuka lagi, semuanya kembali.</string>
@@ -204,8 +272,40 @@
     <string name="settings_token_budget_invalid">Masukkan bilangan bulat dari %1$s sampai %2$s.</string>
     <string name="settings_auto_archive">Arsipkan chat otomatis</string>
     <string name="settings_auto_archive_sub">Chat tanpa pesan baru untuk sementara waktu dipindahkan ke arsip</string>
-    <string name="settings_auto_archive_hint">Chat tanpa pesan baru selama waktu yang dipilih dipindahkan ke arsip. Chat yang disematkan dan chat dengan tugas yang sedang berjalan tidak diubah. Anda dapat memulihkannya dari arsip di daftar chat kapan saja.</string>
+    <string name="settings_auto_archive_hint">Chat tanpa pesan baru selama waktu yang dipilih dipindahkan ke arsip.</string>
     <plurals name="settings_auto_archive_days">
         <item quantity="other">%1$d hari</item>
+    </plurals>
+    <string name="settings_scheduled_quiet">Jam hening tugas terjadwal</string>
+    <string name="settings_scheduled_quiet_detail">Hasil dan pengingat terjadwal muncul tanpa suara di panel notifikasi.</string>
+    <string name="settings_scheduled_quiet_start">Waktu mulai</string>
+    <string name="settings_scheduled_quiet_end">Waktu selesai</string>
+    <string name="settings_scheduled_quiet_equal">Pilih waktu mulai dan selesai yang berbeda untuk membisukan notifikasi.</string>
+    <string name="settings_capabilities">Kemampuan</string>
+    <string name="settings_preferences">Preferensi</string>
+    <string name="settings_data">Data</string>
+    <string name="settings_extensions">Ekstensi &amp; koneksi</string>
+    <string name="settings_network">Jaringan</string>
+    <string name="settings_runtime">Runtime</string>
+    <string name="settings_trigger_run_limit">Batas waktu tugas terjadwal</string>
+    <string name="settings_trigger_run_limit_sub">Tugas terjadwal berjalan saat Anda tidak memantau. Mati berarti tanpa batas; saat waktunya habis, tugas berhenti dan menjelaskan bahwa waktunya habis.</string>
+    <plurals name="settings_trigger_run_minutes_n">
+        <item quantity="other">%1$d menit</item>
+    </plurals>
+
+    <string name="settings_sandbox_budget">Batas waktu lingkungan komputasi per tugas</string>
+    <string name="settings_sandbox_budget_sub">Total waktu menjalankan perintah lingkungan dalam satu tugas (memasang dependensi, build, dan sejenisnya). Default 30 menit; perubahan berlaku mulai tugas berikutnya.</string>
+    <plurals name="settings_sandbox_budget_minutes_n">
+        <item quantity="other">%1$d menit</item>
+    </plurals>
+    <string name="settings_attachment_file_limit">Batas per berkas unggahan</string>
+    <string name="settings_attachment_file_limit_sub">Ukuran terbesar satu berkas dari lampiran obrolan dan impor berkas perangkat; gambar WeChat dan berkas dari komputer tetap dengan batas tetap. Bawaan 200 MB.</string>
+    <plurals name="settings_attachment_file_limit_mb_n">
+        <item quantity="other">%1$d MB</item>
+    </plurals>
+    <string name="settings_workspace_size_limit">Batas per ruang kerja</string>
+    <string name="settings_workspace_size_limit_sub">Ruang penyimpanan untuk lampiran obrolan dan impor berkas perangkat. Bawaan 4 GB.</string>
+    <plurals name="settings_workspace_size_limit_gb_n">
+        <item quantity="other">%1$d GB</item>
     </plurals>
 </resources>

@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import java.io.File
@@ -15,10 +16,10 @@ import java.io.IOException
 import java.util.UUID
 
 /** 首页上的一条推荐任务。点它只把 [prompt] 填进输入框,不自动发送。 */
-data class RecommendedTask(val id: String, val title: String, val prompt: String)
+data class RecommendedTask(val id: String, val title: String, val prompt: String, val fillIn: Boolean = false)
 
 /** 保存没通过时的原因。界面只在写入成功后改列表。 */
-enum class RecommendedTaskError { BlankTitle, BlankPrompt, TooLong, TooMany, SaveFailed, Unreadable }
+enum class RecommendedTaskError { BlankTitle, BlankPrompt, TooLong, TooMany, TooManyFields, SaveFailed, Unreadable }
 
 /**
  * 首页推荐任务。和内置示例是同一份列表:文件还不存在时用 [ensureLoaded] 传入的内容初始化一次,
@@ -36,8 +37,12 @@ class RecommendedTaskStore(private val file: File, private val ids: () -> String
     /** 已有文件读不出来。此时不能增删改,避免用空列表盖掉还没读到的内容。 */
     val unreadable: StateFlow<Boolean> = _unreadable.asStateFlow()
 
+    /**
+     * 第一次打开时载入列表:文件还没有时用 [seed] 初始化一次。已有列表时把用户没动过的、
+     * 已经下线不再内置的示例([retired])剔掉;改过标题或提示词的、自己加的一条不动。
+     */
     @Synchronized
-    fun ensureLoaded(seed: () -> List<Pair<String, String>>) {
+    fun ensureLoaded(retired: () -> List<Pair<String, String>> = { emptyList() }, seed: () -> List<Pair<String, String>>) {
         if (loaded || attempted) return
         attempted = true
         when (val read = read()) {
@@ -47,7 +52,10 @@ class RecommendedTaskStore(private val file: File, private val ids: () -> String
                 }
                 if (write(seeded)) publish(seeded)
             }
-            is Read.Ok -> publish(read.tasks)
+            is Read.Ok -> {
+                val gone = retired().toSet()
+                publish(if (gone.isEmpty()) read.tasks else read.tasks.filterNot { (it.title to it.prompt) in gone })
+            }
             Read.Corrupt, Read.Failed -> {
                 _tasks.value = emptyList()
                 _unreadable.value = true
@@ -57,24 +65,27 @@ class RecommendedTaskStore(private val file: File, private val ids: () -> String
     }
 
     @Synchronized
-    fun add(title: String, prompt: String): RecommendedTaskError? {
+    fun add(title: String, prompt: String, fillIn: Boolean = false): RecommendedTaskError? {
         guard()?.let { return it }
         val text = normalize(title, prompt)
         if (text is Normalized.Invalid) return text.error
         if (_tasks.value.size >= MAX_TASKS) return RecommendedTaskError.TooMany
         val ok = text as Normalized.Ok
-        return commit(_tasks.value + RecommendedTask(ids(), ok.title, ok.prompt))
+        if (fillIn && TaskTemplate.fields(ok.prompt).size > TaskTemplate.MAX_FIELDS) return RecommendedTaskError.TooManyFields
+        return commit(_tasks.value + RecommendedTask(ids(), ok.title, ok.prompt, fillIn))
     }
 
     @Synchronized
-    fun update(id: String, title: String, prompt: String): RecommendedTaskError? {
+    fun update(id: String, title: String, prompt: String, fillIn: Boolean? = null): RecommendedTaskError? {
         guard()?.let { return it }
         val text = normalize(title, prompt)
         if (text is Normalized.Invalid) return text.error
         val index = _tasks.value.indexOfFirst { it.id == id }
         if (index < 0) return null
         val ok = text as Normalized.Ok
-        return commit(_tasks.value.mapIndexed { i, task -> if (i == index) task.copy(title = ok.title, prompt = ok.prompt) else task })
+        val enabled = fillIn ?: _tasks.value[index].fillIn
+        if (enabled && TaskTemplate.fields(ok.prompt).size > TaskTemplate.MAX_FIELDS) return RecommendedTaskError.TooManyFields
+        return commit(_tasks.value.mapIndexed { i, task -> if (i == index) task.copy(title = ok.title, prompt = ok.prompt, fillIn = enabled) else task })
     }
 
     @Synchronized
@@ -130,7 +141,7 @@ class RecommendedTaskStore(private val file: File, private val ids: () -> String
                 val id = text(o, "id")?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
                 val title = text(o, "title")?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
                 val prompt = text(o, "prompt")?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-                RecommendedTask(id, title, prompt)
+                RecommendedTask(id, title, prompt, (o["fillIn"] as? JsonPrimitive)?.booleanOrNull == true)
             }.distinctBy { it.id }
             Read.Ok(tasks)
         } catch (_: SerializationException) {
@@ -149,6 +160,7 @@ class RecommendedTaskStore(private val file: File, private val ids: () -> String
                     put("id", task.id)
                     put("title", task.title)
                     put("prompt", task.prompt)
+                    if (task.fillIn) put("fillIn", true)
                 }
             }).toString()
             // 先写临时文件再改名,写到一半被杀不会留下半个文件。目标已存在时改名会失败,这时再覆盖写。
@@ -177,7 +189,7 @@ class RecommendedTaskStore(private val file: File, private val ids: () -> String
     }
 
     companion object {
-        const val FILE = "recommended-tasks.json"
+        const val FILE = "recommended-tasks-v2.json"
         const val TITLE_MAX = 500
         const val PROMPT_MAX = 8_000
         const val MAX_TASKS = 50

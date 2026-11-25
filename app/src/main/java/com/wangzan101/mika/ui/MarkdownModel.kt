@@ -7,6 +7,7 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
@@ -41,13 +42,17 @@ import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
 import org.commonmark.parser.Parser
 import com.wangzan101.mika.ui.theme.LightColors
+import java.net.URLDecoder
 import com.wangzan101.mika.ui.theme.MikaColors
 
 /** 回答里的 Markdown 解析成的显示模型:块级结构 + 带样式的行内文字。纯数据,不依赖界面。 */
 sealed interface MdBlock {
     data class Para(val text: AnnotatedString) : MdBlock
     data class Heading(val level: Int, val text: AnnotatedString) : MdBlock
-    data class Code(val info: String, val code: String) : MdBlock
+    data class Code(val info: String, val code: String) : MdBlock {
+        /** 顶栏显示的语言标签:CommonMark info 串首个空白分隔词(如 `kotlin {1}` 取 `kotlin`),无则为空。 */
+        val language: String get() = info.trim().takeWhile { !it.isWhitespace() }
+    }
     data class Quote(val blocks: List<MdBlock>) : MdBlock
     /** [start] 为 null 是无序列表;每个列表项是一组块。 */
     data class ListBlock(val start: Int?, val tight: Boolean, val items: List<List<MdBlock>>) : MdBlock
@@ -62,11 +67,17 @@ object MarkdownModel {
     private val LINK_SCHEMES = setOf("http", "https", "mailto", "tel")
 
     /** 行内代码和链接的样式;颜色跟着深浅色,由显示的地方按当前配色给。 */
-    class Styles(val code: SpanStyle, val link: TextLinkStyles) {
+    class Styles(
+        val code: SpanStyle, val link: TextLinkStyles, val strong: FontWeight = FontWeight.SemiBold,
+        /** 加粗字的颜色;不指定时跟正文同色。 */
+        val strongColor: Color = Color.Unspecified,
+    ) {
         companion object {
-            fun of(c: MikaColors) = Styles(
-                code = SpanStyle(fontFamily = FontFamily.Monospace, background = c.fill),
+            fun of(c: MikaColors, strong: FontWeight = FontWeight.SemiBold, strongColor: Color = Color.Unspecified, codeFill: Color = c.fill) = Styles(
+                code = SpanStyle(fontFamily = FontFamily.Monospace, background = codeFill),
                 link = TextLinkStyles(SpanStyle(color = c.accent)),
+                strong = strong,
+                strongColor = strongColor,
             )
 
             val Light = of(LightColors)
@@ -94,6 +105,35 @@ object MarkdownModel {
      * 列表每项一行,前面「• 」或「1. 」;引用每行前面「> 」;表格每行一行、格子之间用制表符;分隔线不要。
      */
     fun toPlainText(markdown: String): String = blocksText(parse(markdown)).trim()
+
+    /**
+     * 回复里 Markdown 图片 `![..]` 与链接 `[..]` 的地址中以 `/workspace` 开头者,按出现顺序去重返回。
+     * 地址里的百分号转义解出来(带空格、非 ASCII 的文件名按 CommonMark 要写成 `%20`、`%E6` 这样的形式);
+     * 解不了的非法序列原样保留,字面 `+` 也不是空格。
+     */
+    fun workspaceRefs(markdown: String): List<String> = try {
+        val out = LinkedHashSet<String>()
+        fun visit(n: Node) {
+            val dest = when (n) {
+                is Image -> n.destination
+                is Link -> n.destination
+                else -> null
+            }
+            if (dest != null && dest.startsWith("/workspace")) out.add(percentDecoded(dest))
+            var c = n.firstChild
+            while (c != null) { visit(c); c = c.next }
+        }
+        visit(parser.parse(markdown))
+        out.toList()
+    } catch (e: Exception) {
+        emptyList()
+    } catch (e: StackOverflowError) {
+        emptyList()
+    }
+
+    /** 链接地址是按 URI 规则写的:合法 `%HH` 按 UTF-8 解;非法转义不动,`+` 是文件名里的字面加号,不当空格。 */
+    private fun percentDecoded(dest: String): String =
+        runCatching { URLDecoder.decode(dest.replace("+", "%2B"), "UTF-8") }.getOrDefault(dest)
 
     private fun blocksText(blocks: List<MdBlock>, sep: String = "\n\n"): String = blocks.mapNotNull { b ->
         when (b) {
@@ -157,7 +197,7 @@ object MarkdownModel {
             is SoftLineBreak, is HardLineBreak -> append('\n')
             is Code -> withStyle(s.code) { append(n.literal) }
             is Emphasis -> withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { appendInlines(n, s) }
-            is StrongEmphasis -> withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { appendInlines(n, s) }
+            is StrongEmphasis -> withStyle(SpanStyle(fontWeight = s.strong, color = s.strongColor)) { appendInlines(n, s) }
             is Strikethrough -> withStyle(SpanStyle(textDecoration = TextDecoration.LineThrough)) { appendInlines(n, s) }
             is Link -> link(n.destination, s) { appendInlines(n, s) }
             // 聊天里不显示图片,只留替代文字(有可打开的地址就做成链接)

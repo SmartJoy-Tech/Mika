@@ -13,21 +13,24 @@ import com.wangzan101.mika.MikaApp
 import com.wangzan101.mika.cap.phone.PhoneServices
 import com.wangzan101.mika.cap.phone.a11y.AppCopyReader
 import com.wangzan101.mika.cap.phone.a11y.launchableApps
-import com.wangzan101.mika.cap.phone.shell.ShellService
-import com.wangzan101.mika.cap.phone.shell.adb.AndroidAdb
 import com.wangzan101.mika.cap.phone.setup.DeveloperSettings
 import com.wangzan101.mika.cap.phone.setup.PairingChannel
+import com.wangzan101.mika.cap.phone.shell.ShellService
+import com.wangzan101.mika.cap.phone.shell.adb.AndroidAdb
 import com.wangzan101.mika.cap.sandbox.SandboxState
 import com.wangzan101.mika.core.cap.sandbox.SandboxStatus
 import com.wangzan101.mika.core.model.ModelRole
-import com.wangzan101.mika.core.shell.PairingDiscovery
-import com.wangzan101.mika.core.shell.PermissionCommands
-import com.wangzan101.mika.core.shell.SetupInputs
-import com.wangzan101.mika.core.shell.SetupStep
+import com.wangzan101.mika.core.device.shell.PairingDiscovery
+import com.wangzan101.mika.core.device.shell.PermissionCommands
+import com.wangzan101.mika.core.device.shell.SetupInputs
+import com.wangzan101.mika.core.device.shell.SetupStep
 import com.wangzan101.mika.i18n.AppLanguage
 import com.wangzan101.mika.record.RunStore
 import com.wangzan101.mika.settings.AccessibilityState
 import com.wangzan101.mika.settings.SystemStatus
+import com.wangzan101.mika.settings.chatGptProvider
+import com.wangzan101.mika.settings.configFor
+import com.wangzan101.mika.settings.hasKey
 import com.wangzan101.mika.task.TaskService
 import com.wangzan101.mika.voice.SpeechChoice
 import com.wangzan101.mika.voice.SystemSpeech
@@ -181,8 +184,16 @@ object DiagnosticsCollector {
             silent = settings.systemSilent.value,
             remembered = settings.systemService,
             services = SystemSpeech.services(app).map { svc ->
-                svc.component + (if (svc.open) "" else " (not exported)") + (svc.permission?.let { " needs $it" } ?: "")
+                // 它所在的应用自己有没有录音权限:识别服务说没有权限时,缺的常常是这一个,不是 Mika 的
+                val mic = when (com.wangzan101.mika.voice.SpeechServiceMic.state(app, svc.component.substringBefore('/'))) {
+                    com.wangzan101.mika.voice.ServiceMic.Granted -> "granted"
+                    com.wangzan101.mika.voice.ServiceMic.Missing -> "NOT granted"
+                    com.wangzan101.mika.voice.ServiceMic.NotRequested -> "not requested"
+                    com.wangzan101.mika.voice.ServiceMic.Unknown -> "unknown"
+                }
+                svc.component + (if (svc.open) "" else " (not exported)") + (svc.permission?.let { " needs $it" } ?: "") + ", its own mic permission: $mic"
             },
+            defaultService = com.wangzan101.mika.voice.SpeechServiceMic.defaultService(app)?.flattenToShortString(),
         )
     }.getOrNull()
 

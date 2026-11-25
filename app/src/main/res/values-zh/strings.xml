@@ -69,8 +69,9 @@
     <string name="speech_doubao_plan">计费方式</string>
     <string name="speech_doubao_duration_note">按识别时长计费</string>
     <string name="speech_doubao_concurrent_note">按同时连接数计费</string>
-    <string name="speech_funasr_model">Fun-ASR（自建）</string>
-    <string name="speech_funasr_setup_hint">边说边出字，由你自己部署的 Fun-ASR 实时服务识别（Fun-ASR 项目里的 serve_realtime_ws.py），通常在局域网里。不需要账号和密钥。</string>
+    <string name="speech_funasr_model">千问（自建）</string>
+    <string name="speech_funasr_setup_hint">边说边出字，由你自己部署的实时识别服务识别，通常在局域网里。不需要账号和密钥。支持 Fun-ASR-Nano 和 Qwen3-ASR。</string>
+    <string name="speech_funasr_deploy_guide">部署说明</string>
     <string name="speech_funasr_server">服务</string>
     <string name="speech_funasr_address">地址</string>
     <string name="speech_funasr_enter_address">例如 192.168.1.10:10095</string>
@@ -92,7 +93,7 @@
     <string name="speech_live_auth">服务拒绝了这个 Key。检查 Key 是否正确、是否属于所选地域。</string>
     <string name="speech_live_refused">服务拒绝了请求（%1$s）。</string>
     <string name="speech_live_unreachable">连不上服务。检查地址，以及服务是否在运行。</string>
-    <string name="speech_funasr_service">Fun-ASR实时语音识别</string>
+    <string name="speech_funasr_service">千问实时语音识别</string>
     <string name="speech_funasr_choose_note">自建服务或阿里云百炼</string>
     <string name="speech_funasr_tab_local">自建</string>
     <string name="speech_bailian_tab">百炼·%1$s</string>
@@ -140,4 +141,25 @@
     <string name="personal_replay_pause">暂停</string>
     <string name="personal_replay_play">播放</string>
     <string name="personal_replay_return_live">回到实时</string>
+    <string name="drawer_projects">项目</string>
+    <string name="drawer_new_project">新建项目</string>
+    <string name="drawer_project_new_title">新建项目</string>
+    <string name="drawer_project_name_hint">项目名称</string>
+    <string name="drawer_project_rename_title">重命名项目</string>
+    <string name="drawer_project_new_chat">在项目里新对话</string>
+    <string name="drawer_project_empty">暂无对话</string>
+    <string name="drawer_project_delete_title">删除这个项目？</string>
+    <string name="drawer_project_delete_body">项目「%1$s」里的全部对话和共享工作区文件都会被删掉，没法找回。</string>
+    <string name="drawer_project_actions">项目操作</string>
+    <string name="chat_project_shared">项目</string>
+    <string name="desk_report_line">%1$s：%2$s</string>
+    <string name="desk_report_started">开始做了</string>
+    <string name="desk_report_needs_answer">在问你：%1$s</string>
+    <string name="desk_report_needs_confirm">要你在手机上确认一下</string>
+    <string name="desk_report_needs_takeover">要你在手机上接手一下</string>
+    <string name="desk_report_needs_prerequisite">要你先在手机上处理一下才能接着做</string>
+    <string name="desk_report_succeeded">办好了：%1$s</string>
+    <string name="desk_report_failed">没办成：%1$s</string>
+    <string name="desk_report_cancelled">已取消</string>
+    <string name="desk_task_not_started">任务没能开始，打开 Mika 再试一次</string>
 </resources>

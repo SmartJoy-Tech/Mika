@@ -20,9 +20,12 @@
     <string name="tool_find_element">Найти на экране</string>
     <string name="tool_collect">Собрать данные с нескольких экранов</string>
     <string name="tool_phone_run">Несколько действий на телефоне</string>
+    <string name="tool_list_device_files">Просмотр файлов устройства</string>
+    <string name="tool_copy_device_file">Копирование файла устройства</string>
     <string name="tool_process_files">Работа с файлами</string>
     <string name="tool_run_script">Запустить встроенный скрипт</string>
     <string name="tool_read_file">Прочитать файл</string>
+    <string name="tool_view_image">Просмотр изображения</string>
     <string name="tool_write_file">Записать файл</string>
     <string name="tool_search_files">Поиск по файлам</string>
     <string name="tool_export_file">Экспортировать файл</string>
@@ -77,4 +80,5 @@
     <string name="tool_mika_login_site">Войти на сайт</string>
     <string name="tool_mika_confirm_login">Подтвердить вход</string>
     <string name="tool_mika_favorites">Частые сайты</string>
+    <string name="tool_wechat_owner">Отправить в мой WeChat</string>
 </resources>

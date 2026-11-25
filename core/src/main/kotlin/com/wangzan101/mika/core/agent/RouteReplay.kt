@@ -1,19 +1,20 @@
 package com.wangzan101.mika.core.agent
 
-import com.wangzan101.mika.core.observation.Place
-import com.wangzan101.mika.core.observation.tag
+import com.wangzan101.mika.core.screen.observation.Place
+import com.wangzan101.mika.core.screen.observation.tag
 import com.wangzan101.mika.core.action.ActionExecutor
 import com.wangzan101.mika.core.model.Author
 import com.wangzan101.mika.core.model.Message
 import com.wangzan101.mika.core.model.Part
 import com.wangzan101.mika.core.model.Role
 import com.wangzan101.mika.core.prompt.Feedback
-import com.wangzan101.mika.core.record.RunEvent
-import com.wangzan101.mika.core.record.RunSink
-import com.wangzan101.mika.core.replay.ReplayOutcome
-import com.wangzan101.mika.core.replay.Replayer
-import com.wangzan101.mika.core.replay.Route
-import com.wangzan101.mika.core.replay.RouteMatcher
+import com.wangzan101.mika.core.run.record.RunEvent
+import com.wangzan101.mika.core.run.record.RunSink
+import com.wangzan101.mika.core.learn.replay.ReplayOutcome
+import com.wangzan101.mika.core.learn.replay.Replayer
+import com.wangzan101.mika.core.learn.replay.Route
+import com.wangzan101.mika.core.learn.replay.RouteMatcher
+import com.wangzan101.mika.core.screen.map.ScreenMapStore
 import com.wangzan101.mika.core.tool.ToolDispatcher
 import com.wangzan101.mika.core.tool.Verb
 import kotlinx.coroutines.CancellationException
@@ -38,6 +39,8 @@ internal class RouteReplay(
     private val show: (TaskState.Running) -> Unit,
     private val emit: (RunEvent) -> Unit,
     private val clock: () -> Long,
+    /** 屏图（有则回放时接图核对、交还时给「落在哪屏 + 从这走」）。 */
+    private val screenMaps: ScreenMapStore? = null,
 ) {
     /** 本次任务回放过的路线与结果。 */
     private var replayed: Pair<Route, ReplayOutcome>? = null
@@ -59,6 +62,7 @@ internal class RouteReplay(
             null
         } ?: return null
         val total = choice.route.steps.size
+        val graph = choice.route.packages.firstOrNull()?.let { pkg -> screenMaps?.load(pkg) }
         var running = TaskState.Running(0, REPLAY_NOTE, progress = RunProgress.Replay(1, total))
         show(running)
         val replayer = Replayer(
@@ -75,6 +79,7 @@ internal class RouteReplay(
                 override fun media(mediaId: Int, png: ByteArray) = Unit
             },
             clock = clock,
+            graph = graph,
         )
         val out = replayer.run(choice)
         replayed = choice.route to out
@@ -95,7 +100,8 @@ internal class RouteReplay(
                 val error = out.error?.let { Feedback.format("replay.error_code", "code" to it) }.orEmpty()
                 val next = if (out.executed) Feedback.format("replay.diverged_executed", "step" to (out.done + 1), "expected" to out.expected, "seen" to out.seen, "error" to error)
                 else Feedback.format("replay.diverged_skipped", "step" to (out.done + 1), "expected" to out.expected, "seen" to out.seen, "error" to error)
-                Feedback.format("replay.progress", "done" to out.done, "total" to steps.size, "steps" to doneLines.ifEmpty { Feedback["replay.no_steps"] }, "next" to next)
+                val map = out.screenMap?.let { Feedback.format("replay.screen_map", "map" to it) }.orEmpty()
+                Feedback.format("replay.progress", "done" to out.done, "total" to steps.size, "steps" to doneLines.ifEmpty { Feedback["replay.no_steps"] }, "next" to (next + map))
             }
             is ReplayOutcome.StoppedForConfirmation -> Feedback.format("replay.progress", "done" to out.done, "total" to steps.size, "steps" to doneLines.ifEmpty { Feedback["replay.no_steps"] },
                 "next" to Feedback.format("replay.stopped", "step" to (out.done + 1), "action" to Replayer.describe(steps[out.done], choice.slots)))

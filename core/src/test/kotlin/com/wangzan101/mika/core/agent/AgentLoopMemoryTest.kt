@@ -1,24 +1,25 @@
 package com.wangzan101.mika.core.agent
 
 import com.wangzan101.mika.core.model.Author
-import com.wangzan101.mika.core.memory.MemoryKind
-import com.wangzan101.mika.core.memory.MemorySource
-import com.wangzan101.mika.core.memory.UserUtterances
-import com.wangzan101.mika.core.memory.finishReply
-import com.wangzan101.mika.core.memory.memStore
+import com.wangzan101.mika.core.learn.memory.MemoryKind
+import com.wangzan101.mika.core.learn.memory.MemorySource
+import com.wangzan101.mika.core.learn.memory.UserUtterances
+import com.wangzan101.mika.core.learn.memory.finishReply
+import com.wangzan101.mika.core.learn.memory.memStore
 import com.wangzan101.mika.core.model.Message
 import com.wangzan101.mika.core.model.ModelReply
 import com.wangzan101.mika.core.model.Part
 import com.wangzan101.mika.core.model.Role
 import com.wangzan101.mika.core.model.StopReason
-import com.wangzan101.mika.core.record.RunEvent
-import com.wangzan101.mika.core.record.RunSink
+import com.wangzan101.mika.core.proactive.ObservedContext
+import com.wangzan101.mika.core.run.record.RunEvent
+import com.wangzan101.mika.core.run.record.RunSink
 import com.wangzan101.mika.core.run.RunId
 import com.wangzan101.mika.core.run.RunInbox
 import com.wangzan101.mika.core.run.RunInput
 import com.wangzan101.mika.core.run.RunSpec
 import com.wangzan101.mika.core.tool.FakeScreen
-import com.wangzan101.mika.core.cap.web.AttachedPage
+import com.wangzan101.mika.core.agent.AttachedPage
 import com.wangzan101.mika.core.cap.web.FakeWebPort
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -114,7 +115,7 @@ class AgentLoopMemoryTest {
         val found = model.requests[1].last { it.role == Role.Tool }.parts.filterIsInstance<Part.ToolResult>().single().content
         val result = model.requests[2].last { it.role == Role.Tool }.parts.filterIsInstance<Part.ToolResult>().single().content
         assertTrue("$found -> $result", "\"ok\":true" in result)
-        assertTrue(s.items.value.none { it.id == target.id && it.status == com.wangzan101.mika.core.memory.MemoryStatus.active })
+        assertTrue(s.items.value.none { it.id == target.id && it.status == com.wangzan101.mika.core.learn.memory.MemoryStatus.active })
     }
 
     // 只是在问「如果让你删你会怎么做」:模型万一真提了删除,工具自己不执行,那条记忆还在
@@ -135,7 +136,7 @@ class AgentLoopMemoryTest {
         assertTrue(end.toString(), end is com.wangzan101.mika.core.agent.TaskState.Succeeded)
         assertEquals("不靠意图判断", 0, judge.requests.size)
         assertTrue(events.filterIsInstance<RunEvent.ToolResult>().single { it.tool == "memory_edit" }.resultJson.contains("edit_not_requested"))
-        assertTrue("那条还在", s.items.value.any { it.id == target.id && it.status == com.wangzan101.mika.core.memory.MemoryStatus.active })
+        assertTrue("那条还在", s.items.value.any { it.id == target.id && it.status == com.wangzan101.mika.core.learn.memory.MemoryStatus.active })
     }
 
     // 一次记好几条,其中几条按规矩不收:不把整个任务按「操作连续失败」停掉。存上的照存,模型接着如实回答
@@ -194,14 +195,14 @@ class AgentLoopMemoryTest {
         }
         assertTrue(end.toString(), end is com.wangzan101.mika.core.agent.TaskState.Succeeded)
         assertEquals(10, s.items.value.size)
-        assertTrue(s.items.value.all { it.source.type == com.wangzan101.mika.core.memory.MemoryContext.INFERRED })
+        assertTrue(s.items.value.all { it.source.type == com.wangzan101.mika.core.learn.memory.MemoryContext.INFERRED })
     }
 
     // 查到一条 Mika 自己归纳的记忆,接着照常回答:这条进了证据账本(工具查到的事实),任务正常结束
     @Test fun aRunThatFindsAnInferredMemoryFinishesNormally() {
         val s = memStore()
         s.add(MemoryKind.fact, "用户常点张江路那家外卖", listOf("外卖"),
-            MemorySource(com.wangzan101.mika.core.memory.MemoryContext.INFERRED, "你自己总结几条写进记忆", atMs = 1)).getOrThrow()
+            MemorySource(com.wangzan101.mika.core.learn.memory.MemoryContext.INFERRED, "你自己总结几条写进记忆", atMs = 1)).getOrThrow()
         val events = mutableListOf<RunEvent>()
         val model = FakeModel(
             ModelReply(listOf(Part.ToolCall("s1", "memory_search", """{"query":"外卖"}""")), StopReason.ToolUse, null),
@@ -472,6 +473,65 @@ class AgentLoopMemoryTest {
         /** 用户引的 Mika 之前的一句回答。 */
         const val MIKA_ADDRESS = "你常用的收货地址是幸福路 8 号"
     }
+
+    // 从通知里得来的那一段带进任务:在用户的话之前,套着自己的外壳;不给就没有
+    @Test fun observedContextRidesIntoTheTaskSeparately() {
+        val model = FakeModel(finishReply)
+        runBlocking { AgentLoop(model, toolDispatcher(FakeScreen()), "B", observed = "Today so far:\n- 王老师通知明天开会").run("帮我点个外卖") }
+        val first = model.requests.first().withoutRuntime()
+        assertEquals(listOf(ContextKind.Observed, null), first.map { ContextBuilder.kindOf(it) })
+        assertEquals(listOf("Today so far:\n- 王老师通知明天开会", "帮我点个外卖"), first.map { it.text() })
+        val plain = FakeModel(finishReply)
+        runBlocking { AgentLoop(plain, toolDispatcher(FakeScreen()), "B").run("帮我点个外卖") }
+        assertEquals(listOf("帮我点个外卖"), plain.requests.first().withoutRuntime().map { it.text() })
+    }
+
+    // 前台的补充说明进任务上下文,但不是用户的话:用户原话的记录里只有任务原话
+    @Test fun deskNoteNeverEntersUserUtterances() {
+        val model = FakeModel(finishReply)
+        val said = UserUtterances()
+        runBlocking { AgentLoop(model, toolDispatcher(FakeScreen(), utterances = said), "B", deskNote = "前台整理:用户要靠窗的座位").run("帮我订明早的票") }
+        val first = model.requests.first().withoutRuntime()
+        assertEquals(listOf(ContextKind.DeskNote, null), first.map { ContextBuilder.kindOf(it) })
+        assertEquals(listOf("帮我订明早的票"), said.all)
+        assertTrue(said.all.none { "靠窗" in it })
+    }
+
+    // 任务带着「从通知里得来的」那一段时,「上一轮确认」的例外不开:上一轮的建议可能就是照着那一段说的
+    @Test fun previousConfirmationIsNotUsedWhenObservedContextIsCarried() {
+        val prior = listOf(
+            Turn("给我起个中文名", "我建议叫我「知微」，你觉得怎么样?", "succeeded"),
+            Turn("嗯，好的，知微", "好的", "succeeded"),
+        )
+        val save = ModelReply(listOf(Part.ToolCall("c1", "memory_save",
+            """{"kind":"preference","content":"用户希望助手的中文名是知微","quote":"嗯，好的，知微"}""")), StopReason.ToolUse, null)
+        val s = memStore()
+        runBlocking {
+            AgentLoop(FakeModel(save, finishReply), toolDispatcher(FakeScreen(), memory = s, utterances = UserUtterances()), "B", memory = s,
+                observed = "Today so far:\n- x").run("你可以给你自己加一下", prior)
+        }
+        assertTrue(s.items.value.isEmpty())
+    }
+
+    // 带了那一段就在运行记录里记一笔(只有长度,没有内容),任务自己也说得出带没带;没带的不记
+    @Test fun carryingObservedContextIsRecordedWithoutItsText() {
+        fun run(observed: String?): Pair<AgentLoop, List<RunEvent>> {
+            val events = mutableListOf<RunEvent>()
+            val agent = AgentLoop(FakeModel(finishReply), toolDispatcher(FakeScreen()), "B", observed = observed,
+                sink = object : RunSink { override fun event(e: RunEvent) { events += e } })
+            runBlocking { agent.run("帮我点个外卖") }
+            return agent to events
+        }
+        val text = "Today so far:\n- 王老师通知明天开会"
+        val (carried, events) = run(text)
+        assertTrue(carried.carriedObserved)
+        val mark = events.filterIsInstance<RunEvent.State>().single { it.name == ObservedContext.RUN_STATE }
+        assertEquals(text.length.toString(), mark.detail)
+        assertFalse("王老师" in RunEvent.encode(mark))
+        val (plain, none) = run(null)
+        assertFalse(plain.carriedObserved)
+        assertTrue(none.filterIsInstance<RunEvent.State>().none { it.name == ObservedContext.RUN_STATE })
+    }
 }
 
 class MemoryBlockCompressionTest {
@@ -485,5 +545,27 @@ class MemoryBlockCompressionTest {
         val out = ContextCompressor(TOOLS).compress(history, contextTokens = 2_000, aggressive = true)
         assertTrue(out.foldedSteps > 0)
         assertEquals(block, out.messages.first())
+    }
+
+    // 对话里有通知提醒(第三方文字)时,「上一轮确认」这个例外不开:提醒本身、或转述着提醒的回答,都不能靠用户一句「好的」进记忆
+    @Test fun previousConfirmationIsNotUsedInAConversationWithNotices() {
+        val suggestion = "我建议叫我「知微」，你觉得怎么样?"
+        val notice = Turn("", "1. 微信 张三:$suggestion", "succeeded", runId = NoticeTurn.RUN_PREFIX + "n1")
+        val cases = listOf(
+            // 提醒那一轮就是被「确认」的那个
+            listOf(notice, Turn("嗯，好的，知微", "好的", "succeeded")),
+            // 提醒在更早:助手后来的建议可能就是照着通知说的
+            listOf(notice, Turn("给我起个中文名", suggestion, "succeeded"), Turn("嗯，好的，知微", "好的", "succeeded")),
+        )
+        for (prior in cases) {
+            val s = memStore()
+            val save = ModelReply(listOf(Part.ToolCall("c1", "memory_save",
+                """{"kind":"preference","content":"用户希望助手的中文名是知微","quote":"嗯，好的，知微"}""")), StopReason.ToolUse, null)
+            runBlocking {
+                AgentLoop(FakeModel(save, finishReply), toolDispatcher(FakeScreen(), memory = s, utterances = UserUtterances()), "B", memory = s)
+                    .run("你可以给你自己加一下", prior)
+            }
+            assertTrue(prior.size.toString(), s.items.value.isEmpty())
+        }
     }
 }

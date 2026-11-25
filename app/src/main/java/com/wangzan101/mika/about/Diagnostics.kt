@@ -1,17 +1,17 @@
 package com.wangzan101.mika.about
 
-import com.wangzan101.mika.core.adb.ConnectCandidates
-import com.wangzan101.mika.core.record.Redactor
-import com.wangzan101.mika.core.shell.BuiltinShellStatus
-import com.wangzan101.mika.core.shell.PairingDiscovery
-import com.wangzan101.mika.core.shell.PhoneSetupFlow
-import com.wangzan101.mika.core.shell.A11yLossRecord
-import com.wangzan101.mika.core.shell.HelperRestart
-import com.wangzan101.mika.core.shell.HelperRestoreReport
-import com.wangzan101.mika.core.shell.RecoveryCapability
-import com.wangzan101.mika.core.shell.RecoveryConsent
-import com.wangzan101.mika.core.shell.SetupInputs
-import com.wangzan101.mika.core.shell.SetupStep
+import com.wangzan101.mika.core.device.adb.ConnectCandidates
+import com.wangzan101.mika.core.run.record.Redactor
+import com.wangzan101.mika.core.device.shell.BuiltinShellStatus
+import com.wangzan101.mika.core.device.shell.PairingDiscovery
+import com.wangzan101.mika.core.device.shell.PhoneSetupFlow
+import com.wangzan101.mika.core.device.shell.A11yLossRecord
+import com.wangzan101.mika.core.device.shell.HelperRestart
+import com.wangzan101.mika.core.device.shell.HelperRestoreReport
+import com.wangzan101.mika.core.device.shell.RecoveryCapability
+import com.wangzan101.mika.core.device.shell.RecoveryConsent
+import com.wangzan101.mika.core.device.shell.SetupInputs
+import com.wangzan101.mika.core.device.shell.SetupStep
 import com.wangzan101.mika.settings.AccessibilityState
 import com.wangzan101.mika.settings.ChatGptSignInFailureRecord
 import java.net.URI
@@ -108,7 +108,8 @@ data class DiagnosticsSnapshot(
 
     /**
      * [choice] 是用户的选择(auto、system、off,或服务商模型「模型 @ 地址」);[systemAvailable]、[onDevice] 是系统说的能力,
-     * [silent] 是记成了不响应;[remembered] 是点名试通过的识别服务;[services] 是手机上登记的识别服务,每个一行。
+     * [silent] 是记成了不响应;[remembered] 是点名试通过的识别服务;[services] 是手机上登记的识别服务,每个一行
+     * (带着它所在的应用有没有录音权限);[defaultService] 是系统设的默认识别服务(没设、读不出来为 null)。
      */
     data class Speech(
         val choice: String,
@@ -117,6 +118,7 @@ data class DiagnosticsSnapshot(
         val silent: Boolean,
         val remembered: String?,
         val services: List<String>,
+        val defaultService: String? = null,
     )
 }
 
@@ -177,6 +179,7 @@ object Diagnostics {
             line("speech to text", v.choice)
             line("built-in recognition", if (!v.systemAvailable) "none" else "present" + (if (v.onDevice) ", on-device" else "") + (if (v.silent) ", marked no response" else ""))
             v.remembered?.let { line("recognition service used", it) }
+            line("default recognition service", v.defaultService ?: "not set")
             line("recognition services", if (v.services.isEmpty()) "none" else "${v.services.size}")
             v.services.forEach { appendLine("- $it") }
         }
@@ -205,6 +208,7 @@ object Diagnostics {
         line("helper restart", when (i.restart) {
             HelperRestart.Wireless -> "wireless debugging (paired)"
             HelperRestart.UsbCommand -> "USB start command"
+            HelperRestart.Shizuku -> "Shizuku"
             HelperRestart.None -> "not set up"
         })
         line("setup", "phase=${view.phase}" + (view.current?.let { ", current=${step(it)}" } ?: ""))

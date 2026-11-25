@@ -3,16 +3,18 @@ package com.wangzan101.mika.cap.phone.a11y
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.GestureDescription
+import android.app.Notification
 import android.content.Intent
 import android.graphics.Bitmap
-import android.util.Log
 import android.graphics.Path
-import android.app.Notification
 import android.os.Build
+import android.util.Log
 import android.view.Display
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityWindowInfo
-import com.wangzan101.mika.core.uistate.ScreenEvent
+import com.wangzan101.mika.calls.onCallerLabelEvent
+import com.wangzan101.mika.core.screen.uistate.ScreenEvent
+import kotlin.coroutines.resume
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,7 +24,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 
 /** Mika 的无障碍服务:操作和事件转给当前已连接实例,任务持有旧实例时也能在重连后恢复。 */
 open class ScreenAccessibility : AccessibilityService() {
@@ -69,13 +70,20 @@ open class ScreenAccessibility : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         if (instance.value !== this) return
+        // 只数主屏上的用户交互,不留文字等内容;回锁义务据此判断用户有没有接着用手机
+        if (event.eventType in MAIN_INTERACTIONS && displayOf(event) == Display.DEFAULT_DISPLAY) mainInteractions.incrementAndGet()
         if (event.eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED) windowChanges.tryEmit(Unit)
         if (event.eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED || event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             windowGeneration.incrementAndGet()
         }
         val app = application as? com.wangzan101.mika.MikaApp
+        // Do not copy local consent fields or privately filled code events into teaching/observers.
+        if (app != null && (app.appAccess.sensitiveUi && event.packageName?.toString() == app.packageName ||
+                app.phone.smsLogin.isPrivate(event.packageName?.toString()) ||
+                app.phone.smsLogin.privateLoginActive && event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED)) return
         val access = app?.appAccess?.current()
         if (access != null && access.denial(event.packageName?.toString()) != null) return
+        app?.runningCalls?.onCallerLabelEvent(this, event)
         if (app != null && app.teachReady && app.teach.wantsEvents()) {
             val displayId = displayOf(event)
             if (displayId != Display.INVALID_DISPLAY) {
@@ -100,8 +108,15 @@ open class ScreenAccessibility : AccessibilityService() {
     override fun onInterrupt() = Unit
 
     /** 指定屏上的窗口;该屏没有窗口(或不存在)时为空列表。 */
-    fun windowsOn(displayId: Int): List<AccessibilityWindowInfo> =
-        instance.value?.windowsOnAllDisplays?.get(displayId).orEmpty()
+    fun windowsOn(displayId: Int): List<AccessibilityWindowInfo> {
+        val service = instance.value ?: return emptyList()
+        // getWindowsOnAllDisplays 是安卓 11 起才有的;更早的系统只有主屏那一份 getWindows。
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) return service.windowsOnAllDisplays[displayId].orEmpty()
+        if (displayId != Display.DEFAULT_DISPLAY) return emptyList()
+        @Suppress("DEPRECATION")
+        val main = service.windows
+        return main.orEmpty()
+    }
 
     /** 在指定屏上沿 [path] 做一次单指手势;完成返回 true,被取消或无法下发返回 false。 */
     suspend fun gesture(displayId: Int, path: Path, durationMs: Long): Boolean {
@@ -163,6 +178,11 @@ open class ScreenAccessibility : AccessibilityService() {
             cont.resume(MainShot.Failed(ERROR_TAKE_SCREENSHOT_NO_ACCESSIBILITY_ACCESS))
             return@suspendCancellableCoroutine
         }
+        // takeScreenshot 是安卓 11 起才有的;更早的系统当作截不到,不让胶囊的截屏路径崩掉。
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            cont.resume(MainShot.Failed(ERROR_TAKE_SCREENSHOT_INTERNAL_ERROR))
+            return@suspendCancellableCoroutine
+        }
         service.takeScreenshot(Display.DEFAULT_DISPLAY, service.mainExecutor, object : TakeScreenshotCallback {
             override fun onSuccess(result: ScreenshotResult) {
                 val shot = runCatching {
@@ -201,6 +221,12 @@ open class ScreenAccessibility : AccessibilityService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) return event.displayId
         val windowId = event.windowId
         if (windowId == -1) return Display.INVALID_DISPLAY
+        // 安卓 11 起才有「各屏的窗口」;更早的系统只有主屏一份,只在主屏里找。
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            @Suppress("DEPRECATION")
+            val main = windows
+            return if (main.any { it.id == windowId }) Display.DEFAULT_DISPLAY else Display.INVALID_DISPLAY
+        }
         val all = windowsOnAllDisplays
         for (i in 0 until all.size()) {
             if (all.valueAt(i).any { it.id == windowId }) return all.keyAt(i)
@@ -225,6 +251,17 @@ open class ScreenAccessibility : AccessibilityService() {
 
         /** 窗口每加上、拿掉、换页一次就加一(任何屏上的都算);只用来判断「窗口自上次以来变没变」,值本身没有含义。 */
         fun windowGeneration(): Long = windowGeneration.get()
+
+        /** 主屏上用户动过手的次数(点击、长按、滚动、改字、触摸开始);不留事件内容,只数次数。 */
+        private val mainInteractions = java.util.concurrent.atomic.AtomicLong()
+        private val MAIN_INTERACTIONS = setOf(
+            AccessibilityEvent.TYPE_VIEW_CLICKED, AccessibilityEvent.TYPE_VIEW_LONG_CLICKED,
+            AccessibilityEvent.TYPE_VIEW_SCROLLED, AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED,
+            AccessibilityEvent.TYPE_TOUCH_INTERACTION_START,
+        )
+
+        /** 主屏交互的当前计数;只用来判断「自上次以来用户动没动过主屏」,值本身没有含义。 */
+        fun mainInteractionCount(): Long = mainInteractions.get()
         private val notifications = MutableSharedFlow<ScreenEvent>(
             extraBufferCapacity = EVENT_BUFFER,
             onBufferOverflow = BufferOverflow.DROP_OLDEST,

@@ -3,8 +3,8 @@ package com.wangzan101.mika.task
 import com.wangzan101.mika.i18n.ChineseTexts
 import com.wangzan101.mika.chat.ConversationStore
 import com.wangzan101.mika.core.agent.Turn
-import com.wangzan101.mika.core.record.RunEvent
-import com.wangzan101.mika.core.record.RunRecords
+import com.wangzan101.mika.core.run.record.RunEvent
+import com.wangzan101.mika.core.run.record.RunRecords
 import com.wangzan101.mika.core.run.Channel
 import com.wangzan101.mika.core.run.ChannelInputSink
 import com.wangzan101.mika.core.run.ChannelPeer
@@ -153,6 +153,24 @@ class RunRecoveryTest {
 
         assertEquals(listOf("d1"), rig.channel.sent.map { it.id })
         assertEquals(RunPhase.Ended, rig.store.get(RunId("a"))?.phase)
+    }
+
+    @Test fun recoveredScheduledResultUsesTheScheduledLocalChannel() = runTest(UnconfinedTestDispatcher()) {
+        val rig = Rig(this)
+        val scheduled = RecordingChannel()
+        val recovery = RunRecovery(rig.store, rig.outbox, { rig.channel }, NoTriggers, rig.conversations, this,
+            scheduledLocalChannel = scheduled)
+        rig.store.save(run("scheduled", RunPhase.Finishing).copy(
+            reply = "scheduled result", deliveryId = "result:scheduled", triggerWindowKey = "plan:1",
+        ))
+        rig.store.save(run("manual", RunPhase.Finishing).copy(
+            reply = "manual result", deliveryId = "result:manual",
+        ))
+
+        recovery.recover()
+
+        assertEquals(listOf("result:scheduled"), scheduled.sent.map { it.id })
+        assertEquals(listOf("result:manual"), rig.channel.sent.map { it.id })
     }
 
     @Test fun interruptedChannelRunRecoversToItsOriginalPeer() = runTest(UnconfinedTestDispatcher()) {

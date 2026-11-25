@@ -1,34 +1,34 @@
 package com.wangzan101.mika.core.tool
 
-import com.wangzan101.mika.core.knowledge.Link
-import com.wangzan101.mika.core.observation.CORE_SOURCE
-import com.wangzan101.mika.core.observation.ObsKind
-import com.wangzan101.mika.core.observation.Observation
-import com.wangzan101.mika.core.knowledge.GuideCatalog
-import com.wangzan101.mika.core.memory.Change
-import com.wangzan101.mika.core.memory.UserUtterances
+import com.wangzan101.mika.core.learn.knowledge.Link
+import com.wangzan101.mika.core.screen.observation.CORE_SOURCE
+import com.wangzan101.mika.core.screen.observation.ObsKind
+import com.wangzan101.mika.core.screen.observation.Observation
+import com.wangzan101.mika.core.learn.knowledge.GuideCatalog
+import com.wangzan101.mika.core.learn.memory.Change
+import com.wangzan101.mika.core.learn.memory.UserUtterances
 import com.wangzan101.mika.core.model.Part
 import com.wangzan101.mika.core.model.ToolSpec
 import com.wangzan101.mika.core.prompt.Feedback
-import com.wangzan101.mika.core.risk.GateTarget
+import com.wangzan101.mika.core.safety.gate.GateTarget
 import com.wangzan101.mika.core.run.SKIPPED_FOR_NEW_MESSAGE
 import com.wangzan101.mika.core.run.waitOrSteer
-import com.wangzan101.mika.core.verify.Evidence
-import com.wangzan101.mika.core.vision.ImageOps
-import com.wangzan101.mika.core.vision.ModelImage
-import com.wangzan101.mika.core.vision.VisionService
+import com.wangzan101.mika.core.safety.verify.Evidence
+import com.wangzan101.mika.core.screen.vision.ImageOps
+import com.wangzan101.mika.core.screen.vision.ModelImage
+import com.wangzan101.mika.core.screen.vision.VisionService
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import com.wangzan101.mika.core.visual.Shots
+import com.wangzan101.mika.core.screen.visual.Shots
 import com.wangzan101.mika.core.capability.Capability
 import com.wangzan101.mika.core.capability.Paced
 import com.wangzan101.mika.core.capability.PromptEnv
 import com.wangzan101.mika.core.capability.PromptSections
-import com.wangzan101.mika.core.guard.OffScreenGuard
+import com.wangzan101.mika.core.safety.guard.OffScreenGuard
 
 /**
  * 工具调用的入口:解析参数,按名字在 [ToolRegistry] 里找到工具执行,再做所有工具共用的收尾
@@ -52,6 +52,8 @@ class ToolDispatcher internal constructor(
     retired: Map<String, String> = emptyMap(),
     /** 整个换了名字的旧名 → 现在的名字(见 [LegacyNames])。 */
     moved: Map<String, List<String>> = emptyMap(),
+    /** 外部选择可改变可用性的能力;只这些工具在目录和执行前重新检查。 */
+    dynamicCapabilities: Set<String> = emptySet(),
 ) {
     private val evidenceLog = EvidenceLog()
     private val shots = Shots()
@@ -75,7 +77,7 @@ class ToolDispatcher internal constructor(
         else -> null
     }
 
-    private val registry = ToolRegistry(ctx, tools, ::groupOf)
+    private val registry = ToolRegistry(ctx, tools, ::groupOf, dynamicCapabilities)
 
     /** 本任务已展开的能力组(按展开的先后)。 */
     private val opened = linkedSetOf<String>()
@@ -227,7 +229,30 @@ class ToolDispatcher internal constructor(
 
     private var executed = 0
 
+    /** 宿主可提供运行级人工控制；核心不依赖界面或设备输入实现。 */
+    var manualControl: com.wangzan101.mika.core.run.ManualControl? = null
+    private val manualObserver = com.wangzan101.mika.core.run.ManualControl.Observer()
+
     private suspend fun dispatch(call: Part.ToolCall, step: Int?, sub: SubActions?): ToolExecution {
+        return try { withScreenControl(call.name, successful = { it: ToolExecution -> it.content["ok"] != JsonPrimitive(false) }) {
+            dispatchAutomatic(call, step, sub)
+        } } catch (e: com.wangzan101.mika.core.run.ManualControl.Interrupted) {
+            fail(com.wangzan101.mika.core.run.ManualControl.CHANGED, e.message.orEmpty(), recoverable = true)
+        }
+    }
+
+    /** 只锁单个屏幕操作；组合脚本的子步各自经过此入口，非屏幕工具不占用触控权。 */
+    internal suspend fun <T> withScreenControl(name: String, successful: (T) -> Boolean, block: suspend () -> T): T {
+        val control = manualControl ?: return block()
+        if (offScreen(name) || composite(name)) return block()
+        val verb = verb(name)
+        val observation = verb in setOf(Verb.Observe, Verb.ListElements, Verb.Screenshot, Verb.ReadPage)
+        // 后台网页正文不能证明已看过当前画面；每个分发器分别记录自己的观察代次。
+        return control.automatic(observation, refresh = observation && verb != Verb.ReadPage,
+            refreshed = successful, observer = manualObserver, block = block)
+    }
+
+    private suspend fun dispatchAutomatic(call: Part.ToolCall, step: Int?, sub: SubActions?): ToolExecution {
         surfaces.skip()
         val tool = registry[call.name] ?: return unknown(call.name, parseArgs(call.argsJson))
         // 收着的组里的工具(入口,或模型凭记忆调了没给它看的)照常执行;它那一组就此展开,结果里说一句,下一次调用起看得到整组
@@ -280,13 +305,17 @@ class ToolDispatcher internal constructor(
         val outerIdle = ctx.idleScrolls
         ctx.pacedWaitMs = 0
         ctx.idleScrolls = 0
+        var mcpConnector: String? = null
         // 界面上的准备(路线要的目标、改变界面的动作前先看一眼)与收尾都在界面一侧
         val result = surfaces.around(tool, args.o, inlineScreen) { reportsEffect ->
+            // 嵌套调用(页面脚本里的动作):里层走过的连接器归里层这次调用,外层恢复自己那份
+            val outerMcpConnector = ctx.mcpConnector
+            ctx.mcpConnector = null
             ctx.reportsEffect = reportsEffect
             try {
                 if (!tool.yieldsToSteer) tool.execute(args, ctx)
                 else waitOrSteer { tool.execute(args, ctx) } ?: failCode(SKIPPED_FOR_NEW_MESSAGE)
-            } catch (e: com.wangzan101.mika.core.access.AppAccessDenied) {
+            } catch (e: com.wangzan101.mika.core.device.access.AppAccessDenied) {
                 throw e
             } catch (e: ArgError) {
                 invalid(e)
@@ -296,6 +325,8 @@ class ToolDispatcher internal constructor(
                 fail("operation_failed", Feedback.format("operation_failed", "tool" to tool.name, "error" to (e.message ?: e::class.simpleName)))
             } finally {
                 ctx.reportsEffect = false
+                mcpConnector = ctx.mcpConnector
+                ctx.mcpConnector = outerMcpConnector
             }
         }
         val waited = ctx.pacedWaitMs
@@ -308,8 +339,12 @@ class ToolDispatcher internal constructor(
         val seen = remember(result.observations + tool.observations(args.o, result, evidenceLog), tool.capability)
         // 打进输入框的字(端口明确说不是密码框):之后读屏里的输入框回显不给回答作证
         if (tool.verb == Verb.TypeText && ok && result.content["secret"] == JsonPrimitive(false)) args.o.argStr("text")?.let(evidenceLog::noteTyped)
-        // 停留里轻轻滚过页面:只记进运行记录,不给模型
-        val record = if (idled > 0) JsonObject(result.record + ("idleScrolls" to JsonPrimitive(idled))) else result.record
+        // 停留里轻轻滚过页面:只记进运行记录,不给模型;走过的 MCP 连接器也一样只进记录
+        val record = if (idled == 0 && mcpConnector == null) result.record else JsonObject(buildMap {
+            putAll(result.record)
+            if (idled > 0) put("idleScrolls", JsonPrimitive(idled))
+            mcpConnector?.let { put("mcpConnector", JsonPrimitive(it)) }
+        })
         return result.with(observations = seen, place = placeAfter(tool.verb, result.content), waitMs = waited, record = record)
     }
 
@@ -319,6 +354,11 @@ class ToolDispatcher internal constructor(
 
     /** 每条记进证据账本的观察(运行记录据此原样记下,评测能照样重建账本);由循环设置。 */
     var observer: ((Observation) -> Unit)? = null
+
+    /** MCP 调用开始/结束的通知(循环把任务状态标成正在调用哪个连接器)。 */
+    fun observeMcpCalls(onStarted: (String) -> (() -> Unit)) {
+        ctx.onMcpCallStarted = onStarted
+    }
 
     /** 不认识的工具;是改名前的名字时说清现在叫什么(不替模型换成新名执行)。 */
     private fun unknown(name: String, args: JsonObject) = ToolExecution(buildJsonObject {
@@ -347,11 +387,11 @@ class ToolDispatcher internal constructor(
 
     /** ask_user 拿到的用户回答;核查器按用户给的事实对照。 */
     /** 用户发来的一屏(屏上的字)也是依据:回答里说的屏上内容从这里来。 */
-    fun noteUserScreen(screen: com.wangzan101.mika.core.userscreen.UserScreen) {
+    fun noteUserScreen(screen: com.wangzan101.mika.core.screen.user.UserScreen) {
         if (screen.blocked || screen.lines.isEmpty()) return
         evidenceLog.observe(Observation(ObsKind.Read, screen.lines.joinToString("\n") { it.text }, source = CORE_SOURCE,
-            place = screen.packageName?.let(com.wangzan101.mika.core.observation.Place::app),
-            trust = com.wangzan101.mika.core.observation.Trust.Untrusted))
+            place = screen.packageName?.let(com.wangzan101.mika.core.screen.observation.Place::app),
+            trust = com.wangzan101.mika.core.screen.observation.Trust.Untrusted))
     }
 
     fun noteUserAnswer(prompt: String, answer: String) {
@@ -399,8 +439,10 @@ class ToolDispatcher internal constructor(
     }
 
     /** 此刻这块屏上要做一个改动屏幕的动作了:按这块屏的能力的节奏先停一会儿([Capability.beforeWrite])。 */
-    internal suspend fun beforeWrite(tool: String, outward: Boolean): Paced =
-        capabilities.firstOrNull { it.id == surface }?.beforeWrite(ctx, verb(tool), outward) ?: Paced.NONE
+    internal suspend fun beforeWrite(tool: String, outward: Boolean): Paced {
+        suspend fun prepare() = capabilities.firstOrNull { it.id == surface }?.beforeWrite(ctx, verb(tool), outward) ?: Paced.NONE
+        return manualControl?.automatic(observer = manualObserver) { prepare() } ?: prepare()
+    }
 
     /** 那个动作做完了:交给这块屏的能力([Capability.afterWrite])。 */
     internal fun afterWrite(tool: String, result: JsonObject) {

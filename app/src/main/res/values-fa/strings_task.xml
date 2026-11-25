@@ -6,7 +6,7 @@
     <string name="parallel_second_display_failed">ساخت صفحهٔ مجازی دوم ممکن نشد، بنابراین فعلاً هر بار فقط یک کار اجرا می‌شود</string>
     <string name="parallel_needs_14">اجرای هم‌زمان چند کار به اندروید ۱۴ یا جدیدتر نیاز دارد</string>
     <string name="parallel_low_ram">حافظهٔ این گوشی کم است، بنابراین هر بار یک کار اجرا می‌شود</string>
-    <string name="skill_suspended">این مهارت اخیراً درست کار نکرده است، بنابراین موقتاً متوقف شده است</string>
+    <string name="skill_suspended">این مهارت اخیراً درست کار نکرده است، بنابراین موقتاً متوقف شده است: %1$s</string>
     <string name="skill_verified">مهارت موفق بود و اکنون به‌طور معمول استفاده می‌شود: %1$s</string>
     <string name="skill_learned">میکا مهارتی یاد گرفت: %1$s</string>
     <string name="skill_app_draft">میکا چند نکته دربارهٔ %1$s یادداشت کرد تا بررسی کنید</string>
@@ -57,6 +57,15 @@
     <string name="task_too_old">کنترل برنامه‌های گوشی به اندروید ۱۲ یا جدیدتر نیاز دارد. گفتگو، وب و کارهای محیط اجرا همچنان در دسترس‌اند.</string>
     <string name="task_shell_died">اتصال برنامهٔ کمکی کنترل گوشی قطع شد و صفحهٔ مجازی بسته شد. پس از اتصال دوباره تلاش کنید.</string>
     <string name="task_running">در حال اجرا</string>
+    <string name="chip_thinking">در حال فکر</string>
+    <string name="chip_read_screen">خواندن صفحه</string>
+    <string name="chip_use_phone">کار با گوشی</string>
+    <string name="chip_browse">مرور وب</string>
+    <string name="chip_take_over">نوبت شماست</string>
+    <string name="chip_route_step">گام %1$d/%2$d</string>
+    <string name="chip_count">%1$d/%2$d</string>
+    <string name="chip_done">انجام شد: %1$d</string>
+    <string name="chip_wait_app">در انتظار برنامه</string>
     <string name="channel_task_accepted">متوجه شدم؛ کار شما ثبت شد.</string>
     <string name="task_step_note">مرحلهٔ %1$d: %2$s</string>
     <string name="task_wait_unlock">در انتظار باز شدن قفل</string>
@@ -81,4 +90,8 @@
     <string name="screens_waiting">در انتظار</string>
     <string name="screens_needs_you">به توجه شما نیاز دارد</string>
     <string name="screens_zoom">بزرگ کردن این صفحه</string>
+    <string name="task_trigger_time_limit">کار زمان‌بندی‌شده بیش از %1$d دقیقه طول کشید و متوقف شد.</string>
+    <string name="trigger_failed_streak">کار زمان‌بندی‌شده %1$d بار پشت سر هم ناموفق بود</string>
+    <string name="trigger_failed_streak_hint">می‌توانید این برنامه را در صفحهٔ کارهای زمان‌بندی‌شده متوقف یا تغییر دهید.</string>
+    <string name="task_no_phone_helper_shizuku">کنترل گوشی آماده نیست. Shizuku را شروع کنید و به Mika مجوز بدهید (یا کنترل گوشی را در تنظیمات بررسی کنید). وظایف وب و فایل تحت تأثیر قرار نمی‌گیرند.</string>
 </resources>

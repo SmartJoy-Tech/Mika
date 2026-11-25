@@ -1,16 +1,17 @@
 package com.wangzan101.mika.teach
 
-import com.wangzan101.mika.core.knowledge.GuideCatalog
-import com.wangzan101.mika.core.knowledge.GuideView
-import com.wangzan101.mika.core.skills.SkillStatus
-import com.wangzan101.mika.core.teach.TeachDraft
-import com.wangzan101.mika.core.teach.TeachEventKind
-import com.wangzan101.mika.core.teach.TeachObservation
-import com.wangzan101.mika.core.teach.TeachPhase
-import com.wangzan101.mika.core.teach.TeachPublish
-import com.wangzan101.mika.core.teach.TeachSession
-import com.wangzan101.mika.core.teach.TeachSkill
-import com.wangzan101.mika.core.teach.TeachTrace
+import com.wangzan101.mika.core.learn.knowledge.GuideCatalog
+import com.wangzan101.mika.core.learn.knowledge.GuideView
+import com.wangzan101.mika.core.learn.skills.SkillStatus
+import com.wangzan101.mika.core.learn.teach.TeachDraft
+import com.wangzan101.mika.core.learn.teach.TeachEventKind
+import com.wangzan101.mika.core.learn.teach.TeachObservation
+import com.wangzan101.mika.core.learn.teach.TeachPhase
+import com.wangzan101.mika.core.learn.teach.TeachPublish
+import com.wangzan101.mika.core.learn.teach.TeachRoute
+import com.wangzan101.mika.core.learn.teach.TeachSession
+import com.wangzan101.mika.core.learn.teach.TeachSkill
+import com.wangzan101.mika.core.learn.teach.TeachTrace
 import com.wangzan101.mika.i18n.ResFileTexts
 import com.wangzan101.mika.skills.PersonalSkillFiles
 import kotlinx.coroutines.runBlocking
@@ -49,9 +50,9 @@ class TeachFilesTest {
         assertTrue(raw.contains("筛选"))
 
         val skills = PersonalSkillFiles(File(tmp.root, "skills-root"))
-        val skill = TeachDraft.draft(session, null, emptySet(), null, emptySet(), { false }, 5L)
-        assertNotNull(skill)
-        skill!!
+        val drafted = TeachDraft.draft(session, TeachRoute.fold(session.steps, emptySet(), emptySet()) { it }, null, emptySet(), null, emptySet(), { false }, 5L)
+        assertNotNull(drafted)
+        val skill = drafted!!.skill
         assertEquals(SkillStatus.pending, skill.status)
         TeachPublish.toPending(skills, "draftc", skill)
         val hidden = GuideCatalog.withPersonal(GuideCatalog.loadBundled(), skills)

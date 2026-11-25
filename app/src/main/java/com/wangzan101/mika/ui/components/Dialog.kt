@@ -26,6 +26,8 @@ import com.wangzan101.mika.R
 import com.wangzan101.mika.ui.MarkdownText
 import com.wangzan101.mika.ui.theme.MikaTheme
 import com.wangzan101.mika.ui.theme.MikaType
+import com.wangzan101.mika.ui.theme.MikaRadius
+import com.wangzan101.mika.ui.theme.MikaShapes
 
 /**
  * App 内统一弹窗：保留调用方的内容、动作和测试标识，只统一容器、正文层级与操作区。
@@ -49,7 +51,7 @@ fun MikaDialog(
             {
                 CompositionLocalProvider(
                     LocalContentColor provides c.ink,
-                    LocalTextStyle provides MikaType.Title.copy(fontSize = 20.sp, lineHeight = 26.sp),
+                    LocalTextStyle provides MikaType.Title,
                 ) { content() }
             }
         },
@@ -57,19 +59,20 @@ fun MikaDialog(
             {
                 CompositionLocalProvider(
                     LocalContentColor provides c.ink2,
-                    LocalTextStyle provides MikaType.Body.copy(fontSize = 14.5.sp, lineHeight = 23.sp),
+                    LocalTextStyle provides MikaType.Body,
                 ) { content() }
             }
         },
         confirmButton = {
+            // 操作区不用强调色:两个按钮同一浅灰底,确认用正文色加粗,取消用次要色;调用方自己给的颜色(如删除的红)照旧
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (dismissButton != null) {
-                    DialogAction(Modifier.weight(1f), c.fill) { dismissButton() }
+                    DialogAction(Modifier.weight(1f), c.fill, c.ink2, androidx.compose.ui.text.font.FontWeight.Normal) { dismissButton() }
                 }
-                DialogAction(Modifier.weight(1f), c.accentSoft) { confirmButton() }
+                DialogAction(Modifier.weight(1f), c.fill, c.ink, androidx.compose.ui.text.font.FontWeight.SemiBold) { confirmButton() }
             }
         },
-        shape = RoundedCornerShape(26.dp),
+        shape = MikaShapes.Sheet,
         containerColor = c.surface,
         titleContentColor = c.ink,
         textContentColor = c.ink2,
@@ -79,12 +82,23 @@ fun MikaDialog(
 }
 
 @Composable
-private fun DialogAction(modifier: Modifier, background: Color, content: @Composable () -> Unit) {
-    val shape = RoundedCornerShape(14.dp)
+private fun DialogAction(
+    modifier: Modifier, background: Color, ink: Color,
+    weight: androidx.compose.ui.text.font.FontWeight, content: @Composable () -> Unit,
+) {
+    val shape = MikaShapes.Button
+    val scheme = androidx.compose.material3.MaterialTheme.colorScheme
+    // 整块都是按钮:把块的大小当最小尺寸交给里面的按钮,让它撑满,点块上任何地方都算
     Box(
         modifier.heightIn(min = 44.dp).background(background, shape).clip(shape),
         contentAlignment = Alignment.Center,
-    ) { content() }
+        propagateMinConstraints = true,
+    ) {
+        // TextButton 取 primary 做文字色;这里换成中性色
+        androidx.compose.material3.MaterialTheme(colorScheme = scheme.copy(primary = ink)) {
+            CompositionLocalProvider(LocalTextStyle provides MikaType.Body.copy(fontWeight = weight)) { content() }
+        }
+    }
 }
 
 /** 通知型弹窗的正文和回答使用同一套 Markdown 排版，不把原始标记直接交给用户。 */

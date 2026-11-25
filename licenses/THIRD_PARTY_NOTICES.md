@@ -14,6 +14,14 @@
   - `app/src/test/java/com/wangzan101/mika/ui/CallDeviceReadinessTest.kt`
   - `core/src/test/kotlin/com/wangzan101/mika/core/mcp/McpCallToolsTest.kt`
 - Modifications: 默认问候语等产品文案按 Mika 调整为「Mika AI 电话助手」,相关测试断言随之同步。
+- Additional port: FlashPhone v1.1.6–v1.1.12 (through `8bcd8d89a20141f47d4d24c61debc42dabaa2676`):
+  foreground voice briefing (`calls/briefing/`, `ui/CallVoiceBriefingHost.kt`), call-bound DTMF
+  (`CallDtmfExecutor`, `ui/CallDtmfKeypad.kt`), protocol/ASR fixes and their unit/UI tests.
+  Adapted to Mika voice profiles, provider interface, existing task form, theme and translations;
+  FlashPhone standalone navigation, recording and remote-device services are not included.
+- Follow-up port: FlashPhone v1.1.13 (`554e69207de151329f71821f915cde997f8e69fc`),
+  per-carrier-call task binding and compact latest-transcript context; adapted to Mika's
+  existing call card and transcript role labels, with ownership/lifetime regressions.
 - Service: 实时语音经火山引擎（Volcengine）的 WebSocket 接口,凭证由用户在通话设置页填写。
 
 ## scrcpy
@@ -149,6 +157,7 @@ The Apache Software Foundation (https://www.apache.org/).
     `compose.material:material-icons-core`、`material-ripple`(以上各含 `-android` 变体)
   - `compose.material3:material3:1.3.1`
   - `activity:activity`、`activity-ktx`、`activity-compose`:1.9.3
+  - `window:window`、`window-core`:1.3.0(折叠姿态与铰链信息)
   - `lifecycle:*`(common、common-java8、livedata-core、process、runtime、runtime-compose、runtime-ktx、viewmodel、
     viewmodel-ktx、viewmodel-savedstate):2.8.3
   - `core:core`、`core-ktx`:1.13.1;`annotation:annotation`:1.8.1;`annotation-experimental`:1.4.1;
@@ -290,4 +299,46 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+```
+
+## Shizuku API
+
+- Project: https://github.com/RikkaApps/Shizuku-API
+- Artifacts: `dev.rikka.shizuku:api:13.1.5`, `dev.rikka.shizuku:provider:13.1.5`
+- License: Apache-2.0
+- Usage: Library dependency used to optionally bind a local privileged user service when Shizuku is already installed, running, and authorized by the user.
+## MCP 服务品牌 logo（mcp/mcp-logos.json）
+
+- Source: https://www.npmjs.com/package/simple-icons（Simple Icons, 钉死版本 16.38.1 + 14.11.0 + 11.15.0）
+- License: CC0 1.0（图标字形本体）;各品牌标志（GitHub、Slack、OpenAI、Google、Notion 等）仍归各自品牌所有,仅在此用于「可连接的服务」标识。
+- Usage: `app/src/main/assets/mcp/mcp-logos.json` 里的品牌轮廓 path 与官方品牌色,由 `tools/mcp/build_logos.py` 生成,供 `McpLogos` 在服务目录/列表/管理页渲染为自着色矢量图标。
+
+## MCP 服务品牌 logo 补充集（mcp/mcp-logos.json）
+
+- Source: https://www.npmjs.com/package/@lobehub/icons-static-svg（Lobe Icons, 钉死版本 1.106.0）,只补上一节图标集没有的 AI/搜索服务（Cohere、Groq、xAI、Tencent Cloud 等）
+- License: MIT;各品牌标志仍归各自品牌所有,仅在此用于「可连接的服务」标识。
+- Usage: 同上,由 `tools/mcp/build_logos.py` 取单色 path 写进 `app/src/main/assets/mcp/mcp-logos.json`。
+
+```text
+MIT License
+
+Copyright (c) 2023 LobeHub
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```

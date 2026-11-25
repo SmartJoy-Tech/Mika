@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_dtmf_status_label">Estado de llamada</string>
+    <string name="calls_dtmf_open">Teclado</string>
+    <string name="calls_dtmf_title">Teclado de llamada</string>
+    <string name="calls_dtmf_close">Cerrar</string>
+    <string name="calls_dtmf_batch">Introducir una secuencia</string>
+    <string name="calls_dtmf_hint">Cada tecla se envía de inmediato. Sigue las indicaciones de voz.</string>
+    <string name="calls_dtmf_batch_hint">Introduce hasta 32 teclas y pulsa Enviar.</string>
+    <string name="calls_dtmf_input">0–9, * o #</string>
+    <string name="calls_dtmf_delete">Borrar</string>
+    <string name="calls_dtmf_send">Enviar</string>
+    <string name="calls_dtmf_sending">Enviando…</string>
+    <string name="calls_dtmf_sent">Teclas enviadas; espera la respuesta</string>
+    <string name="calls_dtmf_failed">No se pudo completar el envío. Espera la respuesta.</string>
+    <string name="calls_dtmf_invalid">Usa solo 0–9, * y #, hasta 32 teclas.</string>
+    <string name="calls_voice_briefing_start">Describir tarea por voz</string>
+    <string name="calls_voice_briefing_note">Habla en mandarín. Para autorizar la llamada, di solo «%1$s» al terminar.</string>
+    <string name="calls_voice_briefing_stopped">Descripción detenida; no se llamó</string>
+    <string name="calls_voice_briefing_authorized">Tarea autorizada; iniciando llamada</string>
+    <string name="calls_voice_briefing_permission_granted">Micrófono permitido. Vuelve a tocar el botón de voz.</string>
+    <string name="calls_voice_briefing_permission_denied">Sin permiso de micrófono. Puedes usar el formulario de texto.</string>
+    <string name="calls_voice_briefing_incomplete">Completa o borra las instrucciones existentes antes de empezar.</string>
+    <string name="calls_voice_briefing_configure">Configura primero la voz en tiempo real en Ajustes.</string>
+    <string name="calls_owner_ask_title">La otra persona espera tu respuesta</string>
+    <string name="calls_owner_ask_reply">Responder</string>
+    <string name="calls_owner_ask_hint">Tu respuesta</string>
+    <string name="calls_transcript_owner_unrelayed">Respuesta del dueño (no transmitida)</string>
+    <string name="calls_owner_ask_channel">Preguntas de llamadas</string>
+    <string name="calls_owner_ask_line">La otra persona de la llamada pregunta: %1$s\nResponde aquí y se lo transmito.</string>
+    <string name="calls_owner_ask_notify_off">Las notificaciones de preguntas de llamadas están desactivadas y podrías no verlas. Actívalas en Ajustes del sistema → Notificaciones.</string>
+    <string name="calls_owner_ask_answered">Transmitido a la llamada.</string>
+    <string name="calls_owner_ask_withdrawn">La llamada terminó, así que esta pregunta se retiró. No hace falta responder.</string>
+</resources>

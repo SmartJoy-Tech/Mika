@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="chat_confirmed_goals">Подтверждено целей: %1$d/%2$d</string>
+    <string name="chat_last_confirmed_goals">Последнее подтверждение: %1$d/%2$d</string>
     <string name="chat_greeting_morning">Доброе утро</string>
     <string name="chat_greeting_noon">Добрый день</string>
     <string name="chat_greeting_afternoon">Добрый день</string>
@@ -13,7 +15,7 @@
     <string name="chat_example_replace_title">Заменить текущий черновик?</string>
     <string name="chat_example_replace_body">Рекомендуемая задача заменит уже введённый текст.</string>
     <string name="chat_example_replace_action">Заменить черновик</string>
-    <string name="recommendations_title">Рекомендуемые задачи</string>
+    <string name="recommendations_title">Сохранённые задачи</string>
     <string name="recommendations_drag">Перетащите для изменения порядка</string>
     <string name="recommendations_drag_hint">Перетащите значок, чтобы изменить порядок отображения.</string>
     <string name="recommendations_move_up">Переместить вверх</string>
@@ -81,6 +83,7 @@
     <string name="chat_attach_rejected">Не удалось добавить: %1$s (каждый файл должен быть меньше 200 МБ)</string>
     <string name="chat_stop">Остановить</string>
     <string name="chat_send">Отправить</string>
+    <string name="chat_scroll_to_bottom">Перейти вниз</string>
     <string name="drawer_running_task">Идёт задача</string>
     <string name="drawer_running">Выполняется</string>
     <string name="drawer_yesterday">Вчера</string>
@@ -249,6 +252,9 @@
     <string name="zoom_in">Увеличить</string>
     <string name="chat_message_actions">Действия с сообщением</string>
     <string name="chat_copy">Копировать</string>
+    <string name="share_card_question">Вопрос</string>
+    <string name="share_card_answer">Ответ</string>
+    <string name="share_card_made_by">Выполнено Mika</string>
     <string name="chat_quote">Цитировать</string>
     <string name="chat_select_text">Выделить текст</string>
     <string name="chat_copied">Скопировано</string>
@@ -261,7 +267,7 @@
     <string name="chat_branch_retry">Спросить заново отсюда</string>
     <string name="chat_branch_attachments_readd">Добавьте нужные вложения заново</string>
     <string name="chat_attach_unavailable">Не удалось добавить: %1$s. Убедитесь, что файлы доступны и не превышают ограничение размера.</string>
-    <string name="chat_attach_too_large">%1$s: размер превышает ограничение в 200 MiB</string>
+    <string name="chat_attach_too_large">%1$s: размер превышает ограничение в %2$s</string>
     <string name="chat_attach_low_device_space">%1$s: недостаточно места на телефоне; освободите место и повторите попытку</string>
     <string name="chat_attach_workspace_limit">%1$s: достигнут предел хранилища рабочего пространства; удалите файлы из рабочего пространства и повторите попытку</string>
     <string name="chat_attach_io_error">%1$s: не удалось прочитать или скопировать файл; убедитесь, что он доступен, и повторите попытку</string>
@@ -283,6 +289,9 @@
     <string name="pip_closed_hint">Закрыто для этой задачи. Нажмите «Показать экран» справа внизу или откройте «Фоновые экраны» в боковом меню.</string>
     <string name="chat_conversation_tokens">Этот чат: %1$s</string>
     <string name="chat_conversation_tokens_partial">Этот чат: не меньше %1$s</string>
+    <string name="chat_task_cost_estimate">Около %1$s</string>
+    <string name="chat_task_cost_partial">%1$s (частично)</string>
+    <string name="chat_task_cost_unavailable">Не удалось оценить стоимость</string>
     <string name="follow_up_steer">Направить</string>
     <string name="follow_up_queue">В очередь</string>
     <string name="follow_up_steer_hint">Следующий шаг учтёт это в текущей задаче</string>
@@ -310,4 +319,58 @@
         <item quantity="many">%1$d не архивировано</item>
         <item quantity="other">%1$d не архивированы</item>
     </plurals>
+    <string name="chat_example_github_star_title">Поставьте звезду проекту GitHub</string>
+    <string name="chat_example_follow_title">Подпишитесь на автора</string>
+    <string name="chat_example_group_summary_title">Суммируйте групповой чат</string>
+    <string name="chat_example_alarms_title">Установите будильники</string>
+    <string name="chat_example_pdf_title">Суммируйте PDF</string>
+    <string name="chat_example_schedule_title">Установите ежедневное напоминание</string>
+    <string name="chat_example_pdf">Суммируй PDF, который я пришлю, в короткую выжимку.</string>
+    <string name="chat_example_schedule">Каждое утро в 8 напоминай мне проверить погоду.</string>
+    <string name="chat_empty_value">Скажи одну фразу — я всё сделаю на телефоне</string>
+    <string name="saved_task_save">Сохранить как задачу</string>
+    <string name="task_field_add">Добавить поле</string>
+    <string name="task_field_name">Название поля</string>
+    <string name="task_field_name_invalid">От 1 до 40 символов, без фигурных скобок и переносов строк.</string>
+    <string name="task_field_insert">Вставить</string>
+    <string name="task_fields_too_many">Не более %1$d разных полей.</string>
+    <string name="task_fill_apply">Заполнить ввод</string>
+    <string name="chat_read_aloud">Read aloud</string>
+    <string name="chat_stop_speaking">Stop speaking</string>
+    <string name="chat_audio">Audio</string>
+    <string name="chat_audio_play">Play</string>
+    <string name="chat_audio_stop">Stop</string>
+    <string name="plus_sub_album">Выбрать из своих фото, можно несколько</string>
+    <string name="plus_sub_files">Документы, PDF, архивы</string>
+    <string name="plus_sub_device">Просмотреть папки на телефоне</string>
+    <string name="plus_clipboard">Буфер обмена</string>
+    <string name="plus_sub_clipboard">Вставить только что скопированное</string>
+    <string name="plus_sub_teach">Покажите один раз — Mika запомнит</string>
+    <string name="plus_sub_skills">Использовать навык в этом ходе</string>
+    <string name="plus_sub_tasks">Подставить сохранённую задачу в поле ввода</string>
+    <string name="plus_sub_browser">Встроенный браузер</string>
+    <string name="plus_skills_empty">Личных навыков пока нет. Навыки, которым Mika научится на выполненных задачах, появятся здесь.</string>
+    <string name="plus_clipboard_empty">В буфере обмена нет текста для вставки</string>
+    <string name="plus_skill_directive">Использовать навык «%1$s»: </string>
+    <string name="plus_reuse">Сохранённое</string>
+    <string name="plus_reuse_hint">Фразы · списки · сценарии</string>
+    <string name="plus_reuse_phrases">Сохранённые фразы</string>
+    <string name="drawer_calls">ИИ-звонки</string>
+    <!-- 空对话滚动条里的灵感示例;点了填进输入框 -->
+    <string name="chat_idea_maps">Проложи маршрут до ближайшей кофейни</string>
+    <string name="chat_idea_camera">Открой камеру и сделай фото</string>
+    <string name="chat_idea_sms">Напиши маме: я дома</string>
+    <string name="chat_idea_news">Найди новости технологий за сегодня</string>
+    <string name="chat_idea_dark">Включи тёмную тему</string>
+    <string name="chat_idea_music">Включи спокойную музыку</string>
+    <string name="chat_idea_email">Что в моих последних письмах?</string>
+    <string name="chat_idea_screenshot">Найди мой последний скриншот</string>
+    <string name="chat_idea_meeting">Добавь встречу завтра в 15:00</string>
+    <!-- 空对话推广卡上的一句话说明;完整提示词点了才填进输入框 -->
+    <string name="chat_example_github_star_blurb">Поддержи открытый проект Mika</string>
+    <string name="chat_example_follow_blurb">Подпишись на автора и заходи в чат</string>
+    <string name="chat_example_group_summary_blurb">Непрочитанное за сегодня в одной строке</string>
+    <string name="chat_example_share_title">Поделиться Mika с другом</string>
+    <string name="chat_example_share_blurb">Посоветуйте тому, кому пригодится</string>
+    <string name="chat_example_share">Поделись ссылкой на проект Mika https://github.com/wangzan101/mika с другом и расскажи, что он умеет управлять телефоном.</string>
 </resources>

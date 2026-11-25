@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Opt-in, task-scoped incoming SMS only; never request READ_SMS or the default SMS role. -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <!-- 按住说话时录音，转成文字；用户浏览器里的网页要麦克风时也用它。 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- 用户浏览器里的网页要摄像头（Mika 自己拍照走系统相机，不用这个权限）；网页请求时先弹框问用户。 -->
@@ -17,10 +19,15 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- 语音通话:通话期间后台持麦走麦克风型前台服务；安卓 12 以下免提切换要改音频路由(普通权限,安装即授)。 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
     <!-- 通话功能:拨号、读通话状态,以及安卓 13+ 的「通话助手」框架(伴侣角色经 shell 授予)。 -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.CALL_COMPANION_APP" />
     <uses-permission
         android:name="android.permission.MANAGE_ONGOING_CALLS"
@@ -72,6 +79,7 @@
 
     <!-- list_apps 列出可启动的 App;解析系统权限框所在的包,用于判断「被切走」 -->
     <queries>
+        <intent><action android:name="android.telecom.InCallService" /></intent>
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
@@ -105,6 +113,7 @@
         <intent>
             <action android:name="android.accounts.AccountAuthenticator" />
         </intent>
+        <package android:name="moe.shizuku.privileged.api" />
     </queries>
 
     <application
@@ -119,6 +128,8 @@
         <!-- 界面只有一个:从桌面、通知、别的 App 或命令打开都回到这一个(新的打开交给 onNewIntent),不在上面叠出第二个 -->
         <activity
             android:name=".ui.MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|uiMode|density"
+            android:enableOnBackInvokedCallback="true"
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/Theme.Mika"
@@ -132,16 +143,16 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <!-- 系统分享只进入现有对话页的草稿;文字、链接或一张内容图片都不会自动执行。 -->
+            <!-- 系统分享的文字、链接或文件（单个或多个）先进对话草稿。 -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
+                <data android:mimeType="*/*" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="image/*" />
+                <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
 
@@ -162,11 +173,12 @@
             android:taskAffinity=""
             android:theme="@android:style/Theme.NoDisplay" />
 
-        <!-- App 里的文件查看页(网页、Markdown、PDF、图片、文本) -->
+        <!-- App 里的文件查看页(网页、Markdown、PDF、图片、文本);页内查找时输入法调窗口高度 -->
         <activity
             android:name=".ui.viewer.FileViewerActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|uiMode|density"
             android:exported="false"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.Mika" />
 
         <!-- 用户自己打开的终端:只从 App 内进,不导出;转屏不重建,输入法调窗口高度 -->
@@ -223,6 +235,24 @@
                 android:resource="@xml/accessibility_service" />
         </service>
 
+        <!-- 主动能力:默认停用,第一次打开功能时由 ProactiveRuntime 启用,系统「通知使用权」列表里才出现;
+             之后关掉功能只解绑、不再停用(组件一停用系统就收回使用权)。
+             exported=false 与 NotificationListenerService 文档里的清单示例一致(系统按 BIND_NOTIFICATION_LISTENER_SERVICE 绑定);
+             只滤掉常驻通知,不滤静默通知(用户常把微信设成静默)。 -->
+        <service
+            android:name=".proactive.NoticeListenerService"
+            android:enabled="false"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.notification.disabled_filter_types"
+                android:value="ongoing" />
+        </service>
+
         <service
             android:name=".task.TaskService"
             android:exported="false"
@@ -253,6 +283,14 @@
         </service>
 
         <receiver android:name=".calls.CallNotificationAction" android:exported="false" />
+        <!-- AI 电话里请示主人:通知里直接回复的落点,不导出(PendingIntent 指明本组件) -->
+        <receiver android:name=".calls.OwnerReplyReceiver" android:exported="false" />
+
+        <!-- 应用内语音通话:通话期间撑住进程与后台麦克风;通知带挂断动作,锁屏时不打开通话页。 -->
+        <service
+            android:name=".voicecall.VoiceCallService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
 
         <!-- 用户绑定并打开微信渠道后保持长轮询；没有本地服务器，任务仍交给 TaskService。 -->
         <service
@@ -319,6 +357,17 @@
                 android:resource="@xml/attach_files" />
         </provider>
 
+        <!-- 任务报告分享:cache/report-share/ 里的临时正文,以只读地址交给系统分享面板,不对外导出 -->
+        <provider
+            android:name=".ui.ReportFilesProvider"
+            android:authorities="${applicationId}.reportfiles"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/report_files" />
+        </provider>
+
         <!-- 走网络代理时 Mika 自己下的更新安装包:只读交给系统安装器,不对外导出,安装时临时授权 -->
         <provider
             android:name=".about.UpdateFilesProvider"
@@ -340,6 +389,14 @@
         <provider
             android:name=".shell.HelperHandoffProvider"
             android:authorities="${applicationId}.helper"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
             android:exported="true"
             android:multiprocess="false"
             android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />

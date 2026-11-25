@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_auto_off_short">Mati</string>
+    <string name="calls_auto_standby_short">Siaga</string>
+    <string name="calls_rule_delay">Jawab setelah</string>
+    <string name="calls_seconds_value">%1$d dtk</string>
+    <string name="calls_none_added">Tidak ada</string>
+    <string name="calls_not_set">Belum diatur</string>
+    <string name="calls_is_set">Sudah diatur</string>
+    <string name="calls_numbers_count">%1$d nomor</string>
+    <string name="calls_scope_all_short">Semua panggilan</string>
+    <string name="calls_scope_strangers_short">Nomor tak dikenal</string>
+    <string name="calls_allowlist_empty_short">Daftar kosong</string>
+    <string name="calls_list_count_short">%1$d di daftar</string>
+    <string name="calls_not_confirmed">Belum dikonfirmasi</string>
+    <string name="calls_task_more">Pertanyaan, latar belakang, batasan</string>
+    <string name="calls_this_call">Panggilan ini</string>
+</resources>

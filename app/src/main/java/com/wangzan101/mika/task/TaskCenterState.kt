@@ -3,12 +3,19 @@ package com.wangzan101.mika.task
 import android.graphics.Bitmap
 import com.wangzan101.mika.chat.SharedFile
 import com.wangzan101.mika.core.agent.TaskState
-import com.wangzan101.mika.core.record.RunEvent
+import com.wangzan101.mika.core.run.record.RunEvent
 import com.wangzan101.mika.core.remote.RemoteSteer
 import com.wangzan101.mika.takeover.Takeover
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
 
 /**
  * 任务进行中用户在同一对话里插的话:[Pending] 刚发出、还没送到任务,[Received] 任务的收件箱已收下(下一步就处理),
@@ -92,6 +99,12 @@ class TaskCenterState {
     val _runId = MutableStateFlow<String?>(null)
     val _sharedFiles = MutableStateFlow<List<SharedFile>>(emptyList())
     val sharedFiles: StateFlow<List<SharedFile>> = _sharedFiles.asStateFlow()
+    /** 显示中的任务到此刻生成的音频;结束时随这一轮存进对话。 */
+    val _audios = MutableStateFlow<List<com.wangzan101.mika.core.chat.GeneratedAudio>>(emptyList())
+    val audios: StateFlow<List<com.wangzan101.mika.core.chat.GeneratedAudio>> = _audios.asStateFlow()
+    /** 显示中的任务到此刻生成的图;结束时随这一轮存进对话。 */
+    val _photos = MutableStateFlow<List<com.wangzan101.mika.core.chat.GeneratedPhoto>>(emptyList())
+    val photos: StateFlow<List<com.wangzan101.mika.core.chat.GeneratedPhoto>> = _photos.asStateFlow()
     val _endedRunId = MutableStateFlow<String?>(null)
     val endedRunId: StateFlow<String?> = _endedRunId.asStateFlow()
     val _endedRunIds = MutableStateFlow<Map<String, String?>>(emptyMap())
@@ -114,3 +127,13 @@ class TaskCenterState {
     val _pipSoundOn = MutableStateFlow(false)
     val pipSoundOn: StateFlow<Boolean> = _pipSoundOn.asStateFlow()
 }
+
+/** 此刻有虚拟屏(或开着网页)的任务所在的会话;没人看时不跟。通话页的任务卡据此显示「看画面」。 */
+@OptIn(ExperimentalCoroutinesApi::class)
+fun TaskCenterState.screenConversations(scope: CoroutineScope): StateFlow<Set<String>> =
+    runs.flatMapLatest { list ->
+        if (list.isEmpty()) flowOf(emptySet())
+        else combine(list.map { run ->
+            combine(run.displayId, run.webOpen) { display, web -> run.conversationId.takeIf { display >= 0 || web } }
+        }) { ids -> ids.filterNotNull().toSet() }
+    }.stateIn(scope, SharingStarted.WhileSubscribed(5_000), emptySet())

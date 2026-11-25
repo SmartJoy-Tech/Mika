@@ -6,15 +6,15 @@ import com.wangzan101.mika.core.tool.Args
 import com.wangzan101.mika.core.tool.FakeScreen
 import com.wangzan101.mika.core.tool.SubActions
 import com.wangzan101.mika.core.tool.ToolExecution
-import com.wangzan101.mika.core.record.Redactor
+import com.wangzan101.mika.core.run.record.Redactor
 import com.wangzan101.mika.core.tool.Verb
-import com.wangzan101.mika.core.uistate.ScreenPort
-import com.wangzan101.mika.core.uistate.ScreenSnapshot
-import com.wangzan101.mika.core.uistate.ScreenEvent
-import com.wangzan101.mika.core.uistate.SystemCommandResult
-import com.wangzan101.mika.core.uistate.ActionResult
-import com.wangzan101.mika.core.uistate.UiTreeNode
-import com.wangzan101.mika.core.uistate.UiWindowTree
+import com.wangzan101.mika.core.screen.uistate.ScreenPort
+import com.wangzan101.mika.core.screen.uistate.ScreenSnapshot
+import com.wangzan101.mika.core.screen.uistate.ScreenEvent
+import com.wangzan101.mika.core.screen.uistate.SystemCommandResult
+import com.wangzan101.mika.core.screen.uistate.ActionResult
+import com.wangzan101.mika.core.screen.uistate.UiTreeNode
+import com.wangzan101.mika.core.screen.uistate.UiWindowTree
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -61,6 +61,24 @@ class PhoneAutomationToolsTest {
         assertEquals("@e1", item["actionRef"]!!.jsonPrimitive.content)
     }
 
+    @Test fun resourceIdMatchResolvesNameFromClickableDescendant() {
+        // do_each 用 resourceId 命中可点容器(tile/列表项),自身无文字、可见文字在子节点上;name 从后代取(和元素表 labelOf 一致),
+        // 供 contentKey 去重;点按另走 ref。标题 + 摘要两个子节点,拼成全名。
+        val screen = ScreenSnapshot("p1", "com.example.app", emptyList(), 1080, 2400, windows = listOf(
+            UiWindowTree(1, "application", 0, null, "com.example.app", true, true, listOf(
+                UiTreeNode("LinearLayout", listOf(0, 100, 999, 200), ref = "@t1", clickable = true, resourceId = "id/tile", children = listOf(
+                    UiTreeNode("TextView", listOf(30, 110, 600, 180), text = "WLAN"),
+                    UiTreeNode("TextView", listOf(30, 150, 600, 190), text = "已连接"),
+                )),
+            )),
+        ))
+        val found = PhoneAutomationEngine.find(screen, PhoneAutomationEngine.Query(resourceId = "id/tile"), 10)
+        assertEquals(1, found["total"]!!.jsonPrimitive.content.toInt())
+        val item = found["matches"]!!.jsonArray.single().jsonObject
+        assertEquals("@t1", item["actionRef"]!!.jsonPrimitive.content)
+        assertEquals("WLAN 已连接", item["name"]!!.jsonPrimitive.content)
+    }
+
     @Test fun queryDoesNotEncodeImageEvenWhenRunRecordsFrames() = runTest {
         var screenshots = 0
         val screen = object : ScreenPort by FakeScreen() {
@@ -83,7 +101,9 @@ class PhoneAutomationToolsTest {
                 ToolExecution(buildJsonObject { put("ok", true) })
             } else {
                 val names = pages[reads++].mapIndexed { index, name -> buildJsonObject {
-                    put("name", name); put("bounds", JsonArray(listOf(0, 100 + index * 100, 999, 190 + index * 100).map(::JsonPrimitive)))
+                    put("name", name)
+                    put("center", buildJsonObject { put("x", 500); put("y", 145 + index * 100) })
+                    put("size", JsonArray(listOf(999, 90).map(::JsonPrimitive)))
                 } }
                 ToolExecution(buildJsonObject {
                     put("ok", true); put("currentApp", "com.example.app"); put("snapshotId", "p$reads")
@@ -105,7 +125,8 @@ class PhoneAutomationToolsTest {
         dispatcher.ctx.sub = SubActions {
             val elements = listOf("第一条" to 100, "第三条" to 300).map { (name, y) -> buildJsonObject {
                 put("name", name)
-                put("bounds", JsonArray(listOf(100, y, 900, y + 50).map(::JsonPrimitive)))
+                put("center", buildJsonObject { put("x", 500); put("y", y + 25) })
+                put("size", JsonArray(listOf(800, 50).map(::JsonPrimitive)))
             } }
             ToolExecution(buildJsonObject {
                 put("ok", true); put("currentApp", "com.example.app"); put("snapshotId", "p1")
@@ -140,6 +161,35 @@ class PhoneAutomationToolsTest {
         assertTrue(result["text"]!!.jsonPrimitive.content.contains("群聊消息正文"))
     }
 
+    @Test fun collectFallsBackToElementsWhenTreeHasNoText() = runTest {
+        val dispatcher = toolDispatcher(FakeScreen())
+        dispatcher.ctx.sub = SubActions {
+            // 骨架 tree:只有 role/ref/children,没有 text/bounds(和 UiTreeJson 骨架一致)
+            val tree = JsonArray(listOf(buildJsonObject {
+                put("id", 1); put("type", "application"); put("layer", 0)
+                put("nodes", JsonArray(listOf(buildJsonObject {
+                    put("role", "RecyclerView"); put("scrollable", true)
+                    put("children", JsonArray(listOf(
+                        buildJsonObject { put("role", "TextView"); put("ref", "@e1") },
+                        buildJsonObject { put("role", "TextView"); put("ref", "@e2") },
+                    )))
+                })))
+            }))
+            val elements = listOf("第一条" to 100, "第二条" to 200).map { (name, y) -> buildJsonObject {
+                put("name", name)
+                put("center", buildJsonObject { put("x", 500); put("y", y + 25) })
+                put("size", JsonArray(listOf(800, 50).map(::JsonPrimitive)))
+            } }
+            ToolExecution(buildJsonObject {
+                put("ok", true); put("currentApp", "com.example.app"); put("snapshotId", "p1")
+                put("tree", tree); put("elements", JsonArray(elements))
+            })
+        }
+        val args = Args(PhoneCollect.def, Json.parseToJsonElement("""{"direction":"down","pages":1}""").jsonObject)
+        val result = PhoneCollect.execute(args, dispatcher.ctx).content
+        assertTrue(result["text"]!!.jsonPrimitive.content.contains("第一条\n第二条"))
+    }
+
     @Test fun runResolvesTargetsAgainAndStopsOnAmbiguity() = runTest {
         val dispatcher = toolDispatcher(FakeScreen())
         val calls = mutableListOf<String>()
@@ -166,6 +216,50 @@ class PhoneAutomationToolsTest {
         assertEquals(2, result["completed"]!!.jsonPrimitive.content.toInt())
         assertEquals(2, calls.count { it == "phone_tap" })
         assertEquals(3, calls.count { it == "phone_query" })
+    }
+
+    @Test fun runTapsDirectRefWithoutQuery() = runTest {
+        val dispatcher = toolDispatcher(FakeScreen())
+        val calls = mutableListOf<String>()
+        dispatcher.ctx.sub = SubActions { call ->
+            calls += call.name
+            ToolExecution(buildJsonObject { put("ok", true) })
+        }
+        val json = """{"commands":[{"op":"tap","ref":"@e1","snapshotId":"p1"}]}"""
+        val result = PhoneRun.execute(Args(PhoneRun.def, Json.parseToJsonElement(json).jsonObject), dispatcher.ctx).content
+        assertEquals("true", result["ok"]!!.jsonPrimitive.content)
+        assertEquals(0, calls.count { it == "phone_query" })  // 直接给 ref,不按字重找
+        assertEquals(1, calls.count { it == "phone_tap" })
+    }
+
+    @Test fun doEachResolvesItemToDirectRef() = runTest {
+        val screen = object : ScreenPort by FakeScreen() {
+            override suspend fun snapshot(): ScreenSnapshot =
+                ScreenSnapshot("p1", "com.example.app", emptyList(), 1080, 2400, windows = listOf(
+                    UiWindowTree(1, "application", 0, null, "com.example.app", true, true, listOf(
+                        UiTreeNode("LinearLayout", listOf(0, 100, 999, 200), ref = "@t1", clickable = true, resourceId = "id/tile", children = listOf(
+                            UiTreeNode("TextView", listOf(30, 110, 600, 180), text = "WLAN"),
+                        )),
+                        UiTreeNode("LinearLayout", listOf(0, 210, 999, 310), ref = "@t2", clickable = true, resourceId = "id/tile", children = listOf(
+                            UiTreeNode("TextView", listOf(30, 220, 600, 290), text = "蓝牙"),
+                        )),
+                    )),
+                ))
+        }
+        val dispatcher = toolDispatcher(screen)
+        val runCalls = mutableListOf<String>()
+        dispatcher.ctx.sub = SubActions { call ->
+            if (call.name == "phone_run") runCalls += call.argsJson
+            ToolExecution(buildJsonObject { put("ok", true) })
+        }
+        val json = """{"item":{"resourceId":"id/tile"},"body":[{"op":"tap","targetText":"@item"},{"op":"observe"},{"op":"back"}]}"""
+        val result = DoEach.execute(Args(DoEach.def, Json.parseToJsonElement(json).jsonObject), dispatcher.ctx).content
+        assertEquals("true", result["ok"]!!.jsonPrimitive.content)
+        assertEquals(2, result["done"]!!.jsonPrimitive.content.toInt())
+        // @item 换成 ref 直点(带 snapshotId),不靠名字回找
+        assertEquals(listOf("@t1", "@t2"), runCalls.map { args ->
+            Json.parseToJsonElement(args).jsonObject["commands"]!!.jsonArray[0].jsonObject["ref"]!!.jsonPrimitive.content
+        })
     }
 
     @Test fun runHidesNestedTypedTextInRecord() {

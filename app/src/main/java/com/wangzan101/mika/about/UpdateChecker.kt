@@ -1,8 +1,11 @@
 package com.wangzan101.mika.about
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,9 +13,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -21,11 +23,7 @@ import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
 import com.wangzan101.mika.core.net.NetProxy
 import okhttp3.OkHttpClient
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.Request
 import java.io.File
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
 /** 检查更新的结果；自动检查保持静默，限流解除时会清除旧的限流状态。 */
@@ -55,7 +53,8 @@ object UpdateSchedule {
 }
 
 /**
- * 检查更新,没有自己的服务器:只问 GitHub 发布页接口;连不上、限流、读不懂都算这次没查到。
+ * 检查更新,没有自己的服务器:直连 GitHub 发布页接口,开了镜像时也按用户的顺序问镜像;
+ * 连不上、限流、读不懂都算这次没查到。镜像不支持 API 时退到发布页取 tag 和附件信息。
  * 查到的版本和上次自动检查的时间存在 [file],App 重开后红点还在;装了新版后当前版本不再落后,红点自然消失。
  * 这里只检查版本；用户主动下载、安装由 [ApkUpdater] 处理。
  */
@@ -64,6 +63,9 @@ class UpdateChecker(
     private val currentVersion: String,
     private val client: OkHttpClient = defaultClient(),
     private val releaseApi: String = MikaLinks.LATEST_RELEASE_API,
+    private val releasesUrl: String = MikaLinks.RELEASES,
+    /** 当前的镜像设置;每次检查取一次,用户在检查途中改了顺序也不影响这一次。 */
+    private val mirrorSettings: () -> MirrorSettings = { MirrorSettings.OFF },
     private val now: () -> Long = System::currentTimeMillis,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
     /** 本机支持的 ABI(Build.SUPPORTED_ABIS),用来挑发布里合适的 APK;为空时取全架构包。 */
@@ -76,6 +78,8 @@ class UpdateChecker(
     private var lastAttempt: Long? = null
     private var rateLimitUntil: Long? = null
     private var loaded = false
+    // 记录当前结果的来源，跨重启也不能把镜像摘要当作官方摘要。
+    private var latestOfficial = false
 
     /** 每次打开 App 时调:到期就在后台查一次,失败不吭声。 */
     fun autoCheckInBackground() = scope.launch { autoCheck() }
@@ -107,109 +111,162 @@ class UpdateChecker(
         mutex.withLock {
             loadLocked()
             if (manual) _state.update { it.copy(status = CheckStatus.Checking) }
-            val result = rateLimitUntil?.takeIf { now() < it }?.let { ReleaseLookup.RateLimited(it) }
-                ?: withContext(Dispatchers.IO) { lookupLatest() }
-            rateLimitUntil = (result as? ReleaseLookup.RateLimited)?.retryAt
-            _state.update { previous ->
-                val refreshed = when (result) {
-                    is ReleaseLookup.Found -> previous.withLatest(result.release)
-                    ReleaseLookup.Empty -> previous.withLatest(null)
-                    is ReleaseLookup.RateLimited, ReleaseLookup.Failed -> previous
+            var foundAny = false
+            var officialFound = false
+            var officialEmpty = false
+            var officialRateLimit: Long? = null
+            var manualCompleted = false
+            fun completeManual(status: CheckStatus) {
+                if (manual && !manualCompleted) {
+                    manualCompleted = true
+                    _state.update { it.copy(status = status, manualRounds = it.manualRounds + 1) }
                 }
-                if (manual) refreshed.copy(
-                    status = when (result) {
-                        is ReleaseLookup.Found -> CheckStatus.Done
-                        ReleaseLookup.Empty -> CheckStatus.NoRelease
-                        is ReleaseLookup.RateLimited -> CheckStatus.RateLimited
-                        ReleaseLookup.Failed -> CheckStatus.Failed
-                    },
-                    manualRounds = previous.manualRounds + 1,
-                ) else if (previous.status == CheckStatus.RateLimited) {
-                    when (result) {
-                        is ReleaseLookup.Found -> refreshed.copy(status = CheckStatus.Done)
-                        ReleaseLookup.Empty -> refreshed.copy(status = CheckStatus.NoRelease)
-                        else -> refreshed
+            }
+            try {
+                val activeCooldown = rateLimitUntil?.takeIf { now() < it }
+                fetchLatest(mirrorSettings(), activeCooldown) { probe, official ->
+                    when (probe) {
+                        is UpdateProbe.ProbeResult.Found -> {
+                            val found = probe.release
+                            foundAny = true
+                            if (official) {
+                                officialFound = true
+                                rateLimitUntil = null
+                                val previous = _state.value.latest
+                                val result = if (previous != null && AppVersion.compare(found.version, previous.version) == 0) {
+                                    mergeRelease(previous, found, previousOfficial = latestOfficial, candidateOfficial = true)
+                                } else found
+                                latestOfficial = true
+                                _state.update { it.withLatest(result) }
+                            } else if (!officialFound) {
+                                val previous = _state.value.latest
+                                val comparison = previous?.let { AppVersion.compare(found.version, it.version) } ?: 1
+                                if (comparison > 0) {
+                                    latestOfficial = false
+                                    _state.update { it.withLatest(found) }
+                                } else if (comparison == 0 && previous != null) {
+                                    val result = mergeRelease(previous, found, previousOfficial = latestOfficial, candidateOfficial = false)
+                                    _state.update { it.withLatest(result) }
+                                }
+                            }
+                            if (!manual && _state.value.status == CheckStatus.RateLimited) {
+                                _state.update { it.copy(status = CheckStatus.Done) }
+                            }
+                            if (_state.value.hasUpdate) completeManual(CheckStatus.Done)
+                            save()
+                        }
+                        UpdateProbe.ProbeResult.Empty -> if (official) {
+                            officialEmpty = true
+                            rateLimitUntil = null
+                        }
+                        is UpdateProbe.ProbeResult.RateLimited -> if (official) {
+                            officialRateLimit = probe.retryAt
+                        }
+                        UpdateProbe.ProbeResult.Failed -> Unit
                     }
-                } else refreshed
+                }
+                if (foundAny) {
+                    completeManual(CheckStatus.Done)
+                } else if (officialEmpty) {
+                    latestOfficial = false
+                    _state.update { previous ->
+                        val cleared = previous.withLatest(null)
+                        if (!manual && previous.status == CheckStatus.RateLimited) cleared.copy(status = CheckStatus.NoRelease) else cleared
+                    }
+                    completeManual(CheckStatus.NoRelease)
+                } else if (officialRateLimit != null) {
+                    rateLimitUntil = officialRateLimit
+                    completeManual(CheckStatus.RateLimited)
+                } else {
+                    rateLimitUntil = null
+                    completeManual(CheckStatus.Failed)
+                }
+            } finally {
+                // 取消检查也要清除手动等待状态，避免界面一直转圈。
+                completeManual(if (foundAny) CheckStatus.Done else CheckStatus.Failed)
+                save()
             }
-            save()
         }
     }
 
-    /** GitHub 上最新的发布;没查到为空。 */
-    internal fun fetchLatest(): ReleaseInfo? = (lookupLatest() as? ReleaseLookup.Found)?.release
-
-    private sealed interface ReleaseLookup {
-        data class Found(val release: ReleaseInfo) : ReleaseLookup
-        data object Empty : ReleaseLookup
-        data class RateLimited(val retryAt: Long) : ReleaseLookup
-        data object Failed : ReleaseLookup
-    }
-
-    private class HttpFailure(val code: Int) : Exception("HTTP $code")
-    private class RateLimit(val retryAt: Long) : Exception("GitHub rate limited")
-
-    private fun lookupLatest(): ReleaseLookup {
-        try {
-            return ReleaseLookup.Found(Releases.fromGitHub(get(releaseApi), deviceAbis))
-        } catch (e: RateLimit) {
-            return ReleaseLookup.RateLimited(e.retryAt)
-        } catch (e: HttpFailure) {
-            if (e.code != 404) return ReleaseLookup.Failed
-        } catch (_: Exception) {
-            return ReleaseLookup.Failed
+    /** 各来源并行查询，结果按到达顺序交给同一个协程处理。 */
+    private suspend fun fetchLatest(
+        settings: MirrorSettings,
+        officialCooldown: Long?,
+        onResult: (UpdateProbe.ProbeResult, Boolean) -> Unit,
+    ) = coroutineScope {
+        val sources = buildList {
+            add("")
+            if (settings.enabled) settings.mirrors.forEach { add(it.prefix) }
         }
-        return try {
-            if (confirmsEmptyReleaseChannel()) ReleaseLookup.Empty else ReleaseLookup.Failed
-        } catch (e: RateLimit) {
-            ReleaseLookup.RateLimited(e.retryAt)
-        }
-    }
-
-    /** 404 也可能是仓库不可访问；只有同一仓库的发布列表明确返回 200 + [] 才能确认暂无发布。 */
-    private fun confirmsEmptyReleaseChannel(): Boolean = try {
-        val latest = releaseApi.toHttpUrl()
-        val segments = latest.pathSegments
-        require(latest.username.isEmpty() && latest.password.isEmpty() && latest.query == null && latest.fragment == null)
-        require(segments.size == 5 && segments[0] == "repos" && segments[1].isNotEmpty() && segments[2].isNotEmpty()
-            && segments[3] == "releases" && segments[4] == "latest")
-        val listUrl = latest.newBuilder().removePathSegment(4).addQueryParameter("per_page", "1").build()
-        // 不接受跳往别处的空列表，也不向重定向目的地发送这次确认请求。
-        val directClient = client.newBuilder().followRedirects(false).followSslRedirects(false).build()
-        val list = Json.parseToJsonElement(get(listUrl.toString(), directClient))
-        list is JsonArray && list.isEmpty()
-    } catch (e: RateLimit) {
-        throw e
-    } catch (_: Exception) {
-        false
-    }
-
-    /** 尊重 GitHub 的等待时间；缺少或损坏的响应头至少等待一分钟，避免反复请求加重限流。 */
-    private fun rateLimitDeadline(reset: String?, retryAfter: String?): Long {
-        val current = now()
-        val resetAt = reset?.trim()?.toLongOrNull()?.let { runCatching { Math.multiplyExact(it, 1000L) }.getOrNull() }
-        val retryAt = retryAfter?.trim()?.let { value ->
-            value.toLongOrNull()?.let { seconds ->
-                runCatching { Math.addExact(current, Math.multiplyExact(seconds, 1000L)) }.getOrNull()
-            } ?: runCatching { ZonedDateTime.parse(value, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant().toEpochMilli() }.getOrNull()
-        }
-        return listOfNotNull(resetAt, retryAt).filter { it > current }.maxOrNull() ?: current + 60_000L
-    }
-
-    private fun get(url: String, requestClient: OkHttpClient = client): String {
-        val req = Request.Builder().url(url)
-            .header("User-Agent", "TinyFox/$currentVersion")
-            .header("Accept", "application/vnd.github+json")
-            .header("X-GitHub-Api-Version", "2022-11-28")
-            .build()
-        requestClient.newCall(req).execute().use { resp ->
-            if (resp.code == 429 || (resp.code == 403 &&
-                    (resp.header("X-RateLimit-Remaining")?.trim() == "0" || resp.header("Retry-After") != null))) {
-                throw RateLimit(rateLimitDeadline(resp.header("X-RateLimit-Reset"), resp.header("Retry-After")))
+        val results = Channel<Pair<UpdateProbe.ProbeResult, Boolean>>(sources.size)
+        sources.forEach { source ->
+            launch(Dispatchers.IO) {
+                val official = source.isEmpty()
+                val outcome = if (official && officialCooldown != null) {
+                    UpdateProbe.ProbeResult.RateLimited(officialCooldown)
+                } else {
+                    withTimeoutOrNull(PROBE_TIMEOUT_MS) {
+                        try {
+                            UpdateProbe.fetchResult(
+                                client, source, releaseApi, releasesUrl, deviceAbis, "TinyFox/$currentVersion", now,
+                            )
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (_: Exception) {
+                            UpdateProbe.ProbeResult.Failed
+                        }
+                    } ?: UpdateProbe.ProbeResult.Failed
+                }
+                results.send(outcome to official)
             }
-            if (resp.code != 200) throw HttpFailure(resp.code)
-            return resp.body?.string() ?: error("empty body")
         }
+        repeat(sources.size) {
+            val (outcome, official) = results.receive()
+            onResult(outcome, official)
+        }
+    }
+
+    /** 同版本补全缺失信息；校验数据只属于其对应的 APK 地址。 */
+    private fun mergeRelease(previous: ReleaseInfo, candidate: ReleaseInfo, previousOfficial: Boolean, candidateOfficial: Boolean): ReleaseInfo {
+        val clearsGuess = candidate.apkListKnown && candidate.apkUrl == null &&
+            !previous.apkListKnown && previous.apkSize == null && previous.apkDigest == null
+        if (previousOfficial && !candidateOfficial) {
+            return if (clearsGuess) previous.copy(apkUrl = null, apkListKnown = true) else previous
+        }
+        val previousPreference = Releases.apkPreference(previous.apkUrl, deviceAbis)
+        val candidatePreference = Releases.apkPreference(candidate.apkUrl, deviceAbis)
+        fun completeness(release: ReleaseInfo) = (if (release.apkDigest != null) 2 else 0) + (if (release.apkSize != null) 1 else 0)
+        val selected = when {
+            candidateOfficial && !previousOfficial && candidate.apkUrl != null -> candidate
+            clearsGuess -> candidate
+            previous.apkListKnown && previous.apkUrl == null && !candidate.apkListKnown -> previous
+            candidate.apkUrl == null -> previous
+            previous.apkUrl == null -> candidate
+            candidatePreference == 0 && previousPreference > 0 -> previous
+            previousPreference == 0 && candidatePreference > 0 -> candidate
+            completeness(candidate) != completeness(previous) -> if (completeness(candidate) > completeness(previous)) candidate else previous
+            candidatePreference != previousPreference -> if (candidatePreference > previousPreference) candidate else previous
+            else -> candidate
+        }
+        val other = if (selected === previous) candidate else previous
+        val sameApk = selected.apkUrl != null && selected.apkUrl == other.apkUrl
+        val trustedSelected = !candidateOfficial || previousOfficial || selected === candidate
+        val trustedOther = !candidateOfficial || previousOfficial || other === candidate
+        return candidate.copy(
+            name = candidate.name.takeUnless { it.isBlank() || it == candidate.version } ?: previous.name,
+            // 官方结果优先:镜像代理 API 时可能给出缓存或错误的说明,由官方覆盖。
+            notes = if (candidateOfficial && !previousOfficial) {
+                candidate.notes.ifBlank { previous.notes }
+            } else {
+                previous.notes.ifBlank { candidate.notes }
+            },
+            date = candidate.date ?: previous.date,
+            apkUrl = selected.apkUrl,
+            apkListKnown = selected.apkListKnown,
+            apkSize = selected.apkUrl?.let { candidate.apkSize.takeIf { candidateOfficial && candidate.apkUrl == selected.apkUrl } ?: selected.apkSize.takeIf { trustedSelected } ?: other.apkSize.takeIf { sameApk && trustedOther } },
+            apkDigest = selected.apkUrl?.let { candidate.apkDigest.takeIf { candidateOfficial && candidate.apkUrl == selected.apkUrl } ?: selected.apkDigest.takeIf { trustedSelected } ?: other.apkDigest.takeIf { sameApk && trustedOther } },
+        )
     }
 
     private fun UpdateState.withLatest(r: ReleaseInfo?): UpdateState =
@@ -221,7 +278,11 @@ class UpdateChecker(
         val o = runCatching { Json.parseToJsonElement(file.readText()).jsonObject }.getOrNull() ?: return
         lastAttempt = (o["lastAttempt"] as? JsonPrimitive)?.longOrNull
         rateLimitUntil = (o["rateLimitUntil"] as? JsonPrimitive)?.longOrNull
-        val latest = (o["latest"] as? JsonObject)?.let(Releases::fromJson)
+        latestOfficial = (o["latestOfficial"] as? JsonPrimitive)?.content == "true"
+        val latest = (o["latest"] as? JsonObject)?.let(Releases::fromJson)?.let {
+            // 旧记录没有来源，不能将其校验数据视作可信的官方数据。
+            if (o["latestOfficial"] == null) it.copy(apkSize = null, apkDigest = null) else it
+        }
         _state.update { it.withLatest(latest) }
     }
 
@@ -229,7 +290,10 @@ class UpdateChecker(
         val o = buildJsonObject {
             lastAttempt?.let { put("lastAttempt", it) }
             rateLimitUntil?.let { put("rateLimitUntil", it) }
-            _state.value.latest?.let { put("latest", Releases.toJson(it)) }
+            _state.value.latest?.let {
+                put("latest", Releases.toJson(it))
+                put("latestOfficial", latestOfficial)
+            }
         }
         runCatching {
             file.parentFile?.mkdirs()
@@ -243,7 +307,10 @@ class UpdateChecker(
     }
 
     companion object {
-        /** 有的网络连 GitHub 时快时慢:超时放短，失败保留上次结果。走设置 › 网络代理。 */
+        /** 一个来源最多花这么久(镜像可能要走「API → 发布页 → 附件页」三次请求);各路并行,不会叠加。 */
+        private const val PROBE_TIMEOUT_MS = 12_000L
+
+        /** 有的网络连 GitHub 时快时慢:超时放短,失败就换备用来源。走设置 › 网络代理和更新镜像。 */
         fun defaultClient(): OkHttpClient = NetProxy.shared.client(OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
             .readTimeout(8, TimeUnit.SECONDS)

@@ -20,9 +20,12 @@
     <string name="tool_find_element">Procurar na tela</string>
     <string name="tool_collect">Coletar em várias telas</string>
     <string name="tool_phone_run">Várias ações no celular</string>
+    <string name="tool_list_device_files">Explorar arquivos do dispositivo</string>
+    <string name="tool_copy_device_file">Copiar arquivo do dispositivo</string>
     <string name="tool_process_files">Trabalhar com arquivos</string>
     <string name="tool_run_script">Executar script integrado</string>
     <string name="tool_read_file">Ler arquivo</string>
+    <string name="tool_view_image">Ver imagem</string>
     <string name="tool_write_file">Gravar arquivo</string>
     <string name="tool_search_files">Buscar arquivos</string>
     <string name="tool_export_file">Exportar arquivo</string>
@@ -77,4 +80,5 @@
     <string name="tool_mika_login_site">Entrar em um site</string>
     <string name="tool_mika_confirm_login">Confirmar login</string>
     <string name="tool_mika_favorites">Sites frequentes</string>
+    <string name="tool_wechat_owner">Enviar para o meu WeChat</string>
 </resources>

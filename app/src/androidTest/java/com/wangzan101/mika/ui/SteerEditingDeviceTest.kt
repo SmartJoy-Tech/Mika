@@ -42,6 +42,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import com.wangzan101.mika.chat.ui.draft
+import com.wangzan101.mika.settings.ui.models.edit
+import com.wangzan101.mika.settings.ui.models.use
 
 /** 真实对话页与任务服务;脚本模型延迟取消收尾,让消息稳定停在尚未交给模型的阶段。 */
 @RunWith(AndroidJUnit4::class)
@@ -104,8 +107,8 @@ class SteerEditingDeviceTest {
         send("请核对今天的资料")
         script.awaitCall()
         val runId = app.taskState.run(conversation)!!.key
-        send("撤回这条补充")
-        send("保留这条补充")
+        steer("撤回这条补充")
+        steer("保留这条补充")
         compose.waitUntil(5_000) { vm.ui.value.exchanges.single().steers.size == 2 && vm.ui.value.exchanges.single().steers.all { it.state == SteerState.Received } }
         val (withdraw, keep) = vm.ui.value.exchanges.single().steers
         openSteer(withdraw.id)
@@ -132,7 +135,7 @@ class SteerEditingDeviceTest {
         compose.onNodeWithTag("message-u0").performTouchInput { longClick() }
         compose.onNodeWithTag("message-menu-quote").performClick()
         waitMenuClosed()
-        send("顺便整理总结")
+        steer("顺便整理总结")
         compose.waitUntil(5_000) { vm.ui.value.exchanges.single().steers.singleOrNull()?.state == SteerState.Received }
         val old = vm.ui.value.exchanges.single().steers.single()
         openSteer(old.id)
@@ -144,7 +147,7 @@ class SteerEditingDeviceTest {
         compose.onNodeWithTag("message-m0-${old.id}").assertDoesNotExist()
         shot("edit-draft")
         compose.onNodeWithTag("composer-field").performTextClearance()
-        send("只整理一句总结")
+        steer("只整理一句总结")
         compose.waitUntil(5_000) { vm.ui.value.exchanges.single().steers.last().state == SteerState.Received }
         release.complete(Unit)
         val next = script.awaitCall().messages.toString()
@@ -180,6 +183,12 @@ class SteerEditingDeviceTest {
     private fun send(text: String) {
         compose.onNodeWithTag("composer-field").performTextInput(text)
         compose.onNodeWithContentDescription("发送").assertIsEnabled().performClick()
+    }
+
+    private fun steer(text: String) {
+        send(text)
+        compose.waitUntil(5_000) { compose.onAllNodesWithTag("follow-up-steer").fetchSemanticsNodes().isNotEmpty() }
+        compose.onAllNodesWithTag("follow-up-steer")[0].performClick()
     }
 
     private fun openSteer(id: String) {

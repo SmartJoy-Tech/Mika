@@ -8,7 +8,7 @@ import com.wangzan101.mika.cap.phone.setup.PhoneSetupPrompt
 import com.wangzan101.mika.cap.phone.shell.BuiltinShellConnection
 import com.wangzan101.mika.cap.phone.shell.HelperHub
 import com.wangzan101.mika.cap.phone.shell.SharedShell
-import com.wangzan101.mika.core.shell.BuiltinShellControl
+import com.wangzan101.mika.core.device.shell.BuiltinShellControl
 import com.wangzan101.mika.settings.RecoverySettings
 
 /**
@@ -21,6 +21,9 @@ class PhoneServices(context: Context) {
 
     /** 助手交来 Binder 的落点:助手只认一个进程里的一个落点。 */
     val hub = HelperHub(app)
+
+    /** Opt-in incoming SMS login and process-wide single-attempt admission. */
+    val smsLogin by lazy { com.wangzan101.mika.cap.phone.sms.SmsLoginRuntime(app) }
 
     /** 配对、经 adbd 起助手、看门狗。 */
     val shellManager = BuiltinShellManager(app, hub) { recoverySettings.consent.value }

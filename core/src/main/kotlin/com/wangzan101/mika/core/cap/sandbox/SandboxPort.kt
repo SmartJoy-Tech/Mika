@@ -4,7 +4,7 @@ import java.io.Closeable
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
-import com.wangzan101.mika.core.knowledge.ScriptEntry
+import com.wangzan101.mika.core.learn.knowledge.ScriptEntry
 import com.wangzan101.mika.core.workspace.SandboxError
 import com.wangzan101.mika.core.workspace.WorkspaceFileGate
 import com.wangzan101.mika.core.workspace.SandboxTree
@@ -27,6 +27,8 @@ sealed interface SandboxStatus {
 
 /** Agent 接触 Linux 沙箱的唯一入口;路径都是沙箱里的路径([SandboxPaths])。 */
 interface SandboxPort {
+    val folderFiles: FolderFiles? get() = null
+
     /** 沙箱目录的树锁:往工作区写的都在它的许可里写。 */
     val tree: SandboxTree
 
@@ -40,9 +42,10 @@ interface SandboxPort {
 
     /**
      * 启动一条长驻命令(stdio MCP server),stdin/stdout/stderr 直接接到进程。默认不支持;
-     * 实现必须把进程关在沙箱里,不能让它拿到 App 私有目录。
+     * 实现必须把进程关在沙箱里,不能让它拿到 App 私有目录。[environment] 是显式追加的环境
+     * (秘密经这里进进程,不进 argv),实现按 allowlist 合并,不继承宿主/App 环境。
      */
-    suspend fun openProcess(workspace: String, argv: List<String>, cwd: String? = null): SandboxProcess =
+    suspend fun openProcess(workspace: String, argv: List<String>, cwd: String? = null, environment: Map<String, String> = emptyMap()): SandboxProcess =
         throw SandboxError("sandbox_stdio_unsupported", "This device cannot run stdio MCP servers.", recoverable = true)
 
     /**

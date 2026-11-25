@@ -20,9 +20,12 @@
     <string name="tool_find_element">العثور على عنصر على الشاشة</string>
     <string name="tool_collect">الجمع عبر الشاشات</string>
     <string name="tool_phone_run">تنفيذ عدة إجراءات على الهاتف</string>
+    <string name="tool_list_device_files">تصفح ملفات الجهاز</string>
+    <string name="tool_copy_device_file">نسخ ملف من الجهاز</string>
     <string name="tool_process_files">العمل مع الملفات</string>
     <string name="tool_run_script">تشغيل نص برمجي مضمّن</string>
     <string name="tool_read_file">قراءة ملف</string>
+    <string name="tool_view_image">عرض الصورة</string>
     <string name="tool_write_file">كتابة ملف</string>
     <string name="tool_search_files">البحث في الملفات</string>
     <string name="tool_export_file">تصدير ملف</string>
@@ -77,4 +80,5 @@
     <string name="tool_mika_login_site">تسجيل الدخول إلى موقع</string>
     <string name="tool_mika_confirm_login">تأكيد تسجيل الدخول</string>
     <string name="tool_mika_favorites">المواقع المتكررة</string>
+    <string name="tool_wechat_owner">إرسال إلى WeChat الخاص بي</string>
 </resources>

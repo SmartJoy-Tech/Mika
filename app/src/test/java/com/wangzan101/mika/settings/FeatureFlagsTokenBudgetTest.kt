@@ -1,6 +1,6 @@
 package com.wangzan101.mika.settings
 
-import com.wangzan101.mika.core.usage.TokenBudgetLimits
+import com.wangzan101.mika.core.model.usage.TokenBudgetLimits
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -26,6 +26,21 @@ class FeatureFlagsTokenBudgetTest {
         for (invalid in listOf(-1L, 0L, TokenBudgetLimits.MIN - 1, TokenBudgetLimits.MAX + 1)) {
             f.setTaskTokenBudget(invalid)
             assertNull("非法值按不限制处理: $invalid", f.taskTokenBudget())
+        }
+    }
+
+    @Test fun proactiveDailyBudgetDefaultsTo200kAndNeverBecomesUnlimited() {
+        val f = flags()
+        assertEquals(200_000L, f.proactiveDailyTokenBudget())
+        f.setProactiveDailyTokenBudget(50_000)
+        assertEquals(50_000L, f.proactiveDailyTokenBudget())
+        f.setProactiveDailyTokenBudget(null)
+        assertEquals(200_000L, f.proactiveDailyTokenBudget())
+        f.setProactiveDailyTokenBudget(TokenBudgetLimits.MIN)
+        assertEquals(TokenBudgetLimits.MIN, f.proactiveDailyTokenBudget())
+        for (invalid in listOf(-1L, 0L, TokenBudgetLimits.MIN - 1, TokenBudgetLimits.MAX + 1)) {
+            f.setProactiveDailyTokenBudget(invalid)
+            assertEquals("非法值按默认值处理: $invalid", 200_000L, f.proactiveDailyTokenBudget())
         }
     }
 }

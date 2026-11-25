@@ -25,6 +25,31 @@ class CallSummaryGeneratorTest {
         assertTrue(model.received.contains("请周五联系我"))
     }
 
+    @Test fun generatesSummaryAndDraftInOneRequestAndBoundsDraft() = runBlocking {
+        var calls = 0
+        val model = object : ChatModel {
+            override val capabilities = Capabilities(false, false, 4096, false)
+            override suspend fun complete(system: String, messages: List<Message>, tools: List<ToolSpec>): ModelReply {
+                calls++
+                assertTrue(tools.isEmpty())
+                assertTrue(system.contains("不能将对方的承诺写成主人的承诺"))
+                return ModelReply(listOf(Part.Text("""{"purpose":"确认报价需求","followUpDraft":"  ${"字".repeat(800)}  "}""")), StopReason.EndTurn, null)
+            }
+        }
+        val result = CallSummaryGenerator.generate(model, listOf(CallTranscriptLine("caller", "请发报价，时间再确认")))!!
+        assertEquals(1, calls)
+        assertEquals("确认报价需求", result.purpose)
+        assertEquals(CallHistory.MAX_DRAFT_LENGTH, result.followUpDraft!!.length)
+    }
+
+    @Test fun absentBlankOrMalformedDraftKeepsSummaryWithoutInventingMessage() = runBlocking {
+        for (field in listOf("", ",\"followUpDraft\":null", ",\"followUpDraft\":\"  \"", ",\"followUpDraft\":{}")) {
+            val result = CallSummaryGenerator.generate(FakeModel("""{"purpose":"寒暄"$field}"""), listOf(CallTranscriptLine("caller", "你好")))!!
+            assertEquals("寒暄", result.purpose)
+            assertNull(result.followUpDraft)
+        }
+    }
+
     @Test fun outgoingSummaryNamesTheOtherPartyAsRecipient() = runBlocking {
         val model = FakeModel("{}")
         CallSummaryGenerator.generate(model, listOf(CallTranscriptLine("caller", "你好")), CallDirection.OUTGOING)
@@ -33,6 +58,18 @@ class CallSummaryGeneratorTest {
 
     @Test fun malformedReplyFailsWithoutInventingFields() = runBlocking {
         assertNull(CallSummaryGenerator.generate(FakeModel("这通电话很好。"), listOf(CallTranscriptLine("caller", "你好"))))
+    }
+
+    @Test fun deviceKeySubmissionIsNotAttributedToEitherParty() = runBlocking {
+        val model = FakeModel("{}")
+        CallSummaryGenerator.generate(model, listOf(
+            CallTranscriptLine("system", "已提交 3 个按键，等待对方响应"),
+            CallTranscriptLine("caller", "请选择业务"),
+        ))
+        assertEquals("来电者: 请选择业务", model.received)
+        val onlyStatus = FakeModel("{}")
+        assertNull(CallSummaryGenerator.generate(onlyStatus, listOf(CallTranscriptLine("system", "已提交按键"))))
+        assertTrue(onlyStatus.received.isEmpty())
     }
 
     @Test fun emptyTranscriptDoesNotCallModel() = runBlocking {

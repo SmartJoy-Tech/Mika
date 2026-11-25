@@ -1,13 +1,14 @@
 package com.wangzan101.mika.core.general
 
-import com.wangzan101.mika.core.knowledge.GuideView
-import com.wangzan101.mika.core.knowledge.KNOWLEDGE_KINDS
-import com.wangzan101.mika.core.knowledge.KnowledgeIndex
-import com.wangzan101.mika.core.knowledge.PERSONAL_KIND
-import com.wangzan101.mika.core.knowledge.SKILL_KINDS
-import com.wangzan101.mika.core.knowledge.toolsNote
+import com.wangzan101.mika.core.learn.knowledge.GuideView
+import com.wangzan101.mika.core.learn.knowledge.KNOWLEDGE_KINDS
+import com.wangzan101.mika.core.learn.knowledge.KnowledgeIndex
+import com.wangzan101.mika.core.learn.knowledge.PERSONAL_KIND
+import com.wangzan101.mika.core.learn.knowledge.SKILL_KINDS
+import com.wangzan101.mika.core.learn.knowledge.toolsNote
 import com.wangzan101.mika.core.prompt.Prompts
-import com.wangzan101.mika.core.skills.PersonalSkills
+import com.wangzan101.mika.core.learn.skills.PLUGIN_KIND
+import com.wangzan101.mika.core.learn.skills.PersonalSkills
 import com.wangzan101.mika.core.tool.AgentTool
 import com.wangzan101.mika.core.tool.ArgError
 import com.wangzan101.mika.core.tool.Args
@@ -124,8 +125,8 @@ private suspend fun read(a: Args, ctx: ToolContext, among: Set<String>): ToolExe
         is GuideView.Failed -> fail(v.error, v.message)
         is GuideView.Found -> {
             // 能跑脚本时列出这一条带的脚本和此刻能不能跑;scriptSource 是跑脚本时 source 要填的值
-            // 个人技能只有文字,不带脚本
-            val dir = if (v.info.kind == PERSONAL_KIND) "" else catalog.scriptSource(v.info)
+            // 个人技能只有文字;插件技能走插件自己的工具,不走 run_bundled_script
+            val dir = if (v.info.kind == PERSONAL_KIND || v.info.kind == PLUGIN_KIND) "" else catalog.scriptSource(v.info)
             val scripts = if (ready && dir.isNotEmpty()) runner!!.scripts(dir) else emptyList()
             ok {
                 put("name", v.info.name); put("kind", v.info.kind); put("file", v.file)

@@ -69,8 +69,9 @@
     <string name="speech_doubao_plan">Facturación</string>
     <string name="speech_doubao_duration_note">Se cobra por tiempo reconocido</string>
     <string name="speech_doubao_concurrent_note">Se cobra por conexiones simultáneas</string>
-    <string name="speech_funasr_model">Fun-ASR (autoalojado)</string>
-    <string name="speech_funasr_setup_hint">Las palabras aparecen mientras hablas, reconocidas por un servidor de Fun-ASR en tiempo real que ejecutas tú (serve_realtime_ws.py del proyecto Fun-ASR), normalmente en tu red local. No necesita cuenta ni clave.</string>
+    <string name="speech_funasr_model">Qwen (autoalojado)</string>
+    <string name="speech_funasr_setup_hint">Las palabras aparecen mientras hablas, reconocidas por un servidor en tiempo real que ejecutas tú, normalmente en tu red local. No necesita cuenta ni clave. Compatible con Fun-ASR-Nano y Qwen3-ASR.</string>
+    <string name="speech_funasr_deploy_guide">Guía de despliegue</string>
     <string name="speech_funasr_server">Servidor</string>
     <string name="speech_funasr_address">Dirección</string>
     <string name="speech_funasr_enter_address">p. ej. 192.168.1.10:10095</string>
@@ -92,7 +93,7 @@
     <string name="speech_live_auth">El servicio rechazó la clave. Comprueba la clave y que sea de la región elegida.</string>
     <string name="speech_live_refused">El servicio rechazó la solicitud (%1$s).</string>
     <string name="speech_live_unreachable">No se pudo conectar con el servicio. Comprueba la dirección y que el servicio esté en marcha.</string>
-    <string name="speech_funasr_service">Reconocimiento de voz en tiempo real Fun-ASR</string>
+    <string name="speech_funasr_service">Reconocimiento de voz en tiempo real Qwen</string>
     <string name="speech_funasr_choose_note">Servidor propio o Alibaba Cloud Bailian</string>
     <string name="speech_funasr_tab_local">Autoalojado</string>
     <string name="speech_bailian_tab">Bailian · %1$s</string>
@@ -140,4 +141,25 @@
     <string name="personal_replay_pause">Pausar</string>
     <string name="personal_replay_play">Reproducir</string>
     <string name="personal_replay_return_live">Volver al directo</string>
+    <string name="drawer_projects">Proyectos</string>
+    <string name="drawer_new_project">Nuevo proyecto</string>
+    <string name="drawer_project_new_title">Nuevo proyecto</string>
+    <string name="drawer_project_name_hint">Nombre del proyecto</string>
+    <string name="drawer_project_rename_title">Renombrar proyecto</string>
+    <string name="drawer_project_new_chat">Nuevo chat en el proyecto</string>
+    <string name="drawer_project_empty">Aún no hay chats</string>
+    <string name="drawer_project_delete_title">¿Eliminar este proyecto?</string>
+    <string name="drawer_project_delete_body">Se eliminarán todos los chats y archivos compartidos del espacio de trabajo de "%1$s" y no se podrán recuperar.</string>
+    <string name="drawer_project_actions">Acciones del proyecto</string>
+    <string name="chat_project_shared">Proyecto</string>
+    <string name="desk_report_line">%1$s: %2$s</string>
+    <string name="desk_report_started">Empezó</string>
+    <string name="desk_report_needs_answer">Te pregunta: %1$s</string>
+    <string name="desk_report_needs_confirm">Necesita tu confirmación en el teléfono</string>
+    <string name="desk_report_needs_takeover">Necesita que tomes el control en el teléfono</string>
+    <string name="desk_report_needs_prerequisite">Necesita que resuelvas algo en el teléfono para seguir</string>
+    <string name="desk_report_succeeded">Listo: %1$s</string>
+    <string name="desk_report_failed">No se pudo: %1$s</string>
+    <string name="desk_report_cancelled">Cancelada</string>
+    <string name="desk_task_not_started">La tarea no llegó a empezar. Abre Mika e inténtalo de nuevo.</string>
 </resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_auto_off_short">オフ</string>
+    <string name="calls_auto_standby_short">待機中</string>
+    <string name="calls_rule_delay">応答まで</string>
+    <string name="calls_seconds_value">%1$d 秒</string>
+    <string name="calls_none_added">なし</string>
+    <string name="calls_not_set">未設定</string>
+    <string name="calls_is_set">設定済み</string>
+    <string name="calls_numbers_count">%1$d 件の番号</string>
+    <string name="calls_scope_all_short">すべての着信</string>
+    <string name="calls_scope_strangers_short">不明な番号</string>
+    <string name="calls_allowlist_empty_short">リストは空</string>
+    <string name="calls_list_count_short">リストに %1$d 件</string>
+    <string name="calls_not_confirmed">未確認</string>
+    <string name="calls_task_more">質問・背景・制限</string>
+    <string name="calls_this_call">この通話</string>
+</resources>

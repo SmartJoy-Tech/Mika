@@ -1,10 +1,25 @@
 package com.wangzan101.mika.chat
 
 import android.content.Context
+import com.wangzan101.mika.core.agent.NoticeTurn
+import com.wangzan101.mika.core.run.record.RunMetricsStore
+import com.wangzan101.mika.core.model.usage.ConversationMeter
+import com.wangzan101.mika.core.model.usage.ConversationUsage
 import com.wangzan101.mika.core.agent.Turn
-import com.wangzan101.mika.core.memory.MemoryNote
-import com.wangzan101.mika.core.memory.NoteKind
-import com.wangzan101.mika.core.skills.SkillNote
+import com.wangzan101.mika.settings.PersonaStore
+import com.wangzan101.mika.core.chat.GeneratedAudio
+import com.wangzan101.mika.core.chat.GeneratedPhoto
+import com.wangzan101.mika.core.learn.memory.MemoryNote
+import com.wangzan101.mika.core.learn.memory.NoteKind
+import com.wangzan101.mika.core.learn.skills.SkillNote
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onStart
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,11 +33,13 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.put
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.nio.file.LinkOption
 import java.util.UUID
 
@@ -35,6 +52,46 @@ class ConversationStore(
     constructor(context: Context) : this(File(context.filesDir, "conversations"))
 
     fun newConversation(): String = UUID.randomUUID().toString()
+
+    // Separate invalidation: model requests must not reload the transcript, reorder chats or reset auto-archive.
+    private val usageRevision = MutableStateFlow(0L)
+    private val metrics = RunMetricsStore(File(dir.parentFile, RunMetricsStore.FILE_NAME))
+    private val usageJson = Json { ignoreUnknownKeys = true }
+
+    fun observeUsage(id: String): Flow<ConversationUsage> =
+        usageRevision.map { usageSnapshot(id) }.distinctUntilChanged().flowOn(Dispatchers.IO)
+
+    fun meter(id: String) = ConversationMeter { change -> updateUsage(id, change) }
+
+    private fun usageFile(id: String) = File(dir, "${file(id).name}.usage")
+
+    @Synchronized
+    internal fun usageSnapshot(id: String): ConversationUsage {
+        val saved = usageFile(id)
+        if (saved.isFile) return usageJson.decodeFromString(ConversationUsage.serializer(), saved.readText())
+        val branch = branchOrigin(id)
+        val inherited = branch?.let { it.parentTurn + if (it.afterTurn) 1 else 0 } ?: 0
+        val history = turns(id).drop(inherited).filterNot(NoticeTurn::isNotice)
+        if (history.isEmpty()) return ConversationUsage()
+        val summaries = metrics.byIds(history.mapNotNull { it.runId }.toSet()).values
+        // Historical summaries lack cache-report coverage and may omit calls made after a task ended.
+        return ConversationUsage(input = summaries.sumOf { it.allInputTokens ?: it.inputTokens },
+            output = summaries.sumOf { it.allOutputTokens ?: it.outputTokens }, partial = true)
+    }
+
+    @Synchronized
+    private fun updateUsage(id: String, change: (ConversationUsage) -> ConversationUsage) {
+        if (safe(id) in deleted) return
+        val old = usageSnapshot(id)
+        val next = change(old)
+        if (old == next) return
+        dir.mkdirs()
+        val dest = usageFile(id)
+        val tmp = File(dir, "${dest.name}.tmp")
+        tmp.writeText(usageJson.encodeToString(ConversationUsage.serializer(), next))
+        Files.move(tmp.toPath(), dest.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+        usageRevision.value++
+    }
 
     private val _changes = MutableSharedFlow<String>(extraBufferCapacity = 64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
@@ -115,18 +172,26 @@ class ConversationStore(
         val unsaved = pending.asSequence()
             .filter { firstMessage(file(it.id)) == null }
             .filter { includeArchived || archivedAt(it.id) == null }
+            .filterNot { hiddenDeskChild(it.id) }
         val saved = dir.listFiles { f -> f.isFile && f.name.endsWith(".json") }.orEmpty()
             .map { it to it.lastModified() }
             .sortedWith(compareByDescending<Pair<File, Long>> { it.second }.thenBy { it.first.name })
             .asSequence().mapNotNull { (f, updatedAt) ->
                 val first = firstMessage(f) ?: return@mapNotNull null
                 val id = f.nameWithoutExtension
+                // 前台派活开的子对话在前台对话里看,不单独列(前台对话没了就单独列,见 hiddenDeskChild)
+                if (hiddenDeskChild(id)) return@mapNotNull null
                 val archivedAt = archivedAt(id)
                 if (!includeArchived && archivedAt != null) return@mapNotNull null
-                ConversationSummary(id, title(id) ?: first, updatedAt, pinnedAt(id), pageOrigin(id), branchOrigin(id), archivedAt, restoredAt(id))
+                ConversationSummary(id, title(id) ?: first, updatedAt, pinnedAt(id), pageOrigin(id), branchOrigin(id), archivedAt, restoredAt(id), projectId(id))
             }
         return (unsaved + saved).drop(offset).take(limit).toList()
     }
+
+    /** 只读控制台用:最近的对话(不含归档),连同轮数一起返回。 */
+    @Synchronized
+    fun listForConsole(limit: Int): List<ConversationSummary> =
+        listPage(0, limit).map { s -> s.copy(turnCount = read(file(s.id))?.size ?: 0) }
 
     private data class FirstMessage(val modified: Long, val size: Long, val text: String?)
     private val firstMessages = mutableMapOf<String, FirstMessage>()
@@ -171,7 +236,8 @@ class ConversationStore(
         val main = file(conversationId).name
         val metadata = setOf(titleFile(conversationId).name, pinFile(conversationId).name,
             pageFile(conversationId).name, branchFile(conversationId).name, archiveFile(conversationId).name,
-            restoreFile(conversationId).name)
+            restoreFile(conversationId).name, personaFile(conversationId).name, personaFile(conversationId).name + ".tmp",
+            projectFile(conversationId).name, projectFile(conversationId).name + ".tmp", deskParentFile(conversationId).name)
         val files = dir.listFiles { f -> f.name == main || f.name.startsWith("$main.") || f.name in metadata }
             ?: if (Files.notExists(dir.toPath())) emptyArray() else throw IOException("Cannot list conversation files")
         // Leave the history in place if any of its companion files cannot be removed.
@@ -180,6 +246,7 @@ class ConversationStore(
             if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) throw IOException("Unexpected conversation directory: ${file.name}")
             Files.deleteIfExists(path)
         }
+        usageRevision.value++
         deleted += safe(conversationId)
         firstMessages.remove(main)
         messageTimes.remove(main)
@@ -335,6 +402,133 @@ class ConversationStore(
     }
 
     /**
+     * 这个对话用的人格;没有、读不到、id 不合法为 null。放在 `<id>.persona` 里(JSON:version、current、history)。
+     * 人格被删除后旁文件仍在:调用方拿 [PersonaBinding.personaId] 去 PersonaStore 找不到,就当缺失处理。
+     */
+    @Synchronized
+    fun persona(conversationId: String): PersonaBinding? = runCatching {
+        val f = personaFile(conversationId).takeIf { it.isFile } ?: return@runCatching null
+        val o = Json.parseToJsonElement(f.readText()) as? JsonObject ?: return@runCatching null
+        val current = str(o, "current")?.takeIf(PersonaStore::isValidId) ?: return@runCatching null
+        val history = objects(o, "history").mapNotNull { h ->
+            val to = str(h, "to")?.takeIf(PersonaStore::isValidId) ?: return@mapNotNull null
+            val at = (h["at"] as? JsonPrimitive)?.contentOrNull?.toLongOrNull() ?: return@mapNotNull null
+            PersonaSwitch(at, str(h, "from")?.takeIf(PersonaStore::isValidId), to)
+        }
+        PersonaBinding(current, history.takeLast(MAX_PERSONA_HISTORY))
+    }.getOrNull()
+
+    /**
+     * 换掉这个对话用的人格;null 表示回到默认(删掉旁文件)。写进去了返回 true。
+     * 切换追加一条 history(最多 [MAX_PERSONA_HISTORY] 条),同一个人格重复写不追加;先写临时文件再改名。
+     */
+    @Synchronized
+    fun setPersona(conversationId: String, personaId: String?, at: Long = System.currentTimeMillis()): Boolean {
+        if (safe(conversationId) in deleted) return false
+        val f = personaFile(conversationId)
+        if (personaId == null) {
+            val ok = !f.exists() || f.delete()
+            if (ok) _changes.tryEmit(conversationId)
+            return ok
+        }
+        if (!PersonaStore.isValidId(personaId)) return false
+        val previous = persona(conversationId)
+        val history = buildList {
+            addAll(previous?.history.orEmpty())
+            previous?.personaId?.takeIf { it != personaId }?.let { add(PersonaSwitch(at, it, personaId)) }
+        }.takeLast(MAX_PERSONA_HISTORY)
+        val json = buildJsonObject {
+            put("version", 1)
+            put("current", personaId)
+            put("history", buildJsonArray {
+                history.forEach { h ->
+                    add(buildJsonObject {
+                        put("at", h.at)
+                        h.from?.let { put("from", it) }
+                        put("to", h.to)
+                    })
+                }
+            })
+        }
+        dir.mkdirs()
+        val tmp = File(dir, "${f.name}.tmp")
+        val ok = runCatching {
+            tmp.writeText(json.toString())
+            if (!tmp.renameTo(f)) {
+                f.writeText(json.toString())
+                tmp.delete()
+            }
+        }.isSuccess
+        if (ok) _changes.tryEmit(conversationId)
+        return ok
+    }
+
+    /** 前台派活开的子对话 [id] 属于哪个前台对话;不是子对话、读不到为 null。放在 `<id>.desk_parent` 里。 */
+    @Synchronized
+    fun deskParent(id: String): String? =
+        runCatching { deskParentFile(id).takeIf { it.isFile }?.readText()?.trim() }.getOrNull()?.let(::safe)?.takeIf(String::isNotEmpty)
+
+    /** 这个进程里派过活的前台对话:它的第一轮可能还没存下来,子对话照样藏在它下面。 */
+    private val liveDeskParents = mutableSetOf<String>()
+
+    /** 记下子对话 [child] 是前台对话 [parent] 派出去的;此后前台对话还在时 [child] 不进对话列表。删掉的对话不动。 */
+    @Synchronized
+    fun setDeskParent(child: String, parent: String) {
+        if (safe(child) in deleted || safe(parent).isEmpty()) return
+        dir.mkdirs()
+        liveDeskParents += safe(parent)
+        if (runCatching { deskParentFile(child).writeText(safe(parent)) }.isSuccess) _changes.tryEmit(child)
+    }
+
+    /**
+     * 子对话只在它的前台对话还在时藏起来(在前台对话里看):前台对话删掉了、或重启后从没存下来过,
+     * 子对话就回到列表里,不会再也找不到。
+     */
+    private fun hiddenDeskChild(id: String): Boolean {
+        val parent = deskParent(id) ?: return false
+        if (parent in deleted) return false
+        return file(parent).isFile || parent in liveDeskParents
+    }
+
+    /**
+     * 这个对话所属的项目;没有、读不到、id 不合法为 null。放在 `<id>.project` 里。
+     * 项目被删后如果旁文件意外还在,调用方经 [WorkspaceResolver] 核对后再用。
+     */
+    @Synchronized
+    fun projectId(conversationId: String): String? =
+        runCatching { projectFile(conversationId).takeIf { it.isFile }?.readText()?.trim() }
+            .getOrNull()?.takeIf(ProjectStore::isValidId)
+
+    /** 绑定对话所属的项目;null 表示解除绑定(删掉旁文件)。删掉的对话或非法项目编号不动。写进去了返回 true。 */
+    @Synchronized
+    fun setProject(conversationId: String, projectId: String?): Boolean {
+        if (safe(conversationId) in deleted) return false
+        val f = projectFile(conversationId)
+        if (projectId == null) {
+            val existed = f.exists()
+            val ok = !existed || f.delete()
+            if (existed && ok) _changes.tryEmit(conversationId)
+            return ok
+        }
+        if (!ProjectStore.isValidId(projectId)) return false
+        dir.mkdirs()
+        val tmp = File(dir, "${f.name}.tmp")
+        val ok = runCatching {
+            tmp.writeText(projectId)
+            try {
+                Files.move(tmp.toPath(), f.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+            } catch (_: Exception) {
+                if (!tmp.renameTo(f)) {
+                    f.writeText(projectId)
+                    tmp.delete()
+                }
+            }
+        }.isSuccess
+        if (ok) _changes.tryEmit(conversationId)
+        return ok
+    }
+
+    /**
      * 把 [sourceId] 的轮次复制成新对话 [targetId],复制到 [throughTurn](0 起,含在内)为止。
      * 源不存在、源文件损坏、[throughTurn] 越界、目标已有对话文件时返回 false,什么都不写。
      * [title] 非空白时写成新对话标题;[origin] 非空时写 `<targetId>.branch`。
@@ -374,6 +568,9 @@ class ConversationStore(
         write(targetId, records.take(if (includeTurn) turn + 1 else turn))
         title?.let { writeTitle(targetId, it) }
         pageOrigin(sourceId)?.let { setPageOrigin(targetId, it) }
+        // 人格与项目归属跟着对话走;切换记录不复制,新对话从当前这一份开始
+        persona(sourceId)?.let { setPersona(targetId, it.personaId) }
+        projectId(sourceId)?.let { setProject(targetId, it) }
         origin?.let { writeBranchOrigin(targetId, it) }
         return true
     }
@@ -410,6 +607,39 @@ class ConversationStore(
     /** 文件损坏时当作空对话,不让它挡住新任务。 */
     @Synchronized
     fun turns(conversationId: String): List<Turn> = records(conversationId).map { it.first }
+
+    private fun callsFile(id: String) = File(dir, "${file(id).name}.calls")
+    private val callsJson = Json { ignoreUnknownKeys = true }
+
+    /** 这个对话里的语音通话([ConversationCall]),按接通先后;没打过或读不懂时为空。 */
+    fun calls(conversationId: String): List<ConversationCall> = runCatching {
+        val f = callsFile(conversationId).takeIf { it.isFile } ?: return@runCatching emptyList()
+        callsJson.decodeFromString(ListSerializer(ConversationCall.serializer()), f.readText())
+    }.getOrDefault(emptyList())
+
+    /** 记下(或更新同一编号的)一通通话;和对话文件一起删。写完发一次 [changes]。 */
+    @Synchronized
+    fun recordCall(conversationId: String, call: ConversationCall) {
+        if (safe(conversationId) in deleted) return
+        val next = calls(conversationId).upsert(call)
+        dir.mkdirs()
+        val dest = callsFile(conversationId)
+        val tmp = File(dir, "${dest.name}.tmp")
+        val ok = runCatching {
+            tmp.writeText(callsJson.encodeToString(ListSerializer(ConversationCall.serializer()), next))
+            Files.move(tmp.toPath(), dest.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+        }.isSuccess
+        if (ok) _changes.tryEmit(conversationId)
+    }
+
+    /** 这个对话的通话记录,写过就重读一次。 */
+    fun observeCalls(conversationId: String): Flow<List<ConversationCall>> =
+        changes.filter { it == conversationId }.map { calls(conversationId) }
+            .onStart { emit(calls(conversationId)) }.distinctUntilChanged().flowOn(Dispatchers.IO)
+
+    /** 这个对话存过内容(有对话文件);空编号、读不到为 false。 */
+    @Synchronized
+    fun exists(conversationId: String): Boolean = file(conversationId).isFile
 
     /** 每一轮连同这一轮导出的文件(文件卡片)。 */
     @Synchronized
@@ -464,9 +694,13 @@ class ConversationStore(
                 keptPage = field("keptPage"),
                 keptPageClosed = field("keptPageClosed"),
                 atMs = field("atMs")?.toLongOrNull(),
+                audios = objects(o, "audios").mapNotNull(::audioOf),
+                photos = objects(o, "photos").mapNotNull(::photoOf),
                 verified = field("verified")?.toBooleanStrictOrNull(),
                 remoteTaskId = field("remoteTaskId"),
                 outcomeSystemType = field("outcomeSystemType"),
+                deskTasks = (o["deskTasks"] as? JsonArray)?.mapNotNull { (it as? JsonPrimitive)?.contentOrNull } ?: emptyList(),
+                callId = field("callId"),
             )
             turn to (o["files"] as? JsonArray).orEmpty().mapNotNull(::fileOf)
         }
@@ -484,6 +718,16 @@ class ConversationStore(
      * 往对话里存进一轮。有新的一轮就是又有动静了,归档的对话自动取消归档(和主流聊天软件一致);
      * 只改已有那一轮的 [updateTurn] 不算。
      */
+    private fun audioOf(o: JsonObject): GeneratedAudio? {
+        val path = str(o, "path") ?: return null
+        return GeneratedAudio(path, str(o, "durationMs")?.toLongOrNull(), str(o, "text"), str(o, "atMs")?.toLongOrNull())
+    }
+
+    private fun photoOf(o: JsonObject): GeneratedPhoto? {
+        val path = str(o, "path") ?: return null
+        return GeneratedPhoto(path, str(o, "width")?.toIntOrNull() ?: 0, str(o, "height")?.toIntOrNull() ?: 0, str(o, "prompt"), str(o, "atMs")?.toLongOrNull())
+    }
+
     @Synchronized
     fun append(conversationId: String, turn: Turn, files: List<SharedFile> = emptyList()) {
         bumpArchiveVersion(conversationId)
@@ -496,6 +740,7 @@ class ConversationStore(
             // 损坏的文件挪到一边留着,不拿新内容覆盖掉
             f.renameTo(File(dir, "${f.name}.corrupt-${System.currentTimeMillis()}"))
         }
+        // 新的一轮记下存进来的时刻;带时间戳的(分支复制、恢复)照原样保留
         val stored = if (turn.atMs == null) turn.copy(atMs = clock()) else turn
         write(conversationId, prior.orEmpty() + (stored to files))
     }
@@ -545,8 +790,23 @@ class ConversationStore(
                 if (it.interruptedReplies.any(String::isNotEmpty)) put("interruptedReplies", JsonArray(it.interruptedReplies.map(::JsonPrimitive)))
                 if (it.finishedReplies.any(String::isNotEmpty)) put("finishedReplies", JsonArray(it.finishedReplies.map(::JsonPrimitive)))
                 if (it.groups.isNotEmpty()) put("groups", JsonArray(it.groups.map(::JsonPrimitive)))
+                if (it.deskTasks.isNotEmpty()) put("deskTasks", JsonArray(it.deskTasks.map(::JsonPrimitive)))
+                it.callId?.let { c -> put("callId", c) }
                 it.keptPage?.let { h -> put("keptPage", h) }; it.keptPageClosed?.let { r -> put("keptPageClosed", r) }
                 it.atMs?.let { t -> put("atMs", t) }
+                if (it.audios.isNotEmpty()) put("audios", JsonArray(it.audios.map { a ->
+                    buildJsonObject {
+                        put("path", a.path); a.durationMs?.let { d -> put("durationMs", d) }
+                        a.text?.let { t -> put("text", t) }; a.atMs?.let { t -> put("atMs", t) }
+                    }
+                }))
+                if (it.photos.isNotEmpty()) put("photos", JsonArray(it.photos.map { p ->
+                    buildJsonObject {
+                        put("path", p.path); put("width", p.width); put("height", p.height)
+                        p.prompt?.let { text -> put("prompt", text) }
+                        p.atMs?.let { t -> put("atMs", t) }
+                    }
+                }))
                 if (it.skillNotes.isNotEmpty()) put("skillNotes", JsonArray(it.skillNotes.map { n ->
                     buildJsonObject { put("text", n.text); n.draftId?.let { d -> put("draftId", d) }; n.suspended?.let { x -> put("suspended", x) } }
                 }))
@@ -578,6 +838,9 @@ class ConversationStore(
 
         /** `current` 文件里表示「新开还没说话的对话」的那个值(对话编号只会是字母数字、`-`、`_`,不会撞上)。 */
         private const val CURRENT_FRESH = "fresh"
+
+        /** 人格切换记录最多留这么多条。 */
+        private const val MAX_PERSONA_HISTORY = 50
     }
 
     // id 来自 newConversation 或外部传入,只留安全字符,免得拼出目录外的路径
@@ -588,6 +851,9 @@ class ConversationStore(
     private fun branchFile(id: String) = File(dir, "${safe(id)}.branch")
     private fun archiveFile(id: String) = File(dir, "${safe(id)}.archive")
     private fun restoreFile(id: String) = File(dir, "${safe(id)}.restored")
+    private fun personaFile(id: String) = File(dir, "${safe(id)}.persona")
+    private fun projectFile(id: String) = File(dir, "${safe(id)}.project")
+    private fun deskParentFile(id: String) = File(dir, "${safe(id)}.desk_parent")
 
     /** 用户此刻在哪个对话,见 [CurrentChat];不是 `.json`,不进 [list]。 */
     private fun currentFile() = File(dir, "current")
@@ -604,7 +870,17 @@ data class ConversationSummary(
     val archivedAt: Long? = null,
     /** 最近一次手动取消归档的时间;自动归档给它一段宽限。 */
     val restoredAt: Long? = null,
+    /** 所属项目编号;独立对话为 null。 */
+    val projectId: String? = null,
+    /** 这个对话已有的轮数;只读控制台查询时填,普通列表为 0。 */
+    val turnCount: Int = 0,
 )
+
+/** 对话用的人格和切换记录;人格本身在 PersonaStore 里,这里只存 id。 */
+data class PersonaBinding(val personaId: String, val history: List<PersonaSwitch> = emptyList())
+
+/** 一次人格切换:[from] 为 null 表示从默认换过来。 */
+data class PersonaSwitch(val at: Long, val from: String?, val to: String)
 
 /** 分支来源:从 [parentId] 的第 [parentTurn] 轮(0 起)分出来的;[afterTurn] 为 false 时是复制到这一轮之前(第 2 阶段从用户消息重新问)。 */
 data class BranchOrigin(val parentId: String, val parentTurn: Int, val afterTurn: Boolean, val at: Long)

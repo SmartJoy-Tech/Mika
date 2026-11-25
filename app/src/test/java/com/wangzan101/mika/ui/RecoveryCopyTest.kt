@@ -2,14 +2,15 @@ package com.wangzan101.mika.ui
 
 import org.junit.Rule
 import com.wangzan101.mika.i18n.ChineseTexts
-import com.wangzan101.mika.core.shell.AutoOnBlock
-import com.wangzan101.mika.core.shell.HelperRestart
-import com.wangzan101.mika.core.shell.RecoveryCapability
-import com.wangzan101.mika.core.shell.RecoveryConsent
+import com.wangzan101.mika.core.device.shell.AutoOnBlock
+import com.wangzan101.mika.core.device.shell.HelperRestart
+import com.wangzan101.mika.core.device.shell.RecoveryCapability
+import com.wangzan101.mika.core.device.shell.RecoveryConsent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
+import com.wangzan101.mika.settings.ui.RecoveryCopy
 
 class RecoveryCopyTest {
     @get:Rule val texts = ChineseTexts()
@@ -40,6 +41,19 @@ class RecoveryCopyTest {
             assertNull(RecoveryCopy.pending(c, RecoveryConsent(applied = setOf(c)), paired = true, autoFailed = emptySet(), restart = HelperRestart.Wireless))
         }
         assertNull(RecoveryCopy.pending(RecoveryCapability.Accessibility, RecoveryConsent(), paired = true, autoFailed = emptySet(), restart = usb))
+    }
+
+    /** 用 Shizuku 启动过:靠无线调试重启的两项说明无需无线调试配对;无障碍和电池白名单照旧。 */
+    @Test
+    fun shizukuRestartExplainsNoWirelessPairingNeeded() {
+        val shizuku = HelperRestart.Shizuku
+        listOf(RecoveryCapability.RestoreAfterReboot, RecoveryCapability.AutoWirelessDebugging).forEach { c ->
+            val note = RecoveryCopy.pending(c, RecoveryConsent(applied = setOf(c)), paired = false, autoFailed = emptySet(), restart = shizuku)
+            assertNotNull(c.name, note)
+            assertNull(RecoveryCopy.pending(c, RecoveryConsent(declined = setOf(c)), paired = false, autoFailed = emptySet(), restart = shizuku))
+        }
+        assertNull(RecoveryCopy.pending(RecoveryCapability.Accessibility, RecoveryConsent(applied = setOf(RecoveryCapability.Accessibility)), paired = false, autoFailed = emptySet(), restart = shizuku))
+        assertNull(RecoveryCopy.pending(RecoveryCapability.BatteryWhitelist, RecoveryConsent(applied = setOf(RecoveryCapability.BatteryWhitelist)), paired = false, autoFailed = emptySet(), restart = shizuku))
     }
 
     @Test

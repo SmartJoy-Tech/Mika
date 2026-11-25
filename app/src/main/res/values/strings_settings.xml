@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="language_title">Language</string>
+    <string name="language_prompt_title">Language</string>
+    <string name="language_prompt_hint">Choose the language Mika uses for thinking, step narration, and replies.</string>
+    <string name="language_search_hint">Search language</string>
+    <string name="language_prompt_confirm">Confirm</string>
+    <string name="language_prompt_dismiss">Not now</string>
     <string name="language_system">Follow system</string>
     <string name="language_system_detail">Uses your system language when Mika has it, English otherwise</string>
     <string name="language_simplified_chinese" translatable="false">简体中文</string>
@@ -14,7 +19,7 @@
     <string name="language_indonesian" translatable="false">Bahasa Indonesia</string>
     <string name="language_arabic" translatable="false">العربية</string>
     <string name="language_persian" translatable="false">فارسی</string>
-    <string name="settings_basic">Common</string>
+    <string name="language_turkish" translatable="false">Türkçe</string>
     <string name="settings_language_appearance">Language &amp; appearance</string>
     <string name="settings_personal_start">Open Personal Assistant on launch</string>
     <string name="settings_personal_start_sub">Use Personal Assistant as your first screen</string>
@@ -25,7 +30,6 @@
     <string name="settings_during_work">Task running</string>
     <string name="settings_during_work_sub">Autonomous mode, pace, step limit &amp; sound</string>
     <string name="settings_notif_sub">When they pop up, change in system settings</string>
-    <string name="settings_privacy">My data</string>
     <string name="settings_memory_data">Memory &amp; data</string>
     <string name="settings_memory_sub">Memories, skills, saved routes &amp; website sign-ins</string>
     <string name="settings_saved_data">Saved data</string>
@@ -34,10 +38,8 @@
         <item quantity="one">%1$d site</item>
         <item quantity="other">%1$d sites</item>
     </plurals>
-    <string name="settings_other">Other</string>
-    <string name="settings_advanced">Advanced &amp; other</string>
-    <string name="settings_advanced_sub">Proxy, computing, connections &amp; repair</string>
-    <string name="settings_connections">Network &amp; connections</string>
+    <string name="settings_advanced">Advanced</string>
+    <string name="settings_advanced_sub">Extensions, network, runtime &amp; maintenance</string>
     <string name="settings_maintenance">Maintenance</string>
     <string name="settings_sandbox">Files &amp; computing environment</string>
     <string name="settings_routes">Saved routes</string>
@@ -67,6 +69,8 @@
     <string name="settings_notif_master">All notifications</string>
     <string name="settings_allowed">Allowed</string>
     <string name="settings_task_notifs">Task notifications</string>
+    <string name="settings_live_task_updates">Live task updates</string>
+    <string name="settings_live_task_updates_detail">Choose whether to show your running tasks in the status bar</string>
     <string name="settings_keep_on">Keep screen on</string>
     <string name="settings_keep_on_sub">The screen stays on while a task runs (it can still dim when you’re not using it), then goes back to normal</string>
     <string name="settings_mute">Mute the app being used</string>
@@ -79,6 +83,15 @@
     <string name="settings_pace_human">Human-like</string>
     <string name="settings_pace_human_detail">Slow in every app, reading each screen before going on</string>
     <string name="settings_pace_foot">Some apps log you out or ask for verification when they are used too fast. The slower the pace, the longer a task takes.</string>
+    <string name="settings_pace_per_app">Per-app pace</string>
+    <string name="settings_pace_per_app_sub">Slow down apps with strict bot checks, or speed up the patient ones; the rest follow the global pace</string>
+    <string name="settings_pace_per_app_intro">Apps in this list use their own pace; everything else follows the global pace (now %1$s).</string>
+    <string name="settings_pace_per_app_empty">No apps are set per-app yet.</string>
+    <string name="settings_pace_per_app_add">Add an app</string>
+    <string name="settings_pace_per_app_search">Search apps</string>
+    <string name="settings_pace_per_app_none">No matching apps</string>
+    <string name="settings_pace_per_app_pick">Pick</string>
+    <string name="settings_pace_per_app_remove">Remove (follow the global pace)</string>
     <string name="settings_parallel">Tasks at once</string>
     <string name="settings_parallel_sub">Tasks from different chats each get their own virtual screen</string>
     <plurals name="settings_count_tasks">
@@ -117,6 +130,8 @@
     <string name="net_proxy">Network proxy</string>
     <string name="net_proxy_row_sub">For model requests, updates, the in-app browser and commands</string>
     <string name="net_proxy_hint">Used for Mika’s model requests (chat, model lists, account sign-in), in-app update downloads, the in-app browser, and commands in Files &amp; computing environment while network access is on there. Addresses on this phone or your local network (localhost, 192.168.x.x, 10.x.x.x, names ending in .local) always connect directly, so local models keep working. It may include user:password@, stored encrypted on this phone. Leave empty for a direct connection.</string>
+    <string name="net_proxy_summary">Model requests, updates, the in-app browser and file-environment commands go through this proxy.</string>
+    <string name="details">Details</string>
     <string name="net_proxy_invalid">Write it as http://host:port (socks5, socks5h and https work too), optionally with user:password@ before the host.</string>
     <string name="net_proxy_container_only">https:// proxies are only used by commands in Files &amp; computing environment; Mika’s own connections stay direct. Use http:// or socks5:// to cover everything.</string>
     <string name="net_proxy_browser_unsupported">This phone’s WebView can’t use a separate proxy, so the in-app browser connects directly.</string>
@@ -167,7 +182,7 @@
     <string name="skin_accent_follow">Accent color from the image</string>
     <string name="skin_accent_follow_sub">Uses the main color in the image instead of the accent color above, when it has one</string>
     <string name="settings_self_config">Let Mika change its own settings</string>
-    <string name="settings_self_config_sub">When on, tasks get one tool to read and change these preferences (pace, mute, capsule, appearance, accent color, screen-on). Models, API keys, container network and anything that deletes data are never included</string>
+    <string name="settings_self_config_sub">Can only change the listed preferences; never models, keys, network access or deleting data.</string>
     <string name="settings_step_limit">Step limit per task</string>
     <string name="settings_step_limit_sub">Off means no limit. When the limit is reached, the task stops and says where it stopped.</string>
     <string name="settings_step_limit_off">No limit</string>
@@ -207,6 +222,60 @@
     <string name="mcp_servers_status_fail">Connection failed: %1$s</string>
     <string name="mcp_servers_refresh_all">Test all</string>
     <string name="mcp_servers_allowlist">Allowed tools (comma separated, empty = all)</string>
+    <string name="mcp_category_all">All</string>
+    <string name="mcp_category_ai">AI</string>
+    <string name="mcp_category_data">Data</string>
+    <string name="mcp_category_dev">Developer tools</string>
+    <string name="mcp_category_comm">Communication</string>
+    <string name="mcp_category_prod">Productivity</string>
+    <string name="mcp_category_design">Design &amp; media</string>
+    <string name="mcp_category_cloud">Cloud</string>
+    <string name="mcp_category_web">Search &amp; web</string>
+    <string name="mcp_category_maps">Maps</string>
+    <string name="mcp_category_local">On this device</string>
+    <string name="mcp_catalog_title">MCP services</string>
+    <string name="mcp_catalog_search_hint">Search services</string>
+    <string name="mcp_catalog_no_results">No matching services</string>
+    <string name="mcp_catalog_no_results_sub">Try another keyword or category, or set up a custom server.</string>
+    <string name="mcp_catalog_custom">Custom MCP server</string>
+    <string name="mcp_catalog_browse">Browse service catalog</string>
+    <string name="mcp_catalog_custom_server">Custom server</string>
+    <string name="mcp_connect_auth_oauth">Sign in with your account</string>
+    <string name="mcp_connect_auth_fields">API key</string>
+    <string name="mcp_connect_auth_none">No sign-in required</string>
+    <string name="mcp_connect_auth_stdio">Runs on this device</string>
+    <string name="mcp_connect_authorize">Sign in and connect</string>
+    <string name="mcp_connect_connect">Connect</string>
+    <string name="mcp_connect_connecting">Connecting…</string>
+    <string name="mcp_connect_cancel">Cancel</string>
+    <string name="mcp_connect_retry">Retry</string>
+    <string name="mcp_connect_success_title">Connected</string>
+    <string name="mcp_connect_success_tools">%1$d tools available</string>
+    <string name="mcp_connect_done">Done</string>
+    <string name="mcp_connect_view_tools">View tools</string>
+    <string name="mcp_connect_data_note">Your requests and data are sent to this service.</string>
+    <string name="mcp_connect_package_title">Download required</string>
+    <string name="mcp_connect_package_body">To use this server, Mika will download and cache this package on the device:\n%1$s %2$s\nfrom %3$s</string>
+    <string name="mcp_connect_package_confirm">Download and connect</string>
+    <string name="mcp_connect_help">Get an API key</string>
+    <string name="mcp_connect_official">Official documentation</string>
+    <string name="mcp_connect_about">About this service</string>
+    <string name="mcp_manage_test">Test now</string>
+    <string name="mcp_manage_reauthorize">Sign in again</string>
+    <string name="mcp_manage_replace">Replace credentials</string>
+    <string name="mcp_manage_replace_hint">Leave a field blank to keep the current value.</string>
+    <string name="mcp_manage_edit">Edit details</string>
+    <string name="mcp_manage_delete_note">Deleting removes this server and its saved credentials from Mika. It does not revoke access you granted on the service\'s own site.</string>
+    <string name="mcp_custom_headers">Request headers</string>
+    <string name="mcp_custom_header_name">Header name</string>
+    <string name="mcp_custom_header_value">Header value</string>
+    <string name="mcp_custom_add_header">Add header</string>
+    <string name="mcp_custom_advanced">Advanced</string>
+    <string name="mcp_custom_timeout">Connection timeout (seconds)</string>
+    <string name="mcp_custom_preview">Result preview length</string>
+    <string name="mcp_custom_budget">Per-task cost budget</string>
+    <string name="settings_show_task_cost">Show task cost</string>
+    <string name="settings_show_task_cost_sub">Estimate DeepSeek API charges in Chinese yuan for new tasks.</string>
     <string name="quit_title">Quit Mika completely</string>
     <string name="quit_row_sub">Stops background tasks and hides the floating capsule</string>
     <string name="quit_confirm_body">Tasks that are running will stop, and the floating capsule and notifications will go away. Open Mika again and everything comes back.</string>
@@ -219,9 +288,45 @@
     <string name="settings_token_budget_invalid">Enter a whole number from %1$s to %2$s.</string>
     <string name="settings_auto_archive">Auto-archive chats</string>
     <string name="settings_auto_archive_sub">Chats without new messages for a while move to the archive</string>
-    <string name="settings_auto_archive_hint">Chats without new messages for the chosen time are moved to the archive. Pinned chats and chats with a task running stay put. You can restore them from the archive in the chat list at any time.</string>
+    <string name="settings_auto_archive_hint">Chats without new messages for the chosen time are moved to the archive.</string>
     <plurals name="settings_auto_archive_days">
         <item quantity="one">%1$d day</item>
         <item quantity="other">%1$d days</item>
+    </plurals>
+    <string name="settings_scheduled_quiet">Scheduled task quiet hours</string>
+    <string name="settings_scheduled_quiet_detail">Scheduled results and reminders appear silently in the notification shade.</string>
+    <string name="settings_scheduled_quiet_start">Start time</string>
+    <string name="settings_scheduled_quiet_end">End time</string>
+    <string name="settings_scheduled_quiet_equal">Choose different start and end times to silence notifications.</string>
+    <string name="settings_capabilities">Capabilities</string>
+    <string name="settings_preferences">Preferences</string>
+    <string name="settings_data">Data</string>
+    <string name="settings_extensions">Extensions &amp; connections</string>
+    <string name="settings_network">Network</string>
+    <string name="settings_runtime">Runtime</string>
+    <string name="settings_trigger_run_limit">Time limit for scheduled tasks</string>
+    <string name="settings_trigger_run_limit_sub">Scheduled tasks run while you’re away. Off means no limit; when time is up, the task stops and says it ran out of time.</string>
+    <plurals name="settings_trigger_run_minutes_n">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+
+    <string name="settings_sandbox_budget">Sandbox time limit per task</string>
+    <string name="settings_sandbox_budget_sub">Total time sandbox commands may run in one task (installing dependencies, builds and the like). Default is 30 minutes; a change applies to the next task.</string>
+    <plurals name="settings_sandbox_budget_minutes_n">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <string name="settings_attachment_file_limit">Per-file upload limit</string>
+    <string name="settings_attachment_file_limit_sub">Largest single file accepted from chat attachments and device file imports. WeChat images and computer-link files keep their fixed limits. Default is 200 MB.</string>
+    <plurals name="settings_attachment_file_limit_mb_n">
+        <item quantity="one">%1$d MB</item>
+        <item quantity="other">%1$d MB</item>
+    </plurals>
+    <string name="settings_workspace_size_limit">Per-workspace storage limit</string>
+    <string name="settings_workspace_size_limit_sub">Storage room for chat attachments and device file imports. Default is 4 GB.</string>
+    <plurals name="settings_workspace_size_limit_gb_n">
+        <item quantity="one">%1$d GB</item>
+        <item quantity="other">%1$d GB</item>
     </plurals>
 </resources>

@@ -34,6 +34,9 @@
     <string name="plans_repeat_weekly">매주</string>
     <string name="plans_interval_minutes">반복 간격(분)</string>
     <string name="plans_clock">현지 시간(쉼표로 구분)</string>
+    <string name="plans_pick_time">시간 선택</string>
+    <string name="plans_add_time">시간 추가</string>
+    <string name="plans_remove_time">이 시간 삭제</string>
     <string name="plans_zone">시간대 ID</string>
     <string name="plans_condition_optional">조건(선택 사항)</string>
     <string name="plans_notify_change">조건이 바뀔 때</string>
@@ -78,4 +81,5 @@
     <string name="trigger_deleted">예약 작업이 삭제되었어요</string>
     <string name="trigger_busy">이 작업이 아직 실행 중이에요</string>
     <string name="plans_run_history">실행 기록</string>
+    <string name="plans_copy">새 일정으로 복제</string>
 </resources>

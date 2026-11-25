@@ -6,7 +6,7 @@
     <string name="parallel_second_display_failed">No se pudo crear una segunda pantalla virtual, así que por ahora solo se ejecuta una tarea a la vez</string>
     <string name="parallel_needs_14">Ejecutar varias tareas a la vez requiere Android 14 o posterior</string>
     <string name="parallel_low_ram">Este teléfono tiene poca memoria, así que se ejecuta una tarea a la vez</string>
-    <string name="skill_suspended">Esta habilidad no ha funcionado bien últimamente, así que está en pausa</string>
+    <string name="skill_suspended">Esta habilidad no ha funcionado bien últimamente, así que está en pausa: %1$s</string>
     <string name="skill_verified">La habilidad funcionó y ahora está en uso normal: %1$s</string>
     <string name="skill_learned">Mika aprendió una habilidad: %1$s</string>
     <string name="skill_app_draft">Mika anotó algunos datos sobre %1$s para que los revises</string>
@@ -60,6 +60,15 @@
     <string name="task_too_old">El control de apps del teléfono requiere Android 12 o posterior. Las tareas de chat, web y sandbox siguen disponibles.</string>
     <string name="task_shell_died">El asistente de control del teléfono se desconectó y la pantalla virtual se cerró. Inténtalo de nuevo cuando se reconecte.</string>
     <string name="task_running">En ejecución</string>
+    <string name="chip_thinking">Pensando</string>
+    <string name="chip_read_screen">Leyendo pantalla</string>
+    <string name="chip_use_phone">Usando el móvil</string>
+    <string name="chip_browse">Navegando</string>
+    <string name="chip_take_over">Toma el control</string>
+    <string name="chip_route_step">Paso %1$d/%2$d</string>
+    <string name="chip_count">%1$d/%2$d</string>
+    <string name="chip_done">Hecho: %1$d</string>
+    <string name="chip_wait_app">Esperando app</string>
     <string name="channel_task_accepted">Recibido: la tarea está registrada.</string>
     <string name="task_step_note">Paso %1$d: %2$s</string>
     <string name="task_wait_unlock">Esperando el desbloqueo</string>
@@ -84,4 +93,8 @@
     <string name="screens_waiting">En espera</string>
     <string name="screens_needs_you">Te necesita</string>
     <string name="screens_zoom">Ampliar esta pantalla</string>
+    <string name="task_trigger_time_limit">La tarea programada duró más de %1$d minutos, así que se detuvo.</string>
+    <string name="trigger_failed_streak">La tarea programada falló %1$d veces seguidas</string>
+    <string name="trigger_failed_streak_hint">Puedes pausar o cambiar este plan en la página de tareas programadas.</string>
+    <string name="task_no_phone_helper_shizuku">El control del teléfono no está listo. Inicia Shizuku y concede permiso a Mika (o revisa Control del teléfono en Ajustes). Las tareas web y de archivos no se ven afectadas.</string>
 </resources>

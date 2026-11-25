@@ -1,7 +1,9 @@
 package com.wangzan101.mika.cap.phone.a11y
 
-import com.wangzan101.mika.core.uistate.ActionResult
-import com.wangzan101.mika.core.uistate.ScreenPort
+import com.wangzan101.mika.core.screen.uistate.ActionResult
+import com.wangzan101.mika.core.screen.uistate.ScreenPort
+import com.wangzan101.mika.core.screen.uistate.SystemAction
+import com.wangzan101.mika.core.screen.uistate.SystemActionResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -27,14 +29,14 @@ class LazyPhoneScreenTest {
 
     @Test fun blockedAppDoesNotConnectHelper() = runTest {
         val lazy = LazyPhoneScreen(1080, 2400, listApps = { emptyList() }) { attempts++; real }
-        val guarded = com.wangzan101.mika.core.uistate.AppAccessScreenPort(lazy,
-            com.wangzan101.mika.core.access.AppAccessPolicy {
-                com.wangzan101.mika.core.access.AppAccessState(blocked = setOf("bank"))
+        val guarded = com.wangzan101.mika.core.screen.uistate.AppAccessScreenPort(lazy,
+            com.wangzan101.mika.core.device.access.AppAccessPolicy {
+                com.wangzan101.mika.core.device.access.AppAccessState(blocked = setOf("bank"))
             }, packages = { emptyList() })
         try {
             guarded.openApp("bank")
             org.junit.Assert.fail("blocked app must be refused")
-        } catch (e: com.wangzan101.mika.core.access.AppAccessDenied) {
+        } catch (e: com.wangzan101.mika.core.device.access.AppAccessDenied) {
             assertEquals("app_blocked", e.code)
         }
         assertEquals(0, attempts)
@@ -56,5 +58,73 @@ class LazyPhoneScreenTest {
         assertTrue(screen.acquired)
         assertEquals(listOf("a.b"), opened)
         assertEquals(2, attempts)
+    }
+
+    @Test fun audioCapabilityDoesNotConnectThePhone() {
+        var builds = 0
+        val lazy = LazyPhoneScreen(1080, 2400, listApps = { emptyList() }, canShareAudio = true) {
+            builds++
+            error("checking the capability must stay lazy")
+        }
+        assertTrue(lazy.canShareAudio)
+        assertEquals(0, builds)
+    }
+
+    @Test fun shareAudioIsForwardedAfterLazyBuild() = runTest {
+        val calls = mutableListOf<String>()
+        val inner = Proxy.newProxyInstance(ScreenPort::class.java.classLoader, arrayOf(ScreenPort::class.java)) { _, method, _ ->
+            calls += method.name
+            if (method.name == "shareAudio") ActionResult.Ok() else null
+        } as ScreenPort
+        var builds = 0
+        val lazy = LazyPhoneScreen(1080, 2400, listApps = { emptyList() }, canShareAudio = true) {
+            builds++
+            inner
+        }
+
+        assertEquals(ActionResult.Ok(), lazy.shareAudio("com.example.app", "/workspace/out/a.wav", null))
+        assertEquals(1, builds)
+        assertEquals(listOf("shareAudio"), calls)
+    }
+
+    @Test fun bulkCalendarInsertUsesInjectedWriterWithoutBuildingThePhone() = runTest {
+        var builds = 0
+        var received: List<SystemAction.AddCalendarEvent>? = null
+        val expected = SystemActionResult(ActionResult.Ok(), eventUris = listOf("content://calendar/events/1"))
+        val lazy = LazyPhoneScreen(
+            1080,
+            2400,
+            listApps = { emptyList() },
+            calendarBulkWriter = { events ->
+                received = events
+                expected
+            },
+        ) {
+            builds++
+            error("calendar insertion must not build the phone")
+        }
+
+        val events = listOf(SystemAction.AddCalendarEvent("title", 1L))
+        assertEquals(expected, lazy.bulkCalendarInsert(events))
+        assertEquals(events, received)
+        assertEquals(0, builds)
+    }
+
+    @Test fun bulkCalendarInsertFallsBackToBuiltPort() = runTest {
+        val calls = mutableListOf<String>()
+        val expected = SystemActionResult(ActionResult.Ok(), eventUris = listOf("content://calendar/events/2"))
+        val inner = Proxy.newProxyInstance(ScreenPort::class.java.classLoader, arrayOf(ScreenPort::class.java)) { _, method, _ ->
+            calls += method.name
+            if (method.name == "bulkCalendarInsert") expected else null
+        } as ScreenPort
+        var builds = 0
+        val lazy = LazyPhoneScreen(1080, 2400, listApps = { emptyList() }) {
+            builds++
+            inner
+        }
+
+        assertEquals(expected, lazy.bulkCalendarInsert(listOf(SystemAction.AddCalendarEvent("title", 1L))))
+        assertEquals(1, builds)
+        assertEquals(listOf("bulkCalendarInsert"), calls)
     }
 }

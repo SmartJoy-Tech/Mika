@@ -69,8 +69,9 @@
     <string name="speech_doubao_plan">課金方式</string>
     <string name="speech_doubao_duration_note">認識した時間で課金</string>
     <string name="speech_doubao_concurrent_note">同時接続数で課金</string>
-    <string name="speech_funasr_model">Fun-ASR（セルフホスト）</string>
-    <string name="speech_funasr_setup_hint">話しながら文字になります。自分で動かしている Fun-ASR リアルタイムサーバー（Fun-ASR プロジェクトの serve_realtime_ws.py、通常はローカルネットワーク内）が認識します。アカウントやキーは不要です。</string>
+    <string name="speech_funasr_model">Qwen（セルフホスト）</string>
+    <string name="speech_funasr_setup_hint">話しながら文字になります。自分で動かしているリアルタイム認識サーバー（通常はローカルネットワーク内）が認識します。アカウントやキーは不要です。Fun-ASR-Nano と Qwen3-ASR に対応しています。</string>
+    <string name="speech_funasr_deploy_guide">デプロイ手順</string>
     <string name="speech_funasr_server">サーバー</string>
     <string name="speech_funasr_address">アドレス</string>
     <string name="speech_funasr_enter_address">例: 192.168.1.10:10095</string>
@@ -92,7 +93,7 @@
     <string name="speech_live_auth">サービスがキーを拒否しました。キーと、選んだリージョンのものかを確認してください。</string>
     <string name="speech_live_refused">サービスがリクエストを拒否しました（%1$s）。</string>
     <string name="speech_live_unreachable">サービスに接続できません。アドレスと、サービスが動いているかを確認してください。</string>
-    <string name="speech_funasr_service">Fun-ASR リアルタイム音声認識</string>
+    <string name="speech_funasr_service">Qwen リアルタイム音声認識</string>
     <string name="speech_funasr_choose_note">セルフホストのサーバーまたは Alibaba Cloud Bailian</string>
     <string name="speech_funasr_tab_local">セルフホスト</string>
     <string name="speech_bailian_tab">Bailian・%1$s</string>
@@ -140,4 +141,25 @@
     <string name="personal_replay_pause">一時停止</string>
     <string name="personal_replay_play">再生</string>
     <string name="personal_replay_return_live">ライブに戻る</string>
+    <string name="drawer_projects">プロジェクト</string>
+    <string name="drawer_new_project">新しいプロジェクト</string>
+    <string name="drawer_project_new_title">新しいプロジェクト</string>
+    <string name="drawer_project_name_hint">プロジェクト名</string>
+    <string name="drawer_project_rename_title">プロジェクト名を変更</string>
+    <string name="drawer_project_new_chat">プロジェクト内で新しいチャット</string>
+    <string name="drawer_project_empty">チャットはまだありません</string>
+    <string name="drawer_project_delete_title">このプロジェクトを削除しますか？</string>
+    <string name="drawer_project_delete_body">「%1$s」のすべてのチャットと共有ワークスペースのファイルが削除され、元に戻せません。</string>
+    <string name="drawer_project_actions">プロジェクトの操作</string>
+    <string name="chat_project_shared">プロジェクト</string>
+    <string name="desk_report_line">%1$s：%2$s</string>
+    <string name="desk_report_started">開始しました</string>
+    <string name="desk_report_needs_answer">質問があります：%1$s</string>
+    <string name="desk_report_needs_confirm">スマホで確認してください</string>
+    <string name="desk_report_needs_takeover">スマホで操作を引き継いでください</string>
+    <string name="desk_report_needs_prerequisite">続けるにはスマホでの対応が必要です</string>
+    <string name="desk_report_succeeded">完了：%1$s</string>
+    <string name="desk_report_failed">できませんでした：%1$s</string>
+    <string name="desk_report_cancelled">キャンセルしました</string>
+    <string name="desk_task_not_started">タスクを開始できませんでした。Mika を開いてもう一度お試しください</string>
 </resources>

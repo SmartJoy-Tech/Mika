@@ -51,6 +51,20 @@ class MarkdownModelTest {
     }
 
     @Test
+    fun codeBlockLanguageTag() {
+        val fenced = MarkdownModel.parse("```bash -e\necho hi\n```").single() as MdBlock.Code
+        assertEquals("bash -e", fenced.info)
+        assertEquals("bash", fenced.language)
+
+        val plain = MarkdownModel.parse("```\n{\"ok\": true}\n```").single() as MdBlock.Code
+        assertEquals("", plain.info)
+        assertEquals("", plain.language)
+
+        val indented = MarkdownModel.parse("    val a = 1").single() as MdBlock.Code
+        assertEquals("", indented.language)
+    }
+
+    @Test
     fun nestedLists() {
         val l = MarkdownModel.parse("1. 一\n   - 甲\n   - 乙\n2. 二\n").single() as MdBlock.ListBlock
         assertEquals(1, l.start)
@@ -114,5 +128,44 @@ class MarkdownModelTest {
         val pendingTable = (MarkdownModel.parseStreaming("| 名称 | 价格 |\n|---").single() as MdBlock.Para).text
         assertEquals("名称 · 价格", pendingTable.text)
         assertTrue(MarkdownModel.parseStreaming("| 名称 | 价格 |\n|---|---|\n| 苹果 | 5 |").single() is MdBlock.Table)
+    }
+
+    @Test
+    fun workspaceRefsExtractsImageAndLink() {
+        assertEquals(
+            listOf("/workspace/a.png", "/workspace/b.csv"),
+            MarkdownModel.workspaceRefs("看图 ![图](/workspace/a.png) 和 [报告](/workspace/b.csv)"),
+        )
+    }
+
+    @Test
+    fun workspaceRefsIgnoresBareTextAndHttp() {
+        assertEquals(emptyList<String>(), MarkdownModel.workspaceRefs("文件在 /workspace/c 里，外链 https://x.com/a.png"))
+    }
+
+    @Test
+    fun workspaceRefsDeduplicates() {
+        assertEquals(listOf("/workspace/a.png"), MarkdownModel.workspaceRefs("![x](/workspace/a.png) ![y](/workspace/a.png)"))
+    }
+
+    @Test
+    fun workspaceRefsDecodesPercentEscapes() {
+        assertEquals(
+            listOf("/workspace/my report.csv", "/workspace/报告.png"),
+            MarkdownModel.workspaceRefs("[a](/workspace/my%20report.csv) ![图](/workspace/%E6%8A%A5%E5%91%8A.png)"),
+        )
+        // 同一个文件一个编码一个裸写,解码后只留一张卡
+        assertEquals(
+            listOf("/workspace/a b.png"),
+            MarkdownModel.workspaceRefs("![x](/workspace/a%20b.png) ![y](</workspace/a b.png>)"),
+        )
+    }
+
+    @Test
+    fun workspaceRefsKeepsLiteralPlusAndInvalidEscape() {
+        assertEquals(
+            listOf("/workspace/a+b.png", "/workspace/100%.csv"),
+            MarkdownModel.workspaceRefs("[a](/workspace/a+b.png) [b](</workspace/100%.csv>)"),
+        )
     }
 }

@@ -1,6 +1,11 @@
 package com.wangzan101.mika.chat
 
+import com.wangzan101.mika.core.model.Usage
+import com.wangzan101.mika.core.run.record.RunMetrics
+import com.wangzan101.mika.core.run.record.RunMetricsStore
+import com.wangzan101.mika.core.model.usage.ConversationUsage
 import com.wangzan101.mika.core.agent.Turn
+import com.wangzan101.mika.core.chat.GeneratedAudio
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -21,6 +26,55 @@ import java.io.IOException
 
 class ConversationStoreTest {
     @get:Rule val tmp = TemporaryFolder()
+
+    // 前台派出去的后台任务编号随那一轮存下,读回来不变;没有这一项的旧记录读成空
+    @Test fun turnTasksRoundTrip() {
+        val dir = tmp.newFolder()
+        val store = ConversationStore(dir)
+        val turn = Turn("帮我订票", "好的,在办", "succeeded", atMs = 1, deskTasks = listOf("c1", "c2"))
+        store.append("p", turn)
+        assertEquals(listOf(turn), ConversationStore(dir).turns("p"))
+        File(dir, "old.json").writeText("""[{"userText":"问题","outcome":"结果","status":"succeeded"}]""")
+        assertEquals(emptyList<String>(), ConversationStore(dir).turns("old").single().deskTasks)
+        // 没有任务编号就不写这一项
+        store.append("plain", Turn("问题", "结果", "succeeded"))
+        assertFalse("deskTasks" in File(dir, "plain.json").readText())
+    }
+
+    // 前台派活开的子对话记着它的前台对话,不出现在对话列表里;删掉子对话连同这条关联一起删
+    @Test fun deskChildrenHiddenFromList() {
+        val dir = tmp.newFolder()
+        val store = ConversationStore(dir)
+        store.append("p", Turn("帮我订票", "在办", "succeeded"))
+        store.append("c1", Turn("订明早的票", "订好了", "succeeded"))
+        assertNull(store.deskParent("c1"))
+        store.setDeskParent("c1", "p")
+        assertEquals("p", store.deskParent("c1"))
+        assertEquals("p", ConversationStore(dir).deskParent("c1"))
+        assertEquals(listOf("p"), ConversationStore(dir).list(includeArchived = true).map { it.id })
+        assertNull(store.deskParent("p"))
+        store.delete("c1")
+        assertFalse(File(dir, "c1.desk_parent").exists())
+    }
+
+    // 子对话只在前台对话还在时藏起来:前台对话删了(或重启后找不到),子对话回到列表里,不会再也找不到
+    @Test fun deskChildShownOnceParentIsGone() {
+        val dir = tmp.newFolder()
+        val store = ConversationStore(dir)
+        store.append("c1", Turn("订明早的票", "订好了", "succeeded"))
+        // 前台对话这一轮还没存下来,但这个进程里刚派过活:照样藏着
+        store.setDeskParent("c1", "p")
+        assertEquals(emptyList<String>(), store.list().map { it.id })
+        store.append("p", Turn("帮我订票", "在办", "desk"))
+        assertEquals(listOf("p"), ConversationStore(dir).list().map { it.id })
+        store.delete("p")
+        assertEquals(listOf("c1"), store.list().map { it.id })
+        assertEquals(listOf("c1"), ConversationStore(dir).list().map { it.id })
+        // 重启后前台对话从没存下来过:子对话也列出来
+        store.append("c2", Turn("查天气", "晴", "succeeded"))
+        store.setDeskParent("c2", "never-saved")
+        assertTrue("c2" in ConversationStore(dir).list().map { it.id })
+    }
 
     @Test fun failedFileDeletionKeepsHistoryAndAllowsRetry() {
         val dir = tmp.newFolder()
@@ -43,6 +97,43 @@ class ConversationStoreTest {
         store.delete("a")
         assertTrue(ConversationStore(dir).list().isEmpty())
         assertNull(store.currentChat())
+    }
+
+    @Test fun usageSurvivesHistoryPruningAndNeverChargesAnotherChat() {
+        val dir = tmp.newFolder("chats")
+        val store = ConversationStore(dir)
+        val history = RunMetricsStore(File(dir.parentFile, RunMetricsStore.FILE_NAME), keep = 1)
+        store.append("a", Turn("one", "ok", "succeeded", runId = "r1"))
+        history.append(RunMetrics(runId = "r1", allInputTokens = 80, allOutputTokens = 4))
+        val live = store.meter("a")
+        live.record(Usage(100, 10, 40), 1)
+        history.append(RunMetrics(runId = "r2"))
+        store.append("a", Turn("two", "ok", "succeeded", runId = "r2"))
+        live.record(Usage(5, 1), 1)
+        val saved = ConversationStore(dir).usageSnapshot("a")
+        assertEquals(185L, saved.input)
+        assertEquals(15L, saved.output)
+        assertTrue(saved.partial)
+        assertEquals(0.4, saved.cacheRate!!, 0.00001)
+        assertTrue(store.branch("a", "b", 0, origin = BranchOrigin("a", 0, true, 1)))
+        assertEquals(ConversationUsage(), store.usageSnapshot("b"))
+        val branch = store.meter("b")
+        branch.record(Usage(20, 3, cacheReported = true), 1)
+        assertEquals(0.0, store.usageSnapshot("b").cacheRate!!, 0.0)
+        assertEquals(saved, store.usageSnapshot("a"))
+        store.delete("a")
+        live.record(Usage(2, 1), 1)
+        assertEquals(ConversationUsage(), store.usageSnapshot("a"))
+        assertFalse(File(dir, "a.json.usage").exists())
+    }
+
+    @Test fun overlappingAuxiliaryCallsAccumulateOnce() {
+        val store = ConversationStore(tmp.newFolder())
+        val meter = store.meter("chat")
+        val jobs = List(4) { Thread { repeat(10) { meter.record(Usage(6, 1), 1) } } }
+        jobs.forEach(Thread::start)
+        jobs.forEach(Thread::join)
+        assertEquals(ConversationUsage(input = 240, output = 40), store.usageSnapshot("chat"))
     }
 
     @Test fun persistsAcrossInstances() {
@@ -165,6 +256,7 @@ class ConversationStoreTest {
         store.append(id, Turn("查天气", "晴", "succeeded"))
         store.setTitle(id, "天气")
         store.setPinned(id, true, at = 5L)
+        store.setProject(id, "proj-sidecar")
         java.io.File(dir, "$id.json.corrupt-1").writeText("x")
         java.io.File(dir, "$id.json.tmp").writeText("x")
         store.append(other, Turn("订票", "好了", "succeeded"))
@@ -295,8 +387,8 @@ class ConversationStoreTest {
     @Test fun memoryNotesStoredWithoutContentAndStripped() {
         val dir = tmp.newFolder()
         val store = ConversationStore(dir)
-        val note = com.wangzan101.mika.core.memory.MemoryNote(com.wangzan101.mika.core.memory.NoteKind.added, "m1", "t1", null)
-        val other = com.wangzan101.mika.core.memory.MemoryNote(com.wangzan101.mika.core.memory.NoteKind.pending, "m2", "t2", "m2")
+        val note = com.wangzan101.mika.core.learn.memory.MemoryNote(com.wangzan101.mika.core.learn.memory.NoteKind.added, "m1", "t1", null)
+        val other = com.wangzan101.mika.core.learn.memory.MemoryNote(com.wangzan101.mika.core.learn.memory.NoteKind.pending, "m2", "t2", "m2")
         store.append("c1", Turn("点外卖", "ok", "succeeded", runId = "r1"))
         store.updateTurn("c1", "r1") { it.copy(memoryNotes = listOf(note, other), usedMemory = listOf("m1", "m3")) }
         val raw = java.io.File(dir, "c1.json").readText()
@@ -329,7 +421,7 @@ class ConversationStoreTest {
         val store = ConversationStore(dir)
         val f = SharedFile("表.csv", 10, "Download/Mika/表.csv", "content://media/external/downloads/8")
         store.append("c1", Turn("导出", "好了", "succeeded", runId = "r1"), listOf(f))
-        val note = com.wangzan101.mika.core.memory.MemoryNote(com.wangzan101.mika.core.memory.NoteKind.added, "m1", "t1", null)
+        val note = com.wangzan101.mika.core.learn.memory.MemoryNote(com.wangzan101.mika.core.learn.memory.NoteKind.added, "m1", "t1", null)
         store.updateTurn("c1", "r1") { it.copy(memoryNotes = listOf(note)) }
         store.stripMemory(null)
         val r = ConversationStore(dir).records("c1").single()
@@ -560,21 +652,50 @@ class ConversationStoreTest {
     }
 
     /** 重新问也拒绝坏输入:源不存在、轮次越界、目标已有文件。 */
-    @Test fun branchBeforeRejectsBadInput() {
+    /** 人格绑定读得回来;切换只记变化,同一个再写不重复记;null 表示回到默认。 */
+    @Test fun personaBindingRoundTripsAndRecordsSwitches() {
+        val dir = tmp.newFolder("c")
+        val store = ConversationStore(dir)
+        val id = store.newConversation()
+        assertNull(store.persona(id))
+        assertTrue(store.setPersona(id, "p1", at = 10L))
+        assertEquals("p1", ConversationStore(dir).persona(id)?.personaId)
+        assertEquals(emptyList<PersonaSwitch>(), store.persona(id)?.history)
+        assertTrue(store.setPersona(id, "p2", at = 20L))
+        assertEquals(listOf(PersonaSwitch(20L, "p1", "p2")), store.persona(id)?.history)
+        assertTrue(store.setPersona(id, "p2", at = 30L))
+        assertEquals(1, store.persona(id)?.history?.size)
+        assertTrue(store.setPersona(id, null))
+        assertNull(store.persona(id))
+        assertFalse(java.io.File(dir, "$id.persona").exists())
+    }
+
+    /** 分支复制当前人格,不复制切换记录;删对话连旁文件一起删。 */
+    @Test fun personaBindingFollowsBranchesAndDeletion() {
         val dir = tmp.newFolder("c")
         val store = ConversationStore(dir)
         val source = store.newConversation()
         store.append(source, Turn("一", "甲", "succeeded"))
+        store.append(source, Turn("二", "乙", "succeeded"))
+        store.setPersona(source, "p1", at = 10L)
+        store.setPersona(source, "p2", at = 20L)
         val target = store.newConversation()
+        assertTrue(store.branch(source, target, throughTurn = 0))
+        assertEquals("p2", store.persona(target)?.personaId)
+        assertEquals(emptyList<PersonaSwitch>(), store.persona(target)?.history)
+        store.delete(source)
+        assertFalse(java.io.File(dir, "$source.persona").exists())
+    }
 
-        assertFalse(store.branchBefore("missing", target, 0))
-        assertFalse(store.branchBefore(source, target, 1))
-        assertFalse(store.branchBefore(source, target, -1))
-        assertFalse(java.io.File(dir, "$target.json").exists())
-
-        store.append(target, Turn("已有", "好", "succeeded"))
-        assertFalse(store.branchBefore(source, target, 0))
-        assertEquals(listOf("已有"), store.turns(target).map { it.userText })
+    /** 不合法的人格 id 不写;旁文件里的坏 id 当没有。 */
+    @Test fun personaBindingRejectsBadIds() {
+        val dir = tmp.newFolder("c")
+        val store = ConversationStore(dir)
+        val id = store.newConversation()
+        assertFalse(store.setPersona(id, "../escape"))
+        assertNull(store.persona(id))
+        java.io.File(dir, "$id.persona").writeText("""{"current":"../escape"}""")
+        assertNull(store.persona(id))
     }
 
     /** 归档的对话默认不进侧栏;要全部时用 includeArchived;换个实例也还在,取消归档后回来。 */
@@ -672,5 +793,67 @@ class ConversationStoreTest {
 
         assertNull(store.archivedAt("a"))
         assertTrue(store.list().any { it.id == "a" })
+    }
+
+    @Test fun generatedAudiosSurviveReopen() {
+        val dir = tmp.newFolder("audio")
+        val store = ConversationStore(dir)
+        val audios = listOf(
+            GeneratedAudio("/workspace/out/audio/line.wav", 1_200L, "你好", 42L),
+            GeneratedAudio("/workspace/out/audio/two.mp3", null, null, null),
+        )
+        store.append("a", Turn("说一段", "好", "succeeded", audios = audios))
+        assertEquals(audios, ConversationStore(dir).turns("a").single().audios)
+    }
+
+    @Test fun projectSidecarPersistsInheritsOnBranchAndCleansOnDelete() {
+        val dir = tmp.newFolder("project-sidecar")
+        val store = ConversationStore(dir)
+        val a = store.newConversation()
+        store.append(a, Turn("第一轮", "好了", "succeeded"))
+        assertTrue(store.setProject(a, "proj-1"))
+        assertFalse(store.setProject(a, "../bad"))
+        assertEquals("proj-1", ConversationStore(dir).projectId(a))
+        assertEquals("proj-1", store.list().single { it.id == a }.projectId)
+
+        val branched = store.newConversation()
+        assertTrue(store.branch(a, branched, 0))
+        assertEquals("proj-1", ConversationStore(dir).projectId(branched))
+
+        // 删除源对话连带清掉它的 .project 旁文件,分支保留
+        store.delete(a)
+        assertNull(store.projectId(a))
+        assertFalse(File(dir, "$a.project").exists())
+        assertFalse(store.setProject(a, "proj-2"))
+        assertEquals("proj-1", store.projectId(branched))
+
+        // 解绑回到独立对话
+        assertTrue(store.setProject(branched, null))
+        assertNull(store.projectId(branched))
+        assertFalse(File(dir, "$branched.project").exists())
+    }
+
+    // 通话里说的轮次记着是哪一通;通话记录同编号替换、按接通时刻排,重开读回来不变,删对话连同记录一起删
+    @Test fun callRecordsRoundTrip() {
+        val dir = tmp.newFolder()
+        val store = ConversationStore(dir)
+        val turn = Turn("几点了", "九点", "desk", atMs = 300, callId = "a")
+        store.append("p", turn)
+        assertEquals("a", ConversationStore(dir).turns("p").single().callId)
+        store.append("plain", Turn("问题", "结果", "succeeded"))
+        assertFalse("callId" in File(dir, "plain.json").readText())
+
+        store.recordCall("p", ConversationCall("b", 500))
+        store.recordCall("p", ConversationCall("a", 200))
+        store.recordCall("p", ConversationCall("a", 200, 400, ConversationCall.END_IDLE, spoke = true))
+        val calls = ConversationStore(dir).calls("p")
+        assertEquals(listOf("a", "b"), calls.map { it.id })
+        assertEquals(400L, calls.first().endMs)
+        assertEquals(ConversationCall.END_IDLE, calls.first().endReason)
+        assertEquals(emptyList<ConversationCall>(), store.calls("plain"))
+
+        store.delete("p")
+        assertEquals(emptyList<ConversationCall>(), ConversationStore(dir).calls("p"))
+        assertFalse(dir.listFiles().orEmpty().any { it.name.endsWith(".calls") })
     }
 }

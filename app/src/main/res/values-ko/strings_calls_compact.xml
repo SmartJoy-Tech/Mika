@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_auto_off_short">끔</string>
+    <string name="calls_auto_standby_short">대기 중</string>
+    <string name="calls_rule_delay">응답 지연</string>
+    <string name="calls_seconds_value">%1$d초</string>
+    <string name="calls_none_added">없음</string>
+    <string name="calls_not_set">설정 안 됨</string>
+    <string name="calls_is_set">설정됨</string>
+    <string name="calls_numbers_count">번호 %1$d개</string>
+    <string name="calls_scope_all_short">모든 전화</string>
+    <string name="calls_scope_strangers_short">모르는 번호</string>
+    <string name="calls_allowlist_empty_short">목록 비어 있음</string>
+    <string name="calls_list_count_short">목록에 %1$d개</string>
+    <string name="calls_not_confirmed">확인 안 됨</string>
+    <string name="calls_task_more">질문, 배경, 제한</string>
+    <string name="calls_this_call">이번 통화</string>
+</resources>

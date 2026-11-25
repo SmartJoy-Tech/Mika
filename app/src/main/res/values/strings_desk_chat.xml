@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 聊天页走前台:前台回话的工具小标签、任务卡片、输入栏上方的「在办」 -->
+    <string name="desk_tool_added">Added to “%1$s”</string>
+    <string name="desk_tool_answered">Answered “%1$s”</string>
+    <string name="desk_tool_cancelled">Cancelled “%1$s”</string>
+    <string name="desk_reply_failed">Couldn’t reply just now. Say it again?</string>
+    <string name="desk_thinking">Thinking</string>
+    <string name="desk_phase_running">On it</string>
+    <string name="desk_phase_queued">Queued</string>
+    <string name="desk_phase_queued_at">Queued · #%1$d</string>
+    <string name="desk_phase_needs_you">Needs you</string>
+    <string name="desk_phase_done">Done</string>
+    <string name="desk_phase_failed">Didn’t work out</string>
+    <string name="desk_phase_cancelled">Cancelled</string>
+    <string name="desk_tray_expand">Show tasks</string>
+    <string name="desk_tray_collapse">Hide tasks</string>
+    <string name="chat_time_yesterday">Yesterday %1$s</string>
+    <string name="desk_need_choose">Pick one · %1$s</string>
+    <string name="desk_need_answer">Needs your answer · %1$s</string>
+    <string name="desk_need_takeover">Take over · %1$s</string>
+    <string name="desk_need_handle">Needs you · %1$s</string>
+    <string name="desk_need_choose_foot">None of these? Type below or hold to talk.</string>
+    <string name="desk_need_answer_foot">Type below or hold to talk.</string>
+    <string name="desk_need_takeover_foot">Once you’ve tapped through on the screen, I’ll carry on.</string>
+    <string name="desk_need_stop">Stop this task</string>
+    <string name="desk_tray_stop">Stop</string>
+    <string name="desk_tray_detail">See the full process ›</string>
+    <string name="chat_menu_tasks">Tasks in this chat</string>
+    <string name="desk_tasks_empty">No tasks have been handed off in this chat yet.</string>
+</resources>

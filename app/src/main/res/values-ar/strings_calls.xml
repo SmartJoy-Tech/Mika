@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="calls_title">مكالمات هاتفية بالذكاء الاصطناعي</string>
-    <string name="calls_entry_sub">مكالمات عبر شبكة المحمول باستخدام خدمة الصوت الفوري من Volcengine</string>
+    <string name="calls_entry_sub">مكالمات عبر شبكة المحمول باستخدام خدمة الصوت الفوري من خدمة الصوت المحددة</string>
     <string name="calls_action_failed">تعذّر تنفيذ إجراء المكالمة. تحقّق من الجاهزية وحاول مجددًا.</string>
     <string name="calls_permissions_required">يلزم منح أذونات الهاتف والإشعارات.</string>
     <string name="calls_ai_active">الذكاء الاصطناعي يتولى المكالمة</string>
@@ -19,23 +19,20 @@
     <string name="calls_sim">شريحة SIM للمكالمات الصادرة</string>
     <string name="calls_default">افتراضي</string>
     <string name="calls_dial">الاتصال بالذكاء الاصطناعي</string>
-    <string name="calls_call_note">تستخدم المكالمات شريحة SIM الحالية. قد تترتب عليها رسوم من شركة الاتصالات ورسوم استخدام Volcengine. حدّد غرض المكالمة والتحية في الإعدادات قبل الاتصال.</string>
+    <string name="calls_call_note">تستخدم المكالمات شريحة SIM الحالية. قد تترتب عليها رسوم من شركة الاتصالات ورسوم استخدام خدمة الصوت المحددة. حدّد غرض المكالمة والتحية في الإعدادات قبل الاتصال.</string>
     <string name="calls_prepare">التحقّق والإعداد</string>
     <string name="calls_enable">تفعيل المكالمات بالذكاء الاصطناعي</string>
     <string name="calls_disable">التعطيل واستعادة المكالمات العادية</string>
     <string name="calls_provider">خدمة الصوت الفوري 3.0 من Volcengine</string>
-    <string name="calls_credentials">بيانات اعتماد خدمة الصوت الفوري</string>
-    <string name="calls_key_saved">حُفظت بيانات الاعتماد بأمان؛ يلزم اختبار فعلي للتأكد من إمكانية استخدام الخدمة</string>
     <string name="calls_key_missing">لم يتم الإعداد</string>
     <string name="calls_profile">التحية وهدف المكالمة</string>
-    <string name="calls_model_label">النموذج %1$s · مسار صوت المكالمة</string>
     <string name="calls_incoming">المكالمات الواردة</string>
     <string name="calls_auto_answer">الرد تلقائيًا على المكالمات الواردة</string>
     <string name="calls_all_incoming">تضمين جميع الأرقام الواردة</string>
     <string name="calls_all_note">يشمل الأرقام غير المدرجة والمتصلين مجهولي الرقم</string>
     <string name="calls_allowlist">الأرقام الواردة المسموح بالرد عليها تلقائيًا</string>
     <string name="calls_allowlist_empty">القائمة فارغة: لن يتم الرد تلقائيًا إلا إذا فُعّل الرد على جميع المتصلين</string>
-    <string name="calls_privacy_note">لا يُرسل صوت المكالمة إلى Volcengine إلا أثناء تولّي الذكاء الاصطناعي لها. لا تُحفظ تسجيلات صوتية. يُحفظ النص مشفّرًا على هذا الهاتف، ويمكن تولّي المكالمة يدويًا في أي وقت.</string>
+    <string name="calls_privacy_note">لا يُرسل صوت المكالمة إلى خدمة الصوت المحددة إلا أثناء تولّي الذكاء الاصطناعي لها. لا تُحفظ تسجيلات صوتية. يُحفظ النص مشفّرًا على هذا الهاتف، ويمكن تولّي المكالمة يدويًا في أي وقت.</string>
     <string name="calls_history_empty">لا توجد مكالمات بالذكاء الاصطناعي في السجل بعد</string>
     <string name="calls_collapse">طيّ</string>
     <string name="calls_transcript">إظهار نص المكالمة</string>
@@ -52,15 +49,15 @@
     <string name="calls_cancel">إلغاء</string>
     <string name="calls_greeting">التحية</string>
     <string name="calls_instructions">الغرض والتعليمات</string>
-    <string name="calls_duration">الحد الأقصى للمدة بالذكاء الاصطناعي (15–600 ثانية)</string>
-    <string name="calls_speaker">معرّف الصوت في Volcengine</string>
+    <string name="calls_duration">الحد الأقصى للمدة بالذكاء الاصطناعي (0 = بلا حدود، 15–600 ثانية)</string>
+    <string name="calls_limits_unlimited">مكالمة واحدة في كل مرة · مدة الصوت بالذكاء الاصطناعي غير محدودة</string>
+    <string name="calls_speaker">معرّف الصوت في خدمة الصوت المحددة</string>
     <string name="calls_audio_route">مسار صوت المكالمة</string>
     <string name="calls_audio_verified">تحقّقت من أن الطرفين يسمعان الصوت في مكالمات الذكاء الاصطناعي على هذا الهاتف</string>
     <string name="calls_verify_note">أجرِ مكالمة اختبار أو ردّ عليها يدويًا أولًا وتحقّق من وصول الصوت في الاتجاهين، ثم فعّل الرد التلقائي.</string>
     <string name="calls_tool_state">حالة المكالمة</string>
     <string name="calls_tool_dial">إجراء مكالمة</string>
     <string name="calls_tool_hangup">إنهاء المكالمة</string>
-    <string name="calls_advanced">الإعدادات المتقدمة</string>
     <string name="calls_allowlist_hint">أدخل رقمًا واحدًا في كل سطر أو افصل الأرقام بفواصل.</string>
     <string name="calls_allowlist_invalid">أدخل أرقام هاتف صالحة (حتى %1$d).</string>
     <string name="calls_audio_direct">صوت الهاتف المباشر</string>
@@ -89,7 +86,7 @@
     <string name="calls_original_transcript">نص المكالمة</string>
     <string name="calls_outgoing_title">إجراء مكالمة</string>
     <string name="calls_rules">قواعد الرد</string>
-    <string name="calls_setup_credentials">اضبط بيانات اعتماد الصوت الفوري من Volcengine.</string>
+    <string name="calls_setup_credentials">اضبط بيانات اعتماد الصوت الفوري من خدمة الصوت المحددة.</string>
     <string name="calls_setup_shell">اتصل بمساعد Mika المدمج أولًا.</string>
     <string name="calls_sim_clear_preferred">مسح بطاقة SIM المفضلة</string>
     <string name="calls_sim_preferred">بطاقة SIM المفضلة: %1$s</string>
@@ -143,4 +140,21 @@
     <string name="calls_notification_connecting_audio">جارٍ توصيل صوت المكالمة</string>
     <string name="calls_notification_connected_waiting">تم اتصال الذكاء الاصطناعي. بانتظار حديث الطرف الآخر، ويمكنك تولي المكالمة في أي وقت.</string>
     <string name="calls_notification_connected">تم اتصال الذكاء الاصطناعي. يمكنك تولي المكالمة بنفسك في أي وقت.</string>
+    <string name="calls_only_types">أنواع المكالمات المحددة فقط</string>
+    <string name="calls_pick_types">اختر نوع مكالمة واحدًا على الأقل</string>
+    <string name="calls_type_note">يستخدم Mika تسهيلات الاستخدام لمطابقة التصنيف والرقم في تطبيق الهاتف مع المكالمة الواردة. إذا تعذرت المطابقة يمكنك الرد بنفسك.</string>
+    <string name="calls_type_accessibility">فتح إعدادات تسهيلات الاستخدام</string>
+    <string name="calls_type_takeout">توصيل الطعام</string>
+    <string name="calls_type_parcel">توصيل الطرود</string>
+    <string name="calls_type_delivery">توصيل أو خدمات لوجستية غير محددة</string>
+    <string name="calls_type_sales">مبيعات وإعلانات</string>
+    <string name="calls_type_broker">وكلاء ووسطاء</string>
+    <string name="calls_type_financial_sales">عروض التأمين والاستثمار</string>
+    <string name="calls_type_spam">مكالمات مزعجة</string>
+    <string name="calls_type_fraud">احتيال محتمل</string>
+    <string name="calls_type_high_risk">مخاطر عالية</string>
+    <string name="calls_type_business">شركات وخدمة العملاء</string>
+    <string name="calls_type_transport">سيارات الأجرة وخدمات النقل</string>
+    <string name="calls_only_strangers">الأرقام غير المحفوظة فقط</string>
+    <string name="calls_strangers_note">اسمح لتطبيق Mika بقراءة جهات الاتصال. يرد الذكاء الاصطناعي فقط إذا تأكد أن الرقم غير محفوظ. تتولى أنت الرد إذا كان الرقم مخفيًا أو تعذر التحقق منه.</string>
 </resources>

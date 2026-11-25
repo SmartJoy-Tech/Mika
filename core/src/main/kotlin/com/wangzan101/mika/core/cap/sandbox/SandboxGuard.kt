@@ -8,10 +8,10 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
-import com.wangzan101.mika.core.guard.GuardVerdict
-import com.wangzan101.mika.core.guard.Severity
-import com.wangzan101.mika.core.guard.actionSignature
-import com.wangzan101.mika.core.guard.OffScreenGuard
+import com.wangzan101.mika.core.safety.guard.GuardVerdict
+import com.wangzan101.mika.core.safety.guard.Severity
+import com.wangzan101.mika.core.safety.guard.actionSignature
+import com.wangzan101.mika.core.safety.guard.OffScreenGuard
 
 /** 一个任务里沙箱命令累计最多跑这么久。 */
 const val SANDBOX_BUDGET_MS = 30 * 60_000L
@@ -29,12 +29,12 @@ class SandboxGuard(private val budgetMs: Long = SANDBOX_BUDGET_MS) : OffScreenGu
     override var stop: GuardVerdict? = null
         private set
 
-    /** 时长用完时代替执行的结果;没用完为 null。 */
+    /** 时长用完时代替执行的结果;没用完为 null。分钟数跟着实际预算走(默认 30,设置里可调档位)。 */
     override fun exhausted(tool: String): JsonObject? {
         if (tool !in SANDBOX_COMMANDS || usedMs < budgetMs) return null
         return buildJsonObject {
             put("ok", false); put("error", "sandbox_budget_exhausted")
-            put("message", "Sandbox commands in this task have used their 30 minutes. Finish with what you have, or end_not_done.")
+            put("message", "Sandbox commands in this task have used their ${budgetMs / 60_000} minutes. Finish with what you have, or end_not_done.")
             put("recoverable", false); put("usedMs", usedMs)
         }
     }

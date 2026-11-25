@@ -2,6 +2,7 @@ package com.wangzan101.mika.core.agent
 
 import com.wangzan101.mika.core.net.ProxyFailure
 import com.wangzan101.mika.core.model.ModelError
+import com.wangzan101.mika.core.model.ModelErrors
 import kotlin.random.Random
 
 /**
@@ -22,16 +23,17 @@ class RetryPolicy(
     private val jitter: () -> Double = { Random.nextDouble() },
 ) {
     init {
-        require(maxRetries >= 0 && baseMs > 0 && maxBackoffMs >= baseMs && retryAfterCapMs >= 0 && taskWaitBudgetMs >= 0)
+        require(maxRetries >= 0 && baseMs > 0 && maxBackoffMs >= baseMs && retryAfterCapMs >= MIN_RETRY_AFTER_MS && taskWaitBudgetMs >= 0)
     }
 
     /**
      * 这次调用已重试 [retriesSoFar] 次后又遇到 [e],本任务已为重试等了 [waitedInTaskMs]:返回再试前要等的毫秒数;
      * 不该再试(不是一时的故障、次数到了、等这一次会超出任务的等待上限)为 null。
+     * [maxRetries] 可以在这一次调用里临时压低(组里有下一个成员时,同一成员只试一次)。
      */
-    fun delayFor(e: Throwable, retriesSoFar: Int, waitedInTaskMs: Long = 0): Long? {
+    fun delayFor(e: Throwable, retriesSoFar: Int, waitedInTaskMs: Long = 0, maxRetries: Int = this.maxRetries): Long? {
         if (retriesSoFar >= maxRetries || !transient(e)) return null
-        val wait = (e as? ModelError.RateLimited)?.retryAfterMs?.coerceIn(0, retryAfterCapMs) ?: run {
+        val wait = (e as? ModelError.RateLimited)?.retryAfterMs?.coerceIn(MIN_RETRY_AFTER_MS, retryAfterCapMs) ?: run {
             val ceiling = minOf(maxBackoffMs, baseMs shl minOf(retriesSoFar, 20))
             // 一半固定、一半随机:同时出错的几个任务不会在同一刻再撞上去
             ceiling / 2 + (ceiling / 2 * jitter().coerceIn(0.0, 1.0)).toLong()
@@ -40,17 +42,13 @@ class RetryPolicy(
     }
 
     companion object {
+        private const val MIN_RETRY_AFTER_MS = 1_000L
+
         /** 不重试:出错就交出(轻量模型出错时这一步直接改问主模型)。 */
         val NONE = RetryPolicy(maxRetries = 0)
 
         /** 一时的故障,过一会儿再发同一个请求可能就好了。 */
-        fun transient(e: Throwable): Boolean = when (e) {
-            is ModelError.RateLimited, is ModelError.Network, is ModelError.StreamCut -> true
-            is ModelError.Server -> e.status in 500..599
-            // 代理一时没起来、刚重启:过一会儿可能就通了;账号密码不对重试没用
-            is ModelError.Proxy -> e.failure == ProxyFailure.Unreachable
-            else -> false
-        }
+        fun transient(e: Throwable): Boolean = ModelErrors.transient(e)
 
         /** 运行记录里这次故障的名字。 */
         fun label(e: Throwable): String = when (e) {

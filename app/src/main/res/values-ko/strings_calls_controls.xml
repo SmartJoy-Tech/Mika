@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_dtmf_status_label">통화 상태</string>
+    <string name="calls_dtmf_open">키패드</string>
+    <string name="calls_dtmf_title">통화 키패드</string>
+    <string name="calls_dtmf_close">닫기</string>
+    <string name="calls_dtmf_batch">연속 입력</string>
+    <string name="calls_dtmf_hint">누른 키가 즉시 전송됩니다. 음성 안내를 따르세요.</string>
+    <string name="calls_dtmf_batch_hint">최대 32개 키를 입력한 후 전송하세요.</string>
+    <string name="calls_dtmf_input">0–9, * 또는 #</string>
+    <string name="calls_dtmf_delete">삭제</string>
+    <string name="calls_dtmf_send">전송</string>
+    <string name="calls_dtmf_sending">전송 중…</string>
+    <string name="calls_dtmf_sent">키를 제출했습니다. 상대방의 응답을 기다리세요</string>
+    <string name="calls_dtmf_failed">전송을 완료하지 못했습니다. 상대방의 응답을 기다리세요.</string>
+    <string name="calls_dtmf_invalid">0–9, *, #만 최대 32개 입력하세요.</string>
+    <string name="calls_voice_briefing_start">음성으로 작업 설명</string>
+    <string name="calls_voice_briefing_note">표준 중국어로 설명하세요. 발신을 승인하려면 마지막에 “%1$s”만 말하세요.</string>
+    <string name="calls_voice_briefing_stopped">설명이 중단되었습니다. 전화를 걸지 않았습니다</string>
+    <string name="calls_voice_briefing_authorized">작업 승인됨. 발신 요청 중</string>
+    <string name="calls_voice_briefing_permission_granted">마이크가 허용되었습니다. 음성 버튼을 다시 누르세요.</string>
+    <string name="calls_voice_briefing_permission_denied">마이크 권한이 없습니다. 텍스트로 입력할 수 있습니다.</string>
+    <string name="calls_voice_briefing_incomplete">기존 설명을 완성하거나 지운 후 시작하세요.</string>
+    <string name="calls_voice_briefing_configure">먼저 설정에서 실시간 음성을 구성하세요.</string>
+    <string name="calls_owner_ask_title">통화 상대가 답변을 기다리고 있어요</string>
+    <string name="calls_owner_ask_reply">답장</string>
+    <string name="calls_owner_ask_hint">답장 내용</string>
+    <string name="calls_transcript_owner_unrelayed">주인 답장(전달 안 됨)</string>
+    <string name="calls_owner_ask_channel">통화 중 질문</string>
+    <string name="calls_owner_ask_line">통화 상대의 질문: %1$s\n여기에 답하면 상대에게 전해 드릴게요.</string>
+    <string name="calls_owner_ask_notify_off">「통화 중 질문」 알림이 꺼져 있어 놓칠 수 있어요. 시스템 설정 → 알림에서 켤 수 있어요.</string>
+    <string name="calls_owner_ask_answered">통화에 전달했어요.</string>
+    <string name="calls_owner_ask_withdrawn">통화가 끝나서 이 질문은 취소했어요. 답하지 않아도 돼요.</string>
+</resources>

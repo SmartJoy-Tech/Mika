@@ -5,10 +5,11 @@ import android.content.Intent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.wangzan101.mika.cap.phone.a11y.DeviceSupport.TEST_PACKAGE
-import com.wangzan101.mika.core.uistate.ActionResult
-import com.wangzan101.mika.core.uistate.ScreenSnapshot
-import com.wangzan101.mika.core.uistate.UiElement
-import com.wangzan101.mika.core.uistate.Verification
+import com.wangzan101.mika.core.cap.phone.sms.SmsLoginMatcher
+import com.wangzan101.mika.core.screen.uistate.ActionResult
+import com.wangzan101.mika.core.screen.uistate.ScreenSnapshot
+import com.wangzan101.mika.core.screen.uistate.UiElement
+import com.wangzan101.mika.core.screen.uistate.Verification
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -49,6 +50,20 @@ class ScreenAccuracyTest {
     }
 
     private fun ScreenSnapshot.named(name: String): UiElement = elements.first { it.name == name }
+
+    @Test
+    fun smsLoginSnapshotKeepsFullNativeResourceIds() = runBlocking<Unit> {
+        assumeTrue(android.os.Build.VERSION.SDK_INT >= 30)
+        val ordinary = openFields()
+        assertEquals("verification_code", ordinary.named("空输入框").resourceId)
+        assertEquals(null, ordinary.named("7").resourceId)
+
+        val sms = screen.smsSnapshot(register = true)
+        val codeId = "$TEST_PACKAGE:id/verification_code"
+        assertEquals(codeId, sms.named("空输入框").resourceId)
+        assertEquals("$TEST_PACKAGE:id/send_code", sms.named("7").resourceId)
+        assertTrue(SmsLoginMatcher.target(sms, TEST_PACKAGE, codeId))
+    }
 
     @Test
     fun notImportantResultTextIsReadAndItsChangeCounts() = runBlocking<Unit> {

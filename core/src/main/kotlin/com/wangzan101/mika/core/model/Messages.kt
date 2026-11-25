@@ -1,7 +1,8 @@
 package com.wangzan101.mika.core.model
 
-import com.wangzan101.mika.core.observation.ReadTag
+import com.wangzan101.mika.core.screen.observation.ReadTag
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 sealed interface Part {
@@ -44,9 +45,16 @@ enum class Author { User, Mika }
 /**
  * [author] 必须写明(没有默认值):新加的地方要是放进了用户的话或照片,不会被当成 Mika 的附注裁掉。
  * 只在 Mika 内部用(压缩时保住用户的话),不发给服务商。
+ * [uncached]:这条每次请求都会变(例如每次现备的背景附注),只能放在请求末尾;适配器把移动的缓存标记
+ * 标在末尾这些消息之前最后一块能标的上,让下一次请求还能命中。只对这一次请求有效,不存盘。
  */
 @Serializable
-data class Message(val role: Role, val parts: List<Part>, val author: Author)
+data class Message(
+    val role: Role,
+    val parts: List<Part>,
+    val author: Author,
+    @Transient val uncached: Boolean = false,
+)
 
 data class ToolSpec(val name: String, val description: String, val parametersJsonSchema: String)
 
@@ -56,6 +64,10 @@ enum class StopReason { EndTurn, ToolUse, MaxTokens, Other }
  * [inputTokens] 是总输入 token(含缓存命中部分,OpenAI prompt_tokens 口径)。[outputTokens] 含思考;
  * [reasoningTokens] 是其中服务商单独报出的思考 token(没单独报的为 0,如 Anthropic)。
  */
-data class Usage(val inputTokens: Int, val outputTokens: Int, val cachedInputTokens: Int = 0, val reasoningTokens: Int = 0)
+data class Usage(
+    val inputTokens: Int, val outputTokens: Int, val cachedInputTokens: Int = 0, val reasoningTokens: Int = 0,
+    /** A provider can explicitly report zero cache reads. An absent counter has no cache-rate denominator. */
+    val cacheReported: Boolean = cachedInputTokens > 0,
+)
 
 data class ModelReply(val parts: List<Part>, val stopReason: StopReason, val usage: Usage?)

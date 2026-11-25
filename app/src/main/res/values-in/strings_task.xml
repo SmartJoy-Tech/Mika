@@ -6,7 +6,7 @@
     <string name="parallel_second_display_failed">Gagal membuat layar virtual kedua, jadi untuk sementara hanya satu tugas yang berjalan sekaligus</string>
     <string name="parallel_needs_14">Menjalankan beberapa tugas sekaligus memerlukan Android 14 atau lebih baru</string>
     <string name="parallel_low_ram">Ponsel ini memorinya kecil, jadi satu tugas berjalan sekaligus</string>
-    <string name="skill_suspended">Keterampilan ini belakangan tidak berhasil, jadi dijeda</string>
+    <string name="skill_suspended">Keterampilan ini belakangan tidak berhasil, jadi dijeda: %1$s</string>
     <string name="skill_verified">Keterampilan berhasil, kini dipakai secara rutin: %1$s</string>
     <string name="skill_learned">Mika mempelajari keterampilan: %1$s</string>
     <string name="skill_app_draft">Mika mencatat beberapa fakta tentang %1$s untuk Anda tinjau</string>
@@ -54,6 +54,15 @@
     <string name="task_too_old">Kontrol aplikasi ponsel memerlukan Android 12 atau lebih baru. Tugas obrolan, web, dan sandbox tetap tersedia.</string>
     <string name="task_shell_died">Pembantu kontrol ponsel terputus dan layar virtual ditutup. Coba lagi setelah tersambung kembali.</string>
     <string name="task_running">Berjalan</string>
+    <string name="chip_thinking">Berpikir</string>
+    <string name="chip_read_screen">Membaca layar</string>
+    <string name="chip_use_phone">Mengoperasikan ponsel</string>
+    <string name="chip_browse">Menjelajah web</string>
+    <string name="chip_take_over">Ambil alih</string>
+    <string name="chip_route_step">Langkah %1$d/%2$d</string>
+    <string name="chip_count">%1$d/%2$d</string>
+    <string name="chip_done">Selesai: %1$d</string>
+    <string name="chip_wait_app">Menunggu aplikasi</string>
     <string name="channel_task_accepted">Diterima — tugas sudah didaftarkan.</string>
     <string name="task_step_note">Langkah %1$d: %2$s</string>
     <string name="task_wait_unlock">Menunggu dibuka kuncinya</string>
@@ -78,4 +87,8 @@
     <string name="screens_waiting">Menunggu</string>
     <string name="screens_needs_you">Perlu Anda</string>
     <string name="screens_zoom">Perbesar layar ini</string>
+    <string name="task_trigger_time_limit">Tugas terjadwal berjalan lebih dari %1$d menit, jadi dihentikan.</string>
+    <string name="trigger_failed_streak">Tugas terjadwal gagal %1$d kali berturut-turut</string>
+    <string name="trigger_failed_streak_hint">Anda bisa menjeda atau mengubah rencana ini di halaman Tugas terjadwal.</string>
+    <string name="task_no_phone_helper_shizuku">Kontrol ponsel belum siap. Mulai Shizuku dan beri izin ke Mika (atau periksa Kontrol ponsel di Pengaturan). Tugas web dan file tidak terpengaruh.</string>
 </resources>

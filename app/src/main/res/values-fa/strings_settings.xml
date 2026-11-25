@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="language_title">زبان</string>
+    <string name="language_prompt_title">زبان</string>
+    <string name="language_prompt_hint">زبانی را که Mika برای فکر کردن، توضیح مراحل و پاسخ‌ها استفاده می‌کند انتخاب کنید.</string>
+    <string name="language_search_hint">جستجوی زبان</string>
+    <string name="language_prompt_confirm">تأیید</string>
+    <string name="language_prompt_dismiss">فعلاً نه</string>
     <string name="language_system">پیروی از زبان سیستم</string>
     <string name="language_system_detail">اگر میکا از زبان سیستم پشتیبانی کند از آن استفاده می‌کند؛ در غیر این صورت انگلیسی نمایش داده می‌شود</string>
 
@@ -14,7 +19,6 @@
 
 
 
-    <string name="settings_basic">عمومی</string>
     <string name="settings_language_appearance">زبان و ظاهر</string>
     <string name="settings_personal_start">باز کردن دستیار شخصی هنگام راه‌اندازی</string>
     <string name="settings_personal_start_sub">استفاده از دستیار شخصی به عنوان نخستین صفحه میکا</string>
@@ -25,7 +29,6 @@
     <string name="settings_during_work">هنگام اجرای کار</string>
     <string name="settings_during_work_sub">حالت خودکار، سرعت، محدودیت مراحل و صدا</string>
     <string name="settings_notif_sub">زمان نمایش اعلان‌ها را در تنظیمات سیستم تغییر دهید</string>
-    <string name="settings_privacy">داده‌های من</string>
     <string name="settings_memory_data">حافظه و داده‌ها</string>
     <string name="settings_memory_sub">خاطره‌ها، مهارت‌ها، مسیرهای ذخیره‌شده و ورود به وب‌سایت‌ها</string>
     <string name="settings_saved_data">داده‌های ذخیره‌شده</string>
@@ -34,10 +37,8 @@
         <item quantity="one">%1$d سایت</item>
         <item quantity="other">%1$d سایت</item>
     </plurals>
-    <string name="settings_other">سایر</string>
-    <string name="settings_advanced">پیشرفته و سایر موارد</string>
-    <string name="settings_advanced_sub">پروکسی، پردازش، اتصال‌ها و تعمیر</string>
-    <string name="settings_connections">شبکه و اتصال‌ها</string>
+    <string name="settings_advanced">پیشرفته</string>
+    <string name="settings_advanced_sub">افزونه‌ها، شبکه، محیط اجرا و نگهداری</string>
     <string name="settings_maintenance">نگهداری</string>
     <string name="settings_sandbox">محیط فایل‌ها و پردازش</string>
     <string name="settings_routes">مسیرهای ذخیره‌شده</string>
@@ -67,6 +68,8 @@
     <string name="settings_notif_master">همهٔ اعلان‌ها</string>
     <string name="settings_allowed">مجاز</string>
     <string name="settings_task_notifs">اعلان‌های کار</string>
+    <string name="settings_live_task_updates">اعلان زندهٔ کارها</string>
+    <string name="settings_live_task_updates_detail">انتخاب کنید که کارهای در حال اجرا در نوار وضعیت نمایش داده شوند یا نه</string>
     <string name="settings_keep_on">روشن نگه داشتن صفحه</string>
     <string name="settings_keep_on_sub">هنگام اجرای کار صفحه روشن می‌ماند (در صورت عدم استفاده ممکن است کم‌نور شود) و سپس به حالت عادی برمی‌گردد</string>
     <string name="settings_mute">بی‌صدا کردن برنامهٔ در حال استفاده</string>
@@ -79,6 +82,15 @@
     <string name="settings_pace_human">شبیه انسان</string>
     <string name="settings_pace_human_detail">در همهٔ برنامه‌ها آهسته عمل می‌کند و پیش از ادامه هر صفحه را می‌خواند</string>
     <string name="settings_pace_foot">بعضی برنامه‌ها هنگام استفادهٔ بیش از حد سریع شما را از حساب خارج می‌کنند یا تأیید می‌خواهند. سرعت کمتر باعث طولانی‌تر شدن کار می‌شود.</string>
+    <string name="settings_pace_per_app">سرعت به‌ازای هر برنامه</string>
+    <string name="settings_pace_per_app_sub">برنامه‌های سخت‌گیر را کندتر و برنامه‌هایی که سخت‌گیری نمی‌کنند را تندتر کن؛ بقیه از سرعت کلی پیروی می‌کنند</string>
+    <string name="settings_pace_per_app_intro">برنامه‌های این فهرست سرعت خودشان را دارند؛ بقیه از سرعت کلی پیروی می‌کنند (الان %1$s).</string>
+    <string name="settings_pace_per_app_empty">هنوز برنامه‌ای با سرعت جدا تنظیم نشده است.</string>
+    <string name="settings_pace_per_app_add">افزودن برنامه</string>
+    <string name="settings_pace_per_app_search">جست‌وجوی برنامه‌ها</string>
+    <string name="settings_pace_per_app_none">برنامه‌ای پیدا نشد</string>
+    <string name="settings_pace_per_app_pick">انتخاب</string>
+    <string name="settings_pace_per_app_remove">حذف (پیروی از سرعت کلی)</string>
     <string name="settings_parallel">کارهای هم‌زمان</string>
     <string name="settings_parallel_sub">کارهای گفتگوهای مختلف هر کدام صفحهٔ مجازی خود را دارند</string>
     <plurals name="settings_count_tasks">
@@ -117,6 +129,8 @@
     <string name="net_proxy">پروکسی شبکه</string>
     <string name="net_proxy_row_sub">برای درخواست‌های مدل، به‌روزرسانی‌ها، مرورگر داخلی و دستورها</string>
     <string name="net_proxy_hint">برای درخواست‌های مدل میکا (گفتگو، فهرست مدل‌ها و ورود به حساب)، دانلود به‌روزرسانی، مرورگر داخلی و دستورهای محیط فایل‌ها و پردازش، هنگامی که دسترسی شبکهٔ آن روشن است، استفاده می‌شود. نشانی‌های همین گوشی یا شبکهٔ محلی شما (localhost، ‎192.168.x.x، ‎10.x.x.x و نام‌های پایان‌یافته به ‎.local) همیشه مستقیم متصل می‌شوند تا مدل‌های محلی کار کنند. می‌تواند شامل user:password@ باشد که به‌صورت رمزگذاری‌شده در این گوشی ذخیره می‌شود. برای اتصال مستقیم خالی بگذارید.</string>
+    <string name="net_proxy_summary">درخواست‌های مدل، به‌روزرسانی‌ها، مرورگر داخلی و دستورهای محیط فایل از این پروکسی می‌گذرند.</string>
+    <string name="details">جزئیات</string>
     <string name="net_proxy_invalid">به شکل http://host:port وارد کنید (socks5، socks5h و https نیز پشتیبانی می‌شوند). در صورت نیاز می‌توانید user:password@ را پیش از نام میزبان قرار دهید.</string>
     <string name="net_proxy_container_only">پروکسی‌های https:// فقط برای دستورهای محیط فایل‌ها و پردازش استفاده می‌شوند و اتصال‌های خود میکا مستقیم می‌مانند. برای پوشش همهٔ اتصال‌ها از http:// یا socks5:// استفاده کنید.</string>
     <string name="net_proxy_browser_unsupported">WebView این گوشی نمی‌تواند از پروکسی جداگانه استفاده کند، بنابراین مرورگر داخلی مستقیم متصل می‌شود.</string>
@@ -167,7 +181,7 @@
     <string name="skin_accent_follow">رنگ تأکیدی از تصویر</string>
     <string name="skin_accent_follow_sub">اگر تصویر رنگ غالبی داشته باشد، به جای رنگ تأکیدی بالا از آن استفاده می‌شود</string>
     <string name="settings_self_config">اجازه به میکا برای تغییر تنظیمات خودش</string>
-    <string name="settings_self_config_sub">در حالت روشن، کارها یک ابزار برای خواندن و تغییر این ترجیحات دارند (سرعت، بی‌صدا کردن، کپسول، ظاهر، رنگ تأکیدی و روشن ماندن صفحه). مدل‌ها، کلیدهای API، شبکهٔ محیط اجرا و موارد حذف داده هرگز شامل آن نیستند</string>
+    <string name="settings_self_config_sub">فقط ترجیحات فهرست‌شده را تغییر می‌دهد؛ هرگز مدل‌ها، کلیدها، شبکه یا حذف داده را لمس نمی‌کند.</string>
     <string name="settings_step_limit">محدودیت مراحل هر کار</string>
     <string name="settings_step_limit_sub">خاموش یعنی بدون محدودیت. با رسیدن به محدودیت، کار متوقف می‌شود و محل توقف را اعلام می‌کند.</string>
     <string name="settings_step_limit_off">بدون محدودیت</string>
@@ -207,6 +221,58 @@
     <string name="mcp_servers_status_fail">اتصال ناموفق بود: %1$s</string>
     <string name="mcp_servers_refresh_all">آزمون همه</string>
     <string name="mcp_servers_allowlist">ابزارهای مجاز (با ویرگول جدا کنید؛ خالی یعنی همه)</string>
+    <string name="mcp_category_all">همه</string>
+    <string name="mcp_category_ai">هوش مصنوعی</string>
+    <string name="mcp_category_data">داده‌ها</string>
+    <string name="mcp_category_dev">ابزارهای توسعه</string>
+    <string name="mcp_category_comm">ارتباط</string>
+    <string name="mcp_category_prod">بهره‌وری</string>
+    <string name="mcp_category_design">طراحی و رسانه</string>
+    <string name="mcp_category_cloud">ابر</string>
+    <string name="mcp_category_web">جست‌وجو و وب</string>
+    <string name="mcp_category_maps">نقشه‌ها</string>
+    <string name="mcp_category_local">روی این دستگاه</string>
+    <string name="mcp_catalog_title">سرویس‌های MCP</string>
+    <string name="mcp_catalog_search_hint">جست‌وجوی سرویس‌ها</string>
+    <string name="mcp_catalog_no_results">سرویس مطابقی یافت نشد</string>
+    <string name="mcp_catalog_no_results_sub">کلمه یا دسته دیگری را امتحان کنید یا یک سرور سفارشی راه‌اندازی کنید.</string>
+    <string name="mcp_catalog_custom">سرور MCP سفارشی</string>
+    <string name="mcp_catalog_browse">مرور فهرست سرویس‌ها</string>
+    <string name="mcp_catalog_custom_server">سرور سفارشی</string>
+    <string name="mcp_connect_auth_oauth">با حساب خود وارد شوید</string>
+    <string name="mcp_connect_auth_fields">کلید API</string>
+    <string name="mcp_connect_auth_none">نیازی به ورود نیست</string>
+    <string name="mcp_connect_auth_stdio">روی این دستگاه اجرا می‌شود</string>
+    <string name="mcp_connect_authorize">ورود و اتصال</string>
+    <string name="mcp_connect_connect">اتصال</string>
+    <string name="mcp_connect_connecting">در حال اتصال…</string>
+    <string name="mcp_connect_cancel">انصراف</string>
+    <string name="mcp_connect_retry">تلاش دوباره</string>
+    <string name="mcp_connect_success_title">متصل شد</string>
+    <string name="mcp_connect_success_tools">%1$d ابزار در دسترس است</string>
+    <string name="mcp_connect_done">انجام شد</string>
+    <string name="mcp_connect_view_tools">مشاهده ابزارها</string>
+    <string name="mcp_connect_data_note">درخواست‌ها و داده‌های شما به این سرویس ارسال می‌شود.</string>
+    <string name="mcp_connect_package_title">بارگیری لازم است</string>
+    <string name="mcp_connect_package_body">برای استفاده از این سرور، Mika این بسته را روی دستگاه بارگیری و ذخیره می‌کند:\n%1$s %2$s\nاز %3$s</string>
+    <string name="mcp_connect_package_confirm">بارگیری و اتصال</string>
+    <string name="mcp_connect_help">دریافت کلید API</string>
+    <string name="mcp_connect_official">مستندات رسمی</string>
+    <string name="mcp_connect_about">درباره این سرویس</string>
+    <string name="mcp_manage_test">اکنون آزمایش کنید</string>
+    <string name="mcp_manage_reauthorize">ورود دوباره</string>
+    <string name="mcp_manage_replace">جایگزینی اعتبارنامه</string>
+    <string name="mcp_manage_replace_hint">برای نگه‌داشتن مقدار فعلی، فیلد را خالی بگذارید.</string>
+    <string name="mcp_manage_edit">ویرایش جزئیات</string>
+    <string name="mcp_manage_delete_note">حذف، این سرور و اعتبارنامه‌های ذخیره‌شده را از Mika حذف می‌کند، اما دسترسی‌ای را که در سایت رسمی سرویس داده‌اید لغو نمی‌کند.</string>
+    <string name="mcp_custom_headers">سرآیندهای درخواست</string>
+    <string name="mcp_custom_header_name">نام سرآیند</string>
+    <string name="mcp_custom_header_value">مقدار سرآیند</string>
+    <string name="mcp_custom_add_header">افزودن سرآیند</string>
+    <string name="mcp_custom_advanced">پیشرفته</string>
+    <string name="mcp_custom_timeout">مهلت اتصال (ثانیه)</string>
+    <string name="mcp_custom_preview">طول پیش‌نمایش نتیجه</string>
+    <string name="mcp_custom_budget">بودجه هزینه هر کار</string>
     <string name="quit_title">خروج کامل از میکا</string>
     <string name="quit_row_sub">کارهای پس‌زمینه را متوقف و کپسول شناور را پنهان می‌کند</string>
     <string name="quit_confirm_body">کارهای در حال اجرا متوقف می‌شوند و کپسول شناور و اعلان‌ها ناپدید می‌شوند. با باز کردن دوبارهٔ میکا همه‌چیز برمی‌گردد.</string>
@@ -219,9 +285,47 @@
     <string name="settings_token_budget_unlimited">بدون محدودیت</string>
     <string name="settings_auto_archive">بایگانی خودکار گفتگوها</string>
     <string name="settings_auto_archive_sub">گفتگوهایی که مدتی پیام جدید ندارند به بایگانی منتقل می‌شوند</string>
-    <string name="settings_auto_archive_hint">گفتگوهایی که در مدت انتخاب‌شده پیام جدیدی ندارند به بایگانی منتقل می‌شوند. گفتگوهای سنجاق‌شده و گفتگوهایی که وظیفه‌ای در آن‌ها در حال اجراست دست‌نخورده می‌مانند. هر زمان می‌توانید آن‌ها را از بایگانی در فهرست گفتگوها بازیابی کنید.</string>
+    <string name="settings_auto_archive_hint">گفتگوهایی که در مدت انتخاب‌شده پیام جدیدی ندارند به بایگانی منتقل می‌شوند.</string>
     <plurals name="settings_auto_archive_days">
         <item quantity="one">%1$d روز</item>
         <item quantity="other">%1$d روز</item>
+    </plurals>
+    <string name="settings_scheduled_quiet">ساعات سکوت کارهای زمان‌بندی‌شده</string>
+    <string name="settings_scheduled_quiet_detail">نتیجه‌ها و یادآوری‌های زمان‌بندی‌شده بی‌صدا در پنل اعلان‌ها نمایش داده می‌شوند.</string>
+    <string name="settings_scheduled_quiet_start">زمان شروع</string>
+    <string name="settings_scheduled_quiet_end">زمان پایان</string>
+    <string name="settings_scheduled_quiet_equal">برای بی‌صدا کردن اعلان‌ها، زمان شروع و پایان متفاوتی انتخاب کنید.</string>
+    <string name="settings_show_task_cost">نمایش هزینه کار</string>
+    <string name="settings_show_task_cost_sub">تخمین هزینه API DeepSeek به یوان چین برای کارهای جدید.</string>
+    <string name="settings_capabilities">قابلیت‌ها</string>
+    <string name="settings_preferences">ترجیحات</string>
+    <string name="settings_data">داده‌ها</string>
+    <string name="settings_extensions">افزونه‌ها و اتصالات</string>
+    <string name="settings_network">شبکه</string>
+    <string name="settings_runtime">محیط اجرا</string>
+    <string name="settings_trigger_run_limit">حداکثر زمان اجرای کارهای زمان‌بندی‌شده</string>
+    <string name="settings_trigger_run_limit_sub">کارهای زمان‌بندی‌شده بدون حضور شما اجرا می‌شوند. خاموش یعنی بدون محدودیت؛ با تمام شدن زمان، کار متوقف می‌شود و می‌گوید زمانش تمام شده است.</string>
+    <plurals name="settings_trigger_run_minutes_n">
+        <item quantity="one">%1$d دقیقه</item>
+        <item quantity="other">%1$d دقیقه</item>
+    </plurals>
+
+    <string name="settings_sandbox_budget">محدودیت زمان محیط پردازش برای هر کار</string>
+    <string name="settings_sandbox_budget_sub">مجموع زمان اجرای فرمان‌های محیط در یک کار (نصب وابستگی‌ها، ساخت و مانند آن). پیش‌فرض ۳۰ دقیقه است؛ تغییر از کار بعدی اعمال می‌شود.</string>
+    <plurals name="settings_sandbox_budget_minutes_n">
+        <item quantity="one">%1$d دقیقه</item>
+        <item quantity="other">%1$d دقیقه</item>
+    </plurals>
+    <string name="settings_attachment_file_limit">محدودیت هر فایل بارگذاری</string>
+    <string name="settings_attachment_file_limit_sub">بزرگ‌ترین حجم فایل مجاز برای پیوست‌های گفتگو و درون‌ریزی فایل‌های دستگاه؛ تصاویر وچت و فایل‌های رایانه با حد ثابت می‌مانند. پیش‌فرض 200 مگابایت.</string>
+    <plurals name="settings_attachment_file_limit_mb_n">
+        <item quantity="one">%1$d مگابایت</item>
+        <item quantity="other">%1$d مگابایت</item>
+    </plurals>
+    <string name="settings_workspace_size_limit">محدودیت هر فضای کاری</string>
+    <string name="settings_workspace_size_limit_sub">فضای ذخیره‌سازی برای پیوست‌های گفتگو و درون‌ریزی فایل‌های دستگاه. پیش‌فرض 4 گیگابایت.</string>
+    <plurals name="settings_workspace_size_limit_gb_n">
+        <item quantity="one">%1$d گیگابایت</item>
+        <item quantity="other">%1$d گیگابایت</item>
     </plurals>
 </resources>

@@ -3,6 +3,7 @@ package com.wangzan101.mika.cap.sandbox
 import com.wangzan101.mika.core.workspace.SandboxTree
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -10,7 +11,7 @@ import java.util.TimeZone
 
 class ProcRunnerArgsTest {
     private val dirs = SandboxDirs(File("/data/m/files/sandbox"), File("/data/m/cache/proot-tmp"), File("/data/app/lib/arm64"), JVM_GATE, SandboxTree())
-    private val ws = dirs.workspace("conv1")
+    private val ws = dirs.workspace(WorkspaceKey.Conversation("conv1"))
 
     private fun List<String>.hasPair(a: String, b: String) = indices.any { it + 1 < size && this[it] == a && this[it + 1] == b }
 
@@ -29,6 +30,7 @@ class ProcRunnerArgsTest {
         assertTrue(argv.hasPair("-b", "/data/m/files/sandbox/proc/stat:/proc/stat"))
         assertTrue(argv.hasPair("-b", "/data/m/files/sandbox/work/c-conv1:/workspace"))
         assertTrue(argv.hasPair("-b", "/data/m/files/sandbox/skills:/opt/mika/skills"))
+        assertTrue(argv.hasPair("-b", "/data/m/files/sandbox/mcp-cache:/opt/mika/mcp-cache"))
         assertTrue(argv.hasPair("-w", "/workspace/sub/dir"))
         assertEquals(listOf("/bin/sh", "-lc", "echo hi"), argv.takeLast(3))
         assertTrue(argv.indexOf("-w") < argv.size - 3)
@@ -78,6 +80,29 @@ class ProcRunnerArgsTest {
         assertEquals("mika-bridge-x", bridged["MIKA_BRIDGE"]); assertEquals("tok", bridged["MIKA_TOKEN"])
     }
 
+    /** 解析出的 stdio 秘密环境只在显式 allowlist 上追加:保留 PATH/HOME/TZ 等基础项,不继承宿主/App 环境,非法键与 NUL 拒绝。 */
+    @Test fun sandboxProcessEnvironmentUsesExplicitAllowlist() {
+        val env = ProcRunner.env(dirs, null, null, "conv1", extra = mapOf("SECRET_API_KEY" to "k", "REGION" to "cn"))
+        // 基础项仍在
+        assertEquals("/root", env["HOME"])
+        assertEquals(ProcRunner.PATH, env["PATH"])
+        assertTrue(env.containsKey("TZ"))
+        // 只追加解析出的环境
+        assertEquals("k", env["SECRET_API_KEY"])
+        assertEquals("cn", env["REGION"])
+        // 不继承宿主 / App 环境:键只落在显式 allowlist 内
+        assertTrue(env.keys.none { it == "LD_PRELOAD" || it.startsWith("ANDROID_") || it == "JAVA_HOME" })
+        // 非法键(格式不符)与 NUL 值拒绝;不允许覆盖基础项
+        for (bad in listOf("1BAD", "A-B", "A.B", "PATH")) {
+            assertThrows(IllegalArgumentException::class.java) {
+                ProcRunner.env(dirs, null, null, "conv1", extra = mapOf(bad to "v"))
+            }
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ProcRunner.env(dirs, null, null, "conv1", extra = mapOf("OK" to "a\u0000b"))
+        }
+    }
+
     /** 代理只在给了时出现:大小写两套变量都给(有的工具只认大写),本机地址照旧直连。 */
     @Test fun proxyIsPassedOnlyWhenGiven() {
         val none = ProcRunner.env(dirs, null, null, "conv1", proxy = "")
@@ -113,15 +138,16 @@ class ProcRunnerArgsTest {
     }
 
     @Test fun oddConversationIdsStayInsideWork() {
-        for (id in listOf("../../etc", "a/b", "", "对话一")) {
-            val f = dirs.workspace(id)
+        for (id in listOf("../../etc", "a/b", "", "对话一", "p:abc")) {
+            val f = dirs.workspace(WorkspaceKey.Conversation(id))
             assertEquals(id, dirs.work, f.parentFile)
             assertFalse(id, f.name.contains(".."))
         }
-        assertEquals(dirs.workspace("x/y"), dirs.workspace("x/y"))
-        // 简单名字和哈希名字分在两个前缀下:「h-…」样子的 ID 不会撞上别的对话的哈希目录
-        val hashed = dirs.workspace("a/b").name
+        assertEquals(dirs.workspace(WorkspaceKey.Conversation("x/y")), dirs.workspace(WorkspaceKey.Conversation("x/y")))
+        // 简单名字和哈希名字分在两个前缀下:「h-…」样子的 ID 不会撞上别的对话的哈希目录;项目工作区固定为 p-<id>
+        val hashed = dirs.workspace(WorkspaceKey.Conversation("a/b")).name
         assertTrue(hashed, hashed.startsWith("h-"))
-        assertEquals("c-$hashed", dirs.workspace(hashed).name)
+        assertEquals("c-$hashed", dirs.workspace(WorkspaceKey.Conversation(hashed)).name)
+        assertEquals("p-proj_1", dirs.workspace(WorkspaceKey.Project("proj_1")).name)
     }
 }

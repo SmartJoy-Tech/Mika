@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_dtmf_status_label">通話状態</string>
+    <string name="calls_dtmf_open">キーパッド</string>
+    <string name="calls_dtmf_title">通話キーパッド</string>
+    <string name="calls_dtmf_close">閉じる</string>
+    <string name="calls_dtmf_batch">連続入力</string>
+    <string name="calls_dtmf_hint">各キーはすぐに送信されます。音声案内に従ってください。</string>
+    <string name="calls_dtmf_batch_hint">32 キーまで入力して送信してください。</string>
+    <string name="calls_dtmf_input">0–9、*、#</string>
+    <string name="calls_dtmf_delete">削除</string>
+    <string name="calls_dtmf_send">送信</string>
+    <string name="calls_dtmf_sending">送信中…</string>
+    <string name="calls_dtmf_sent">キーを送信しました。相手の応答をお待ちください</string>
+    <string name="calls_dtmf_failed">送信を完了できません。相手の応答をお待ちください。</string>
+    <string name="calls_dtmf_invalid">0–9、*、# のみ、最大 32 キー。</string>
+    <string name="calls_voice_briefing_start">音声でタスクを伝える</string>
+    <string name="calls_voice_briefing_note">普通話で説明してください。発信を許可するには、最後に「%1$s」だけを話してください。</string>
+    <string name="calls_voice_briefing_stopped">説明を中止しました。発信していません</string>
+    <string name="calls_voice_briefing_authorized">タスクが承認されました。発信を送信中</string>
+    <string name="calls_voice_briefing_permission_granted">マイクが許可されました。音声ボタンをもう一度押してください。</string>
+    <string name="calls_voice_briefing_permission_denied">マイクが許可されませんでした。テキストで入力できます。</string>
+    <string name="calls_voice_briefing_incomplete">既存の説明を完成させるか消去してください。</string>
+    <string name="calls_voice_briefing_configure">設定でリアルタイム音声を構成してください。</string>
+    <string name="calls_owner_ask_title">通話相手があなたの返事を待っています</string>
+    <string name="calls_owner_ask_reply">返信</string>
+    <string name="calls_owner_ask_hint">返信内容</string>
+    <string name="calls_transcript_owner_unrelayed">オーナーの返事（未伝達）</string>
+    <string name="calls_owner_ask_channel">通話中の確認</string>
+    <string name="calls_owner_ask_line">通話相手からの質問：%1$s\nここで返信すれば相手に伝えます。</string>
+    <string name="calls_owner_ask_notify_off">「通話中の確認」通知がオフのため、見逃すおそれがあります。システム設定 → 通知でオンにできます。</string>
+    <string name="calls_owner_ask_answered">通話に伝えました。</string>
+    <string name="calls_owner_ask_withdrawn">通話が終わったため、この質問は取り下げました。返信は不要です。</string>
+</resources>

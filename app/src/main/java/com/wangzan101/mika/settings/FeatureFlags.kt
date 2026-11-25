@@ -10,16 +10,31 @@ import com.wangzan101.mika.capsule.CapsuleMode
 import com.wangzan101.mika.capsule.DockSide
 import com.wangzan101.mika.core.agent.SpeedFlags
 import com.wangzan101.mika.core.cap.phone.OperatingPace
+import com.wangzan101.mika.core.learn.knowledge.GuideCatalog
 import com.wangzan101.mika.chat.AutoArchive
-import com.wangzan101.mika.core.usage.TokenBudgetLimits
+import com.wangzan101.mika.core.model.usage.ProactiveBudget
+import com.wangzan101.mika.core.model.usage.TokenBudgetLimits
 import com.wangzan101.mika.task.ParallelCapability
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import java.time.LocalTime
 
 /** 功能开关。提速开关存成 [SpeedFlags.describe] 的格式,评测跑器可用参数覆盖。 */
 class FeatureFlags(private val prefs: SharedPreferences) {
+    fun scheduledQuietHours(): ScheduledQuietHours {
+        val parts = prefs.getString(SCHEDULED_QUIET_HOURS, null)?.split(',')
+        if (parts?.size != 3) return ScheduledQuietHours.DEFAULT
+        return runCatching {
+            ScheduledQuietHours(parts[0].toBooleanStrict(), LocalTime.parse(parts[1]), LocalTime.parse(parts[2]))
+        }.getOrDefault(ScheduledQuietHours.DEFAULT)
+    }
+
+    fun setScheduledQuietHours(hours: ScheduledQuietHours) {
+        prefs.edit().putString(SCHEDULED_QUIET_HOURS, "${hours.enabled},${hours.start},${hours.end}").apply()
+    }
+
     fun personalStart(): Boolean = prefs.getBoolean(PERSONAL_START, false)
 
     fun setPersonalStart(on: Boolean) {
@@ -56,11 +71,70 @@ class FeatureFlags(private val prefs: SharedPreferences) {
         prefs.edit().putInt(TASK_STEP_LIMIT, (limit ?: 0).coerceIn(0, MAX_TASK_STEP_LIMIT)).commit()
     }
 
+    /**
+     * 定时任务一次最多跑多少分钟(无人在场,卡住了没人停);null 表示不限制。默认不限制,和步数上限一样,下次触发起生效。
+     * 只认 [TRIGGER_RUN_MINUTES] 里的几档,存了别的值按不限制算。
+     */
+    fun triggerRunMinutes(): Int? = prefs.getInt(TRIGGER_RUN_LIMIT, 0).takeIf { it in TRIGGER_RUN_MINUTES }
+
+    fun setTriggerRunMinutes(minutes: Int?) {
+        prefs.edit().putInt(TRIGGER_RUN_LIMIT, minutes?.takeIf { it in TRIGGER_RUN_MINUTES } ?: 0).commit()
+    }
+
+    /**
+     * 一个任务里沙箱命令累计最多跑多少分钟(装依赖、编译这类活容易超);只认 [SANDBOX_BUDGET_MINUTES] 里的几档,
+     * 没设或存了别的值按默认(与 [SANDBOX_BUDGET_MS] 一致)算,下一个任务起生效。
+     */
+    fun sandboxBudgetMinutes(): Int =
+        prefs.getInt(SANDBOX_BUDGET_LIMIT, 0).takeIf { it in SANDBOX_BUDGET_MINUTES } ?: DEFAULT_SANDBOX_BUDGET_MINUTES
+
+    fun setSandboxBudgetMinutes(minutes: Int) {
+        prefs.edit().putInt(SANDBOX_BUDGET_LIMIT, minutes.takeIf { it in SANDBOX_BUDGET_MINUTES } ?: 0).commit()
+    }
+
+    /**
+     * 单个上传文件(聊天附件、微信图片、电脑发任务带的文件)最大多少 MB;只认 [ATTACHMENT_FILE_LIMIT_MB] 里的几档,
+     * 没设或存了别的值按默认(与 Attachments.MAX_BYTES 一致)算,改完下一次导入生效。
+     */
+    fun attachmentMaxMb(): Int =
+        prefs.getInt(ATTACHMENT_FILE_LIMIT, 0).takeIf { it in ATTACHMENT_FILE_LIMIT_MB } ?: DEFAULT_ATTACHMENT_FILE_LIMIT_MB
+
+    fun attachmentMaxBytes(): Long = attachmentMaxMb().toLong() shl 20
+
+    fun setAttachmentMaxMb(mb: Int) {
+        prefs.edit().putInt(ATTACHMENT_FILE_LIMIT, mb.takeIf { it in ATTACHMENT_FILE_LIMIT_MB } ?: 0).commit()
+    }
+
+    /**
+     * 一个工作区(对话沙箱目录)最多占多少 GB;只认 [WORKSPACE_LIMIT_GB] 里的几档,
+     * 没设或存了别的值按默认(与 Attachments.WORKSPACE_MAX 一致)算。
+     */
+    fun workspaceMaxGb(): Int =
+        prefs.getInt(WORKSPACE_LIMIT, 0).takeIf { it in WORKSPACE_LIMIT_GB } ?: DEFAULT_WORKSPACE_LIMIT_GB
+
+    fun workspaceMaxBytes(): Long = workspaceMaxGb().toLong() shl 30
+
+    /** 聊天附件与设备文件导入共用的体积档位,每次取用都是当前设置。 */
+    fun attachmentLimits() = com.wangzan101.mika.cap.sandbox.AttachmentLimits(attachmentMaxBytes(), workspaceMaxBytes())
+
+    fun setWorkspaceMaxGb(gb: Int) {
+        prefs.edit().putInt(WORKSPACE_LIMIT, gb.takeIf { it in WORKSPACE_LIMIT_GB } ?: 0).commit()
+    }
+
     /** 每个任务允许已报告的输入加输出 Token 总量;null 表示不限制,下次任务起生效。 */
     fun taskTokenBudget(): Long? = prefs.getLong(TASK_TOKEN_BUDGET, 0L).takeIf(TokenBudgetLimits::valid)
 
     fun setTaskTokenBudget(limit: Long?) {
         prefs.edit().putLong(TASK_TOKEN_BUDGET, limit?.takeIf(TokenBudgetLimits::valid) ?: 0L).commit()
+    }
+
+    /** 主动能力每天(本地日历日,各服务商合计)允许已报告的 Token;没设或不合法时按默认值,没有「不限制」。 */
+    fun proactiveDailyTokenBudget(): Long =
+        ProactiveBudget.limitOf(prefs.getLong(PROACTIVE_DAILY_TOKEN_BUDGET, 0L))
+
+    /** 不在 [TokenBudgetLimits] 范围内的值(含 null)存成「没设」,读出来就是默认值。 */
+    fun setProactiveDailyTokenBudget(limit: Long?) {
+        prefs.edit().putLong(PROACTIVE_DAILY_TOKEN_BUDGET, limit?.takeIf(TokenBudgetLimits::valid) ?: 0L).commit()
     }
 
     /** 干活时屏幕保持常亮;默认开,用户可以关。 */
@@ -69,6 +143,21 @@ class FeatureFlags(private val prefs: SharedPreferences) {
     fun setKeepScreenOn(on: Boolean) {
         prefs.edit().putBoolean(KEEP_SCREEN_ON, on).commit()
     }
+
+    fun showTaskCost(): Boolean = prefs.getBoolean(SHOW_TASK_COST, false)
+
+    fun setShowTaskCost(on: Boolean) {
+        prefs.edit().putBoolean(SHOW_TASK_COST, on).apply()
+    }
+
+    fun showTaskCostChanges(): Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == null || key == SHOW_TASK_COST) trySend(showTaskCost())
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        send(showTaskCost())
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }.distinctUntilChanged()
 
     /** 干活时把被操作的 App 静音;默认开,用户可以关。 */
     fun muteTarget(): Boolean = prefs.getBoolean(MUTE_TARGET, true)
@@ -83,6 +172,39 @@ class FeatureFlags(private val prefs: SharedPreferences) {
     fun setOperatingPace(pace: OperatingPace) {
         prefs.edit().putString(OPERATING_PACE, pace.name).commit()
     }
+
+    /**
+     * 按应用的操作节奏覆盖(包名 → 档位)。列表还没初始化过时先把内置 App 知识标 careful 的 App 预置为「像人」
+     * (见 [GuideCatalog.carefulApps]);之后运行时只看这份列表,App 知识的 pace 不再参与。
+     * 解析失败按没初始化处理(下次读取重新预置)。
+     */
+    fun appPaceOverrides(): Map<String, OperatingPace> {
+        val stored = prefs.getString(APP_PACE_OVERRIDES, null)
+        if (stored != null) {
+            val parsed = runCatching { parseAppPaceOverrides(stored) }.getOrNull()
+            if (parsed != null) return parsed
+        }
+        val seeded = GuideCatalog.loadBundled().carefulApps().associateWith { OperatingPace.HUMAN }
+        setAppPaceOverrides(seeded)
+        return seeded
+    }
+
+    /** 整表写回(设置页增删改后调用);空表也落盘(用户删光 = 明确不再按应用区分,别再重新预置)。 */
+    fun setAppPaceOverrides(overrides: Map<String, OperatingPace>) {
+        val json = overrides.toSortedMap().entries.joinToString(prefix = "{", postfix = "}") { (pkg, pace) ->
+            "\"${pkg.replace("\\", "\\\\").replace("\"", "\\\"")}\":\"${pace.name}\""
+        }
+        prefs.edit().putString(APP_PACE_OVERRIDES, json).commit()
+    }
+
+    private fun parseAppPaceOverrides(json: String): Map<String, OperatingPace> =
+        kotlinx.serialization.json.Json.parseToJsonElement(json).let { o ->
+            buildMap {
+                for ((k, v) in (o as kotlinx.serialization.json.JsonObject)) {
+                    OperatingPace.parse((v as kotlinx.serialization.json.JsonPrimitive).content)?.let { pace -> put(k, pace) }
+                }
+            }
+        }
 
     /** 界面配色:跟随系统、一直浅色、一直深色(见 [ThemeMode])。界面跟着 [themeModeChanges] 当场换,不用重建。 */
     fun themeMode(): ThemeMode = ThemeMode.parse(prefs.getString(THEME_MODE, null))
@@ -188,6 +310,13 @@ class FeatureFlags(private val prefs: SharedPreferences) {
         prefs.edit().putBoolean(EXTERNAL_SCHEDULE, on).commit()
     }
 
+    /** 设备文件导入是实验功能,默认关闭,下次任务生效。 */
+    fun deviceFiles(): Boolean = prefs.getBoolean(DEVICE_FILES, false)
+
+    fun setDeviceFiles(on: Boolean) {
+        prefs.edit().putBoolean(DEVICE_FILES, on).commit()
+    }
+
     /** 自动归档:多久没有新消息的对话自动归档;0 表示关闭(默认)。 */
     fun autoArchiveDays(): Int = prefs.getInt(AUTO_ARCHIVE_DAYS, 0).takeIf { it in AutoArchive.DAYS } ?: 0
 
@@ -195,6 +324,29 @@ class FeatureFlags(private val prefs: SharedPreferences) {
         prefs.edit().putInt(AUTO_ARCHIVE_DAYS, days.takeIf { it in AutoArchive.DAYS } ?: 0).commit()
     }
 
+    /** 主动能力(见 [com.wangzan101.mika.proactive.ProactiveRuntime]):读所选 App 的通知;默认关。 */
+    fun proactive(): Boolean = prefs.getBoolean(PROACTIVE, false)
+
+    fun setProactive(on: Boolean) {
+        prefs.edit().putBoolean(PROACTIVE, on).commit()
+    }
+
+    /** 主动能力开关的当前值,之后每次改动再发一次(胶囊据此才去取「值得提醒」的条数,关着时不建主动能力)。 */
+    fun proactiveChanges(): Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == null || key == PROACTIVE) trySend(proactive())
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        send(proactive())
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }.distinctUntilChanged()
+
+    /** 人格:默认开。开关留着,出问题时能整体关掉(关掉后界面不显示入口,任务也不读对话上的绑定)。 */
+    fun persona(): Boolean = prefs.getBoolean(PERSONA, true)
+
+    fun setPersona(on: Boolean) {
+        prefs.edit().putBoolean(PERSONA, on).commit()
+    }
     /** 悬浮胶囊:关闭、有任务时显示(默认)、一直显示。 */
     fun capsuleMode(): CapsuleMode = CapsuleMode.parse(prefs.getString(CAPSULE_MODE, null))
 
@@ -273,7 +425,7 @@ class FeatureFlags(private val prefs: SharedPreferences) {
     }.distinctUntilChanged()
 
     /**
-     * 用户点了「完全退出」,要到下次打开 Mika 的界面为止([com.wangzan101.mika.quit.MikaQuit])。
+     * 用户点了「完全退出」,要到下次打开 Mika 的界面为止([com.wangzan101.mika.MikaQuit])。
      * 在这期间进程可能被无障碍服务重新拉起:胶囊不画、后台服务不补起、自动恢复也不做,直到用户自己打开 App。
      */
     fun quitRequested(): Boolean = prefs.getBoolean(QUIT_REQUESTED, false)
@@ -314,28 +466,56 @@ class FeatureFlags(private val prefs: SharedPreferences) {
 
     companion object {
         const val PREFS = "feature_flags"
+        private const val SCHEDULED_QUIET_HOURS = "scheduled_quiet_hours"
         /** 每个任务步数上限能设的最大值;0/null 表示不限制。 */
         const val MAX_TASK_STEP_LIMIT = 500
+        /** 定时任务最长运行时间可选的几档(分钟)。 */
+        val TRIGGER_RUN_MINUTES = listOf(15, 30, 60, 120)
+        /** 每任务沙箱命令累计时长可选的几档(分钟)。 */
+        val SANDBOX_BUDGET_MINUTES = listOf(30, 60, 120, 240)
+        /** 每任务沙箱命令累计时长没设(或存了档位外的值)时按这个算,与 core 的 [SANDBOX_BUDGET_MS] 一致。 */
+        val DEFAULT_SANDBOX_BUDGET_MINUTES = (com.wangzan101.mika.core.cap.sandbox.SANDBOX_BUDGET_MS / 60_000L).toInt()
+        /** 单个上传文件体积可选的几档(MB)。 */
+        val ATTACHMENT_FILE_LIMIT_MB = listOf(200, 512, 1024, 2048)
+        /** 单文件上限没设(或存了档位外的值)时按这个算,与 Attachments.MAX_BYTES 一致。 */
+        val DEFAULT_ATTACHMENT_FILE_LIMIT_MB = (com.wangzan101.mika.cap.sandbox.Attachments.MAX_BYTES shr 20).toInt()
+        /** 单个工作区空间可选的几档(GB)。 */
+        val WORKSPACE_LIMIT_GB = listOf(4, 8, 16, 32)
+        /** 工作区上限没设(或存了档位外的值)时按这个算,与 Attachments.WORKSPACE_MAX 一致。 */
+        val DEFAULT_WORKSPACE_LIMIT_GB = (com.wangzan101.mika.cap.sandbox.Attachments.WORKSPACE_MAX shr 30).toInt()
         private const val SPEED_FLAGS = "speed_flags"
         /**
          * 提速开关默认值的升级,按先后各做一次(键记下做过没有):v2 打开分级读屏、连续操作、按需看图;
-         * v3 打开经验回放(学习改看结局判定之后路线才记得下来)。
+         * v3 打开经验回放(学习改看结局判定之后路线才记得下来);v4 打开大小模型分工(没配轻量模型时空转,配了就省钱);
+         * v5 打开界面元素压成表(重复字段首屏压成列,省 token)。
          */
         private val SPEED_UPGRADES: List<Pair<String, (SpeedFlags) -> SpeedFlags>> = listOf(
             "speed_defaults_applied_v2" to { f -> f.copy(inlineScreen = true, batchSteps = true, adaptiveVision = true) },
             "speed_defaults_applied_v3" to { f -> f.copy(replay = true) },
+            "speed_defaults_applied_v4" to { f -> f.copy(lightSteps = true) },
+            "speed_defaults_applied_v5" to { f -> f.copy(tablesAtBirth = true) },
         )
         private const val PARALLEL_MAX = "parallel_max"
         private const val TASK_STEP_LIMIT = "task_step_limit"
+        private const val TRIGGER_RUN_LIMIT = "trigger_run_limit_minutes"
+        private const val SANDBOX_BUDGET_LIMIT = "sandbox_budget_limit_minutes"
+        private const val ATTACHMENT_FILE_LIMIT = "attachment_file_limit_mb"
+        private const val WORKSPACE_LIMIT = "workspace_limit_gb"
         private const val TASK_TOKEN_BUDGET = "task_token_budget"
+        private const val PROACTIVE_DAILY_TOKEN_BUDGET = "proactive_daily_token_budget"
         private const val KEEP_SCREEN_ON = "keep_screen_on"
+        private const val SHOW_TASK_COST = "show_task_cost"
         private const val MUTE_TARGET = "mute_target"
         private const val OPERATING_PACE = "operating_pace"
+        private const val APP_PACE_OVERRIDES = "app_pace_overrides"
         private const val AUTO_ARCHIVE_DAYS = "auto_archive_days"
         private const val SELF_CONFIG = "self_config"
         private const val SELF_OPERATE = "self_operate"
+        private const val DEVICE_FILES = "device_files"
         private const val PIP_OPERATE = "pip_operate"
         private const val EXTERNAL_SCHEDULE = "external_schedule"
+        private const val PROACTIVE = "proactive"
+        private const val PERSONA = "persona"
         private const val THEME_MODE = "theme_mode"
         private const val PERSONAL_START = "personal_start"
         private const val THEME_ACCENT = "theme_accent"

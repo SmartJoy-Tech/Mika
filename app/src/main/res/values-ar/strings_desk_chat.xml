@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="desk_tool_added">أُضيف إلى «%1$s»</string>
+    <string name="desk_tool_answered">تم الرد في «%1$s»</string>
+    <string name="desk_tool_cancelled">أُلغي «%1$s»</string>
+    <string name="desk_reply_failed">تعذّر الرد الآن. هل تعيد؟</string>
+    <string name="desk_thinking">أفكر</string>
+    <string name="desk_phase_running">قيد التنفيذ</string>
+    <string name="desk_phase_queued">في الانتظار</string>
+    <string name="desk_phase_queued_at">في الانتظار · رقم %1$d</string>
+    <string name="desk_phase_needs_you">يحتاج إليك</string>
+    <string name="desk_phase_done">تم</string>
+    <string name="desk_phase_failed">لم ينجح</string>
+    <string name="desk_phase_cancelled">أُلغي</string>
+    <string name="desk_tray_expand">إظهار المهام</string>
+    <string name="desk_tray_collapse">إخفاء المهام</string>
+    <string name="chat_time_yesterday">أمس %1$s</string>
+    <string name="desk_need_choose">اختر واحدًا · %1$s</string>
+    <string name="desk_need_answer">يحتاج إلى إجابتك · %1$s</string>
+    <string name="desk_need_takeover">تولَّ الأمر · %1$s</string>
+    <string name="desk_need_handle">يحتاج إليك · %1$s</string>
+    <string name="desk_need_choose_foot">لا شيء منها؟ اكتب بالأسفل أو اضغط مطولًا للتحدث.</string>
+    <string name="desk_need_answer_foot">اكتب بالأسفل أو اضغط مطولًا للتحدث.</string>
+    <string name="desk_need_takeover_foot">بعد أن تنتهي على الشاشة، سأكمل أنا.</string>
+    <string name="desk_need_stop">أوقف هذه المهمة</string>
+    <string name="desk_tray_stop">إيقاف</string>
+    <string name="desk_tray_detail">عرض الخطوات بالتفصيل ›</string>
+    <string name="chat_menu_tasks">المهام في هذه المحادثة</string>
+    <string name="desk_tasks_empty">لم تُرسَل أي مهام في هذه المحادثة بعد.</string>
+</resources>

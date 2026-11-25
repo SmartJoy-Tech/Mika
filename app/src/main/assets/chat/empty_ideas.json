@@ -1,0 +1,813 @@
+{
+ "zh": [
+  {
+   "scene": "food",
+   "packages": [
+    "com.lucky.luckyclient"
+   ],
+   "text": {
+    "zh-Hans": "瑞幸点一杯生椰拿铁，用最大的那张券",
+    "zh-Hant": "瑞幸點一杯生椰拿鐵，用最大的那張券"
+   }
+  },
+  {
+   "scene": "food",
+   "packages": [
+    "com.sankuai.meituan"
+   ],
+   "text": {
+    "zh-Hans": "美团找附近 4.8 分以上的火锅，订今晚 7 点",
+    "zh-Hant": "美團找附近 4.8 分以上的火鍋，訂今晚 7 點"
+   }
+  },
+  {
+   "scene": "food",
+   "packages": [
+    "me.ele"
+   ],
+   "text": {
+    "zh-Hans": "把上次那单外卖原样再点一份",
+    "zh-Hant": "把上次那單外賣原樣再點一份"
+   }
+  },
+  {
+   "scene": "food",
+   "packages": [
+    "com.dianping.v1"
+   ],
+   "text": {
+    "zh-Hans": "大众点评找公司附近人均 50 以内的日料",
+    "zh-Hant": "大眾點評找公司附近人均 50 以內的日料"
+   }
+  },
+  {
+   "scene": "food",
+   "packages": [
+    "com.wudaokou.hippo"
+   ],
+   "text": {
+    "zh-Hans": "盒马买一盒草莓，明早 9 点前送到",
+    "zh-Hant": "盒馬買一盒草莓，明早 9 點前送到"
+   }
+  },
+  {
+   "scene": "shop",
+   "packages": [
+    "com.taobao.taobao"
+   ],
+   "text": {
+    "zh-Hans": "淘宝和拼多多比比 AirPods 4 哪家便宜",
+    "zh-Hant": "淘寶和拼多多比比 AirPods 4 哪家便宜"
+   }
+  },
+  {
+   "scene": "shop",
+   "packages": [
+    "com.xunmeng.pinduoduo"
+   ],
+   "text": {
+    "zh-Hans": "拼多多把今天的签到和免费领都点了",
+    "zh-Hant": "拼多多把今天的簽到和免費領都點了"
+   }
+  },
+  {
+   "scene": "shop",
+   "packages": [
+    "com.taobao.idlefish"
+   ],
+   "text": {
+    "zh-Hans": "闲鱼把我的旧 Kindle 挂出去，标价 300",
+    "zh-Hant": "閒魚把我的舊 Kindle 掛出去，標價 300"
+   }
+  },
+  {
+   "scene": "shop",
+   "packages": [
+    "com.jingdong.app.mall"
+   ],
+   "text": {
+    "zh-Hans": "京东查一下我的快递到哪了",
+    "zh-Hant": "京東查一下我的快遞到哪了"
+   }
+  },
+  {
+   "scene": "go",
+   "packages": [
+    "com.autonavi.minimap"
+   ],
+   "text": {
+    "zh-Hans": "高德导航去最近的充电桩，避开高速",
+    "zh-Hant": "高德導航去最近的充電樁，避開高速"
+   }
+  },
+  {
+   "scene": "go",
+   "packages": [
+    "com.sdu.didi.psnger"
+   ],
+   "text": {
+    "zh-Hans": "滴滴叫一辆车去虹桥机场 T2",
+    "zh-Hant": "滴滴叫一輛車去虹橋機場 T2"
+   }
+  },
+  {
+   "scene": "go",
+   "packages": [
+    "com.MobileTicket"
+   ],
+   "text": {
+    "zh-Hans": "12306 查明天北京到上海最早的高铁",
+    "zh-Hant": "12306 查明天北京到上海最早的高鐵"
+   }
+  },
+  {
+   "scene": "go",
+   "packages": [
+    "ctrip.android.view"
+   ],
+   "text": {
+    "zh-Hans": "携程看下周末三亚 4.7 分以上的酒店",
+    "zh-Hant": "攜程看下週末三亞 4.7 分以上的酒店"
+   }
+  },
+  {
+   "scene": "perk",
+   "packages": [
+    "com.luna.music"
+   ],
+   "text": {
+    "zh-Hans": "汽水音乐看广告把今天的免费 VIP 领了",
+    "zh-Hant": "汽水音樂看廣告把今天的免費 VIP 領了"
+   }
+  },
+  {
+   "scene": "perk",
+   "packages": [
+    "com.smile.gifmaker",
+    "com.kuaishou.nebula"
+   ],
+   "text": {
+    "zh-Hans": "快手刷 10 分钟视频，把金币领了",
+    "zh-Hant": "快手刷 10 分鐘影片，把金幣領了"
+   }
+  },
+  {
+   "scene": "perk",
+   "packages": [
+    "com.eg.android.AlipayGphone"
+   ],
+   "text": {
+    "zh-Hans": "支付宝把今天的会员积分和红包领了",
+    "zh-Hant": "支付寶把今天的會員積分和紅包領了"
+   }
+  },
+  {
+   "scene": "perk",
+   "packages": [
+    "com.tencent.tmgp.sgame"
+   ],
+   "text": {
+    "zh-Hans": "王者荣耀把邮件里的奖励全部领取",
+    "zh-Hant": "王者榮耀把郵件裡的獎勵全部領取"
+   }
+  },
+  {
+   "scene": "perk",
+   "packages": [
+    "com.qqgame.hlddz"
+   ],
+   "text": {
+    "zh-Hans": "欢乐斗地主每日签到，把免费欢乐豆领了",
+    "zh-Hant": "歡樂鬥地主每日簽到，把免費歡樂豆領了"
+   }
+  },
+  {
+   "scene": "perk",
+   "packages": [
+    "com.happyelements.AndroidAnimal"
+   ],
+   "text": {
+    "zh-Hans": "开心消消乐把今天的体力和签到奖励领完",
+    "zh-Hant": "開心消消樂把今天的體力和簽到獎勵領完"
+   }
+  },
+  {
+   "scene": "fun",
+   "packages": [
+    "com.ss.android.ugc.aweme",
+    "com.ss.android.ugc.aweme.lite"
+   ],
+   "text": {
+    "zh-Hans": "去抖音直播间发条弹幕，问主播外套有没有 M 码",
+    "zh-Hant": "去抖音直播間發條彈幕，問主播外套有沒有 M 碼"
+   }
+  },
+  {
+   "scene": "fun",
+   "packages": [
+    "tv.danmaku.bili"
+   ],
+   "text": {
+    "zh-Hans": "B 站给这周看的 UP 主一键三连",
+    "zh-Hant": "B 站給這週看的 UP 主一鍵三連"
+   }
+  },
+  {
+   "scene": "fun",
+   "packages": [
+    "com.netease.cloudmusic"
+   ],
+   "text": {
+    "zh-Hans": "网易云放我的每日推荐，从第一首开始",
+    "zh-Hant": "網易雲放我的每日推薦，從第一首開始"
+   }
+  },
+  {
+   "scene": "fun",
+   "packages": [
+    "com.sina.weibo"
+   ],
+   "text": {
+    "zh-Hans": "微博看看热搜第一是什么事，总结给我",
+    "zh-Hant": "微博看看熱搜第一是什麼事，總結給我"
+   }
+  },
+  {
+   "scene": "social",
+   "packages": [
+    "com.tencent.mm"
+   ],
+   "text": {
+    "zh-Hans": "微信给「家人群」发：今晚我晚点回",
+    "zh-Hant": "微信給「家人群」發：今晚我晚點回"
+   }
+  },
+  {
+   "scene": "social",
+   "packages": [
+    "com.xingin.xhs"
+   ],
+   "text": {
+    "zh-Hans": "小红书搜「周末去哪玩」，挑三篇收藏",
+    "zh-Hant": "小紅書搜「週末去哪玩」，挑三篇收藏"
+   }
+  },
+  {
+   "scene": "social",
+   "packages": [
+    "com.zhihu.android"
+   ],
+   "text": {
+    "zh-Hans": "知乎找「第一次养猫要准备什么」的高赞回答",
+    "zh-Hant": "知乎找「第一次養貓要準備什麼」的高讚回答"
+   }
+  },
+  {
+   "scene": "life",
+   "packages": [
+    "com.qidian.QDReader"
+   ],
+   "text": {
+    "zh-Hans": "起点书架上哪几本更新了，列给我",
+    "zh-Hant": "起點書架上哪幾本更新了，列給我"
+   }
+  },
+  {
+   "scene": "life",
+   "packages": [
+    "com.jiongji.andriod.card"
+   ],
+   "text": {
+    "zh-Hans": "百词斩把今天的单词打卡做完",
+    "zh-Hant": "百詞斬把今天的單字打卡做完"
+   }
+  },
+  {
+   "scene": "life",
+   "packages": [
+    "com.gotokeep.keep"
+   ],
+   "text": {
+    "zh-Hans": "Keep 开始一节 15 分钟的拉伸",
+    "zh-Hant": "Keep 開始一節 15 分鐘的伸展"
+   }
+  },
+  {
+   "scene": "life",
+   "packages": [
+    "com.larus.nova"
+   ],
+   "text": {
+    "zh-Hans": "问问豆包明天穿什么，下雨就提醒我带伞",
+    "zh-Hant": "問問豆包明天穿什麼，下雨就提醒我帶傘"
+   }
+  }
+ ],
+ "intl": [
+  {
+   "scene": "food",
+   "packages": [
+    "com.ubercab.eats"
+   ],
+   "text": {
+    "en": "Reorder my last Uber Eats order",
+    "ar": "أعد طلب آخر طلب لي من Uber Eats",
+    "es": "Repite mi último pedido de Uber Eats",
+    "fa": "آخرین سفارشم در Uber Eats را دوباره ثبت کن",
+    "id": "Pesan ulang pesanan Uber Eats terakhirku",
+    "ja": "Uber Eats で前回の注文をもう一度",
+    "ko": "Uber Eats 지난 주문 다시 시켜 줘",
+    "pt": "Repita meu último pedido no Uber Eats",
+    "ru": "Повтори мой последний заказ в Uber Eats",
+    "tr": "Uber Eats'teki son siparişimi tekrarla"
+   }
+  },
+  {
+   "scene": "food",
+   "packages": [
+    "com.dd.doordash"
+   ],
+   "text": {
+    "en": "Find sushi under $20 on DoorDash that arrives in 30 min",
+    "ar": "ابحث في DoorDash عن سوشي بأقل من 20 دولارًا يصل خلال 30 دقيقة",
+    "es": "Busca en DoorDash sushi por menos de 20 $ que llegue en 30 min",
+    "fa": "در DoorDash سوشی زیر ۲۰ دلار پیدا کن که ۳۰ دقیقه‌ای برسد",
+    "id": "Cari sushi di DoorDash di bawah $20 yang tiba dalam 30 menit",
+    "ja": "DoorDash で30分以内に届く20ドル以下の寿司を探して",
+    "ko": "DoorDash에서 30분 안에 오는 20달러 이하 초밥 찾아 줘",
+    "pt": "Ache sushi abaixo de US$ 20 no DoorDash que chegue em 30 min",
+    "ru": "Найди в DoorDash суши до $20 с доставкой за 30 минут",
+    "tr": "DoorDash'te 30 dakikada gelen 20 $ altı suşi bul"
+   }
+  },
+  {
+   "scene": "food",
+   "packages": [
+    "com.starbucks.mobilecard"
+   ],
+   "text": {
+    "en": "Order an oat latte at Starbucks for pickup and use my stars",
+    "ar": "اطلب لاتيه بحليب الشوفان من Starbucks للاستلام واستخدم نجومي",
+    "es": "Pide un latte de avena en Starbucks para recoger y usa mis estrellas",
+    "fa": "از Starbucks یک لاته با شیر جو سفارش بده و ستاره‌هایم را خرج کن",
+    "id": "Pesan oat latte di Starbucks untuk diambil, pakai bintangku",
+    "ja": "スタバでオーツラテを店頭受け取りで注文、スターを使って",
+    "ko": "스타벅스에서 오트 라테 픽업 주문하고 별 써 줘",
+    "pt": "Peça um latte de aveia no Starbucks para retirar e use minhas estrelas",
+    "ru": "Закажи в Starbucks латте на овсяном с собой и спиши мои звёзды",
+    "tr": "Starbucks'tan yulaf sütlü latte sipariş et, yıldızlarımı kullan"
+   }
+  },
+  {
+   "scene": "shop",
+   "packages": [
+    "com.amazon.mShop.android.shopping"
+   ],
+   "text": {
+    "en": "Compare AirPods 4 on Amazon and eBay",
+    "ar": "قارن سعر AirPods 4 على Amazon وeBay",
+    "es": "Compara los AirPods 4 en Amazon y eBay",
+    "fa": "قیمت AirPods 4 را در Amazon و eBay مقایسه کن",
+    "id": "Bandingkan harga AirPods 4 di Amazon dan eBay",
+    "ja": "Amazon と eBay で AirPods 4 の値段を比べて",
+    "ko": "Amazon이랑 eBay에서 AirPods 4 가격 비교해 줘",
+    "pt": "Compare o AirPods 4 na Amazon e no eBay",
+    "ru": "Сравни цены на AirPods 4 в Amazon и eBay",
+    "tr": "AirPods 4'ü Amazon ve eBay'de karşılaştır"
+   }
+  },
+  {
+   "scene": "shop",
+   "packages": [
+    "com.einnovation.temu"
+   ],
+   "text": {
+    "en": "Collect today's Temu check-in rewards",
+    "ar": "اجمع مكافآت تسجيل الحضور اليوم في Temu",
+    "es": "Recoge las recompensas diarias de Temu",
+    "fa": "جایزه‌های ورود امروز Temu را بگیر",
+    "id": "Ambil hadiah check-in Temu hari ini",
+    "ja": "Temu の今日のチェックイン特典を受け取って",
+    "ko": "Temu 오늘 출석 보상 받아 줘",
+    "pt": "Pegue as recompensas de check-in de hoje no Temu",
+    "ru": "Забери сегодняшние бонусы за вход в Temu",
+    "tr": "Temu'daki bugünkü giriş ödüllerini al"
+   }
+  },
+  {
+   "scene": "shop",
+   "packages": [
+    "com.ebay.mobile"
+   ],
+   "text": {
+    "en": "List my old Kindle on eBay for $60",
+    "ar": "اعرض جهاز Kindle القديم على eBay بسعر 60 دولارًا",
+    "es": "Pon a la venta mi Kindle viejo en eBay por 60 $",
+    "fa": "Kindle قدیمی‌ام را در eBay به قیمت ۶۰ دلار بگذار",
+    "id": "Jual Kindle lamaku di eBay seharga $60",
+    "ja": "古い Kindle を eBay に60ドルで出品して",
+    "ko": "eBay에 예전 Kindle 60달러로 올려 줘",
+    "pt": "Anuncie meu Kindle antigo no eBay por US$ 60",
+    "ru": "Выставь мой старый Kindle на eBay за $60",
+    "tr": "Eski Kindle'ımı eBay'de 60 $'a ilana koy"
+   }
+  },
+  {
+   "scene": "shop",
+   "packages": [
+    "com.zzkko"
+   ],
+   "text": {
+    "en": "Add the black hoodie in M to my Shein cart",
+    "ar": "أضف الهودي الأسود بمقاس M إلى سلتي في Shein",
+    "es": "Añade la sudadera negra en talla M a mi carrito de Shein",
+    "fa": "هودی مشکی سایز M را به سبد Shein اضافه کن",
+    "id": "Masukkan hoodie hitam ukuran M ke keranjang Shein",
+    "ja": "Shein で黒のパーカーMサイズをカートに入れて",
+    "ko": "Shein 장바구니에 검은 후드티 M 사이즈 담아 줘",
+    "pt": "Coloque o moletom preto tamanho M no carrinho da Shein",
+    "ru": "Добавь чёрное худи размера M в корзину Shein",
+    "tr": "Siyah kapüşonluyu M beden olarak Shein sepetime ekle"
+   }
+  },
+  {
+   "scene": "go",
+   "packages": [
+    "com.google.android.apps.maps"
+   ],
+   "text": {
+    "en": "Navigate to the nearest EV charger, no tolls",
+    "ar": "وجّهني إلى أقرب شاحن سيارات كهربائية دون طرق برسوم",
+    "es": "Llévame al cargador eléctrico más cercano, sin peajes",
+    "fa": "مسیر نزدیک‌ترین شارژر خودروی برقی را بدون عوارضی نشان بده",
+    "id": "Arahkan ke pengisi daya mobil listrik terdekat, hindari tol",
+    "ja": "一番近いEV充電スポットへ、有料道路なしでナビして",
+    "ko": "가장 가까운 전기차 충전소로 안내해 줘, 유료도로 빼고",
+    "pt": "Me leve ao carregador elétrico mais próximo, sem pedágio",
+    "ru": "Проложи маршрут до ближайшей зарядки для электромобиля без платных дорог",
+    "tr": "En yakın elektrikli araç şarj istasyonuna ücretli yol olmadan git"
+   }
+  },
+  {
+   "scene": "go",
+   "packages": [
+    "com.ubercab"
+   ],
+   "text": {
+    "en": "Get an Uber to JFK Terminal 4",
+    "ar": "اطلب Uber إلى مطار JFK المبنى 4",
+    "es": "Pide un Uber al aeropuerto JFK, terminal 4",
+    "fa": "یک Uber تا ترمینال ۴ فرودگاه JFK بگیر",
+    "id": "Pesan Uber ke Bandara JFK Terminal 4",
+    "ja": "JFK空港ターミナル4まで Uber を呼んで",
+    "ko": "JFK 공항 4터미널까지 Uber 불러 줘",
+    "pt": "Chame um Uber para o terminal 4 do JFK",
+    "ru": "Вызови Uber в аэропорт JFK, терминал 4",
+    "tr": "JFK Terminal 4'e bir Uber çağır"
+   }
+  },
+  {
+   "scene": "go",
+   "packages": [
+    "com.airbnb.android"
+   ],
+   "text": {
+    "en": "Find an Airbnb cabin near Tahoe for next weekend",
+    "ar": "ابحث عن كوخ على Airbnb قرب تاهو لعطلة الأسبوع القادم",
+    "es": "Busca en Airbnb una cabaña cerca de Tahoe para el próximo finde",
+    "fa": "در Airbnb یک کلبه نزدیک تاهو برای آخر هفتهٔ بعد پیدا کن",
+    "id": "Cari kabin Airbnb dekat Tahoe untuk akhir pekan depan",
+    "ja": "来週末のタホ近くのキャビンを Airbnb で探して",
+    "ko": "다음 주말 타호 근처 Airbnb 오두막 찾아 줘",
+    "pt": "Ache uma cabana no Airbnb perto de Tahoe para o próximo fim de semana",
+    "ru": "Найди на Airbnb домик у озера Тахо на следующие выходные",
+    "tr": "Gelecek hafta sonu için Tahoe yakınında Airbnb kulübesi bul"
+   }
+  },
+  {
+   "scene": "go",
+   "packages": [
+    "com.booking"
+   ],
+   "text": {
+    "en": "Hotels in Lisbon rated 9+ under $150 on Booking",
+    "ar": "فنادق في لشبونة بتقييم 9+ وبأقل من 150 دولارًا على Booking",
+    "es": "Hoteles en Lisboa con nota 9+ por menos de 150 $ en Booking",
+    "fa": "هتل‌های لیسبون با امتیاز ۹+ زیر ۱۵۰ دلار در Booking",
+    "id": "Hotel di Lisbon rating 9+ di bawah $150 di Booking",
+    "ja": "Booking でリスボンの評価9以上・150ドル以下のホテル",
+    "ko": "Booking에서 평점 9 이상, 150달러 이하 리스본 호텔",
+    "pt": "Hotéis em Lisboa com nota 9+ abaixo de US$ 150 no Booking",
+    "ru": "Отели в Лиссабоне с оценкой 9+ дешевле $150 на Booking",
+    "tr": "Booking'de Lizbon'da 9+ puanlı, 150 $ altı oteller"
+   }
+  },
+  {
+   "scene": "perk",
+   "packages": [
+    "com.nianticlabs.pokemongo"
+   ],
+   "text": {
+    "en": "Open today's gifts in Pokémon GO and claim my daily bonus",
+    "ar": "افتح هدايا اليوم في Pokémon GO واحصل على المكافأة اليومية",
+    "es": "Abre los regalos de hoy en Pokémon GO y recoge mi bonus diario",
+    "fa": "هدیه‌های امروز Pokémon GO را باز کن و جایزهٔ روزانه را بگیر",
+    "id": "Buka hadiah hari ini di Pokémon GO dan klaim bonus harian",
+    "ja": "ポケモンGOで今日のギフトを開けてデイリーボーナスを受け取って",
+    "ko": "포켓몬 GO 오늘 선물 열고 일일 보너스 받아 줘",
+    "pt": "Abra os presentes de hoje no Pokémon GO e pegue o bônus diário",
+    "ru": "Открой сегодняшние подарки в Pokémon GO и забери ежедневный бонус",
+    "tr": "Pokémon GO'da bugünkü hediyeleri aç, günlük bonusumu al"
+   }
+  },
+  {
+   "scene": "perk",
+   "packages": [
+    "com.king.candycrushsaga"
+   ],
+   "text": {
+    "en": "Spin the daily booster wheel in Candy Crush",
+    "ar": "أدر عجلة المعززات اليومية في Candy Crush",
+    "es": "Gira la rueda diaria de potenciadores en Candy Crush",
+    "fa": "گردونهٔ تقویت‌کنندهٔ روزانهٔ Candy Crush را بچرخان",
+    "id": "Putar roda booster harian di Candy Crush",
+    "ja": "キャンディークラッシュのデイリーブースターを回して",
+    "ko": "캔디크러쉬 일일 부스터 룰렛 돌려 줘",
+    "pt": "Gire a roleta diária de boosters no Candy Crush",
+    "ru": "Крутани ежедневное колесо бустеров в Candy Crush",
+    "tr": "Candy Crush'ta günlük güçlendirici çarkını çevir"
+   }
+  },
+  {
+   "scene": "perk",
+   "packages": [
+    "com.duolingo"
+   ],
+   "text": {
+    "en": "Finish today's Duolingo lesson to keep my streak",
+    "ar": "أكمل درس Duolingo اليوم لأحافظ على سلسلتي",
+    "es": "Termina la lección de hoy en Duolingo para mantener mi racha",
+    "fa": "درس امروز Duolingo را تمام کن تا رکوردم حفظ شود",
+    "id": "Selesaikan pelajaran Duolingo hari ini biar streak aman",
+    "ja": "今日の Duolingo のレッスンを終わらせて連続記録を守って",
+    "ko": "오늘 듀오링고 레슨 끝내서 연속 기록 지켜 줘",
+    "pt": "Termine a lição de hoje no Duolingo para manter a ofensiva",
+    "ru": "Пройди сегодняшний урок в Duolingo, чтобы не прервать серию",
+    "tr": "Serimi korumak için bugünkü Duolingo dersini bitir"
+   }
+  },
+  {
+   "scene": "perk",
+   "packages": [
+    "com.audible.application"
+   ],
+   "text": {
+    "en": "Claim this month's free Audible credit",
+    "ar": "احصل على رصيد Audible المجاني لهذا الشهر",
+    "es": "Reclama el crédito gratis de Audible de este mes",
+    "fa": "اعتبار رایگان این ماه Audible را بگیر",
+    "id": "Klaim kredit gratis Audible bulan ini",
+    "ja": "今月の Audible 無料クレジットを受け取って",
+    "ko": "이번 달 Audible 무료 크레딧 받아 줘",
+    "pt": "Resgate o crédito grátis do Audible deste mês",
+    "ru": "Забери бесплатный кредит Audible за этот месяц",
+    "tr": "Bu ayın ücretsiz Audible kredisini al"
+   }
+  },
+  {
+   "scene": "fun",
+   "packages": [
+    "com.zhiliaoapp.musically",
+    "com.ss.android.ugc.trill"
+   ],
+   "text": {
+    "en": "Join the TikTok LIVE and ask if the jacket comes in M",
+    "ar": "ادخل بث TikTok المباشر واسأل إن كان المعطف متوفرًا بمقاس M",
+    "es": "Entra al LIVE de TikTok y pregunta si la chaqueta viene en M",
+    "fa": "وارد لایو TikTok شو و بپرس کاپشن سایز M دارد یا نه",
+    "id": "Masuk LIVE TikTok dan tanya jaketnya ada ukuran M atau tidak",
+    "ja": "TikTok LIVE に入って、ジャケットのMサイズがあるか聞いて",
+    "ko": "틱톡 라이브 들어가서 재킷 M 사이즈 있는지 물어봐 줘",
+    "pt": "Entre na LIVE do TikTok e pergunte se a jaqueta tem tamanho M",
+    "ru": "Зайди в эфир TikTok и спроси, есть ли куртка размера M",
+    "tr": "TikTok canlı yayınına gir, ceketin M bedeni var mı sor"
+   }
+  },
+  {
+   "scene": "fun",
+   "packages": [
+    "tv.twitch.android.app"
+   ],
+   "text": {
+    "en": "Claim my channel points on the Twitch stream I follow",
+    "ar": "اجمع نقاط القناة في بث Twitch الذي أتابعه",
+    "es": "Reclama mis puntos de canal en el stream de Twitch que sigo",
+    "fa": "امتیازهای کانال را در استریم Twitch که دنبال می‌کنم بگیر",
+    "id": "Klaim poin channel di stream Twitch yang kuikuti",
+    "ja": "フォロー中の Twitch 配信でチャンネルポイントを受け取って",
+    "ko": "팔로우한 트위치 방송에서 채널 포인트 받아 줘",
+    "pt": "Resgate meus pontos de canal na live da Twitch que eu sigo",
+    "ru": "Забери баллы канала на стриме Twitch, на который я подписан",
+    "tr": "Takip ettiğim Twitch yayınında kanal puanlarımı al"
+   }
+  },
+  {
+   "scene": "fun",
+   "packages": [
+    "com.google.android.youtube"
+   ],
+   "text": {
+    "en": "Play the newest video from MKBHD on YouTube",
+    "ar": "شغّل أحدث فيديو لـ MKBHD على YouTube",
+    "es": "Pon el vídeo más reciente de MKBHD en YouTube",
+    "fa": "جدیدترین ویدیوی MKBHD را در YouTube پخش کن",
+    "id": "Putar video terbaru MKBHD di YouTube",
+    "ja": "YouTube で MKBHD の最新動画を再生して",
+    "ko": "유튜브에서 MKBHD 최신 영상 틀어 줘",
+    "pt": "Toque o vídeo mais recente do MKBHD no YouTube",
+    "ru": "Включи на YouTube свежее видео MKBHD",
+    "tr": "YouTube'da MKBHD'nin en yeni videosunu aç"
+   }
+  },
+  {
+   "scene": "fun",
+   "packages": [
+    "com.spotify.music"
+   ],
+   "text": {
+    "en": "Play my Discover Weekly on Spotify from the top",
+    "ar": "شغّل قائمة Discover Weekly على Spotify من البداية",
+    "es": "Pon mi Descubrimiento semanal en Spotify desde el principio",
+    "fa": "Discover Weekly من را در Spotify از اول پخش کن",
+    "id": "Putar Discover Weekly-ku di Spotify dari awal",
+    "ja": "Spotify の Discover Weekly を最初から再生して",
+    "ko": "스포티파이 Discover Weekly 처음부터 틀어 줘",
+    "pt": "Toque meu Descobertas da Semana no Spotify desde o início",
+    "ru": "Включи мой «Открытия недели» в Spotify с начала",
+    "tr": "Spotify'da Haftalık Keşif listemi baştan çal"
+   }
+  },
+  {
+   "scene": "fun",
+   "packages": [
+    "com.netflix.mediaclient"
+   ],
+   "text": {
+    "en": "Continue the show I was watching on Netflix",
+    "ar": "تابع المسلسل الذي كنت أشاهده على Netflix",
+    "es": "Sigue la serie que estaba viendo en Netflix",
+    "fa": "سریالی که در Netflix می‌دیدم را ادامه بده",
+    "id": "Lanjutkan serial yang sedang kutonton di Netflix",
+    "ja": "Netflix で見ていた番組の続きを再生して",
+    "ko": "넷플릭스에서 보던 드라마 이어서 틀어 줘",
+    "pt": "Continue a série que eu estava vendo na Netflix",
+    "ru": "Продолжи сериал, который я смотрел на Netflix",
+    "tr": "Netflix'te izlediğim diziye devam et"
+   }
+  },
+  {
+   "scene": "social",
+   "packages": [
+    "com.whatsapp"
+   ],
+   "text": {
+    "en": "Tell the family group on WhatsApp I'll be late tonight",
+    "ar": "أخبر مجموعة العائلة على WhatsApp أنني سأتأخر الليلة",
+    "es": "Dile al grupo de familia en WhatsApp que hoy llego tarde",
+    "fa": "در گروه خانواده در WhatsApp بگو امشب دیر می‌آیم",
+    "id": "Bilang ke grup keluarga di WhatsApp aku pulang telat malam ini",
+    "ja": "WhatsApp の家族グループに今夜は遅くなると伝えて",
+    "ko": "WhatsApp 가족 단톡방에 오늘 늦는다고 보내 줘",
+    "pt": "Avise o grupo da família no WhatsApp que vou chegar tarde hoje",
+    "ru": "Напиши в семейный чат WhatsApp, что сегодня задержусь",
+    "tr": "WhatsApp'taki aile grubuna bu akşam geç kalacağımı yaz"
+   }
+  },
+  {
+   "scene": "social",
+   "packages": [
+    "com.instagram.android"
+   ],
+   "text": {
+    "en": "Like the latest posts from my close friends on Instagram",
+    "ar": "أعجب بأحدث منشورات أصدقائي المقرّبين على Instagram",
+    "es": "Dale me gusta a las últimas publicaciones de mis mejores amigos en Instagram",
+    "fa": "آخرین پست‌های دوستان نزدیکم در Instagram را لایک کن",
+    "id": "Like postingan terbaru teman dekatku di Instagram",
+    "ja": "Instagram で親しい友達の最新投稿にいいねして",
+    "ko": "인스타그램 친한 친구들 최신 게시물에 좋아요 눌러 줘",
+    "pt": "Curta os posts mais recentes dos meus amigos próximos no Instagram",
+    "ru": "Лайкни свежие посты близких друзей в Instagram",
+    "tr": "Instagram'da yakın arkadaşlarımın son gönderilerini beğen"
+   }
+  },
+  {
+   "scene": "social",
+   "packages": [
+    "com.reddit.frontpage"
+   ],
+   "text": {
+    "en": "Summarize today's top post on r/Android",
+    "ar": "لخّص أبرز منشور اليوم في r/Android",
+    "es": "Resume la publicación más votada de hoy en r/Android",
+    "fa": "پربازدیدترین پست امروز r/Android را خلاصه کن",
+    "id": "Ringkas postingan teratas hari ini di r/Android",
+    "ja": "r/Android の今日のトップ投稿を要約して",
+    "ko": "r/Android 오늘 인기 글 요약해 줘",
+    "pt": "Resuma o post mais votado de hoje no r/Android",
+    "ru": "Перескажи главный пост дня в r/Android",
+    "tr": "r/Android'deki bugünün en popüler gönderisini özetle"
+   }
+  },
+  {
+   "scene": "social",
+   "packages": [
+    "com.twitter.android"
+   ],
+   "text": {
+    "en": "What's trending on X right now? Sum it up",
+    "ar": "ما الرائج على X الآن؟ لخّصه لي",
+    "es": "¿Qué es tendencia en X ahora? Resúmelo",
+    "fa": "الان در X چه چیزی ترند است؟ خلاصه‌اش کن",
+    "id": "Apa yang lagi trending di X? Ringkas dong",
+    "ja": "今 X で何がトレンド？まとめて",
+    "ko": "지금 X에서 뭐가 트렌드야? 요약해 줘",
+    "pt": "O que está em alta no X agora? Resuma",
+    "ru": "Что сейчас в трендах X? Кратко перескажи",
+    "tr": "Şu an X'te ne gündemde? Özetle"
+   }
+  },
+  {
+   "scene": "social",
+   "packages": [
+    "com.discord"
+   ],
+   "text": {
+    "en": "Catch me up on the unread in my Discord gaming server",
+    "ar": "لخّص لي الرسائل غير المقروءة في خادم الألعاب على Discord",
+    "es": "Resúmeme lo no leído de mi servidor de juegos en Discord",
+    "fa": "پیام‌های خوانده‌نشدهٔ سرور بازی‌ام در Discord را خلاصه کن",
+    "id": "Ringkas pesan belum dibaca di server game Discord-ku",
+    "ja": "Discord のゲームサーバーの未読をまとめて",
+    "ko": "디스코드 게임 서버 안 읽은 메시지 정리해 줘",
+    "pt": "Me atualize sobre o que não li no meu servidor de jogos no Discord",
+    "ru": "Перескажи непрочитанное в моём игровом сервере Discord",
+    "tr": "Discord oyun sunucumdaki okunmamışları özetle"
+   }
+  },
+  {
+   "scene": "life",
+   "packages": [
+    "com.chess"
+   ],
+   "text": {
+    "en": "Solve today's daily puzzle on Chess.com",
+    "ar": "حل لغز اليوم على Chess.com",
+    "es": "Resuelve el problema diario de Chess.com",
+    "fa": "پازل امروز Chess.com را حل کن",
+    "id": "Selesaikan puzzle harian di Chess.com",
+    "ja": "Chess.com の今日のデイリーパズルを解いて",
+    "ko": "Chess.com 오늘의 퍼즐 풀어 줘",
+    "pt": "Resolva o problema diário do Chess.com",
+    "ru": "Реши ежедневную задачу на Chess.com",
+    "tr": "Chess.com'daki günün bulmacasını çöz"
+   }
+  },
+  {
+   "scene": "life",
+   "packages": [
+    "com.strava"
+   ],
+   "text": {
+    "en": "Start a 5 km run on Strava and track it",
+    "ar": "ابدأ جري 5 كم على Strava وسجّله",
+    "es": "Empieza una carrera de 5 km en Strava y regístrala",
+    "fa": "یک دویدن ۵ کیلومتری در Strava شروع و ثبت کن",
+    "id": "Mulai lari 5 km di Strava dan catat",
+    "ja": "Strava で5kmランを開始して記録して",
+    "ko": "Strava에서 5km 달리기 시작하고 기록해 줘",
+    "pt": "Comece uma corrida de 5 km no Strava e registre",
+    "ru": "Начни пробежку на 5 км в Strava и запиши её",
+    "tr": "Strava'da 5 km koşu başlat ve kaydet"
+   }
+  },
+  {
+   "scene": "life",
+   "packages": [
+    "com.openai.chatgpt"
+   ],
+   "text": {
+    "en": "Ask ChatGPT what to wear tomorrow",
+    "ar": "اسأل ChatGPT ماذا أرتدي غدًا",
+    "es": "Pregúntale a ChatGPT qué me pongo mañana",
+    "fa": "از ChatGPT بپرس فردا چه بپوشم",
+    "id": "Tanya ChatGPT besok pakai baju apa",
+    "ja": "明日何を着るか ChatGPT に聞いて",
+    "ko": "ChatGPT한테 내일 뭐 입을지 물어봐 줘",
+    "pt": "Pergunte ao ChatGPT o que vestir amanhã",
+    "ru": "Спроси у ChatGPT, что надеть завтра",
+    "tr": "ChatGPT'ye yarın ne giyeceğimi sor"
+   }
+  }
+ ]
+}

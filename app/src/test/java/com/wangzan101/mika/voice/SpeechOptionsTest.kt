@@ -27,14 +27,29 @@ class SpeechOptionsTest {
         assertEquals(listOf("p1", "p3"), groups.map { it.provider.id })
     }
 
-    @Test fun onlySpeechModelsAreListed() {
+    @Test fun allModelsListedWithoutNameFilter() {
         val g = SpeechOptions.groups(listOf(openAi)).single()
-        assertEquals(listOf("whisper-1"), g.models)
+        assertEquals(listOf("gpt-4o", "whisper-1", "gpt-4o-mini"), g.models)
     }
 
     @Test fun providerWithoutListStillGetsAGroup() {
         val g = SpeechOptions.groups(listOf(noList)).single()
         assertTrue(g.models.isEmpty())
+    }
+
+    @Test fun ttsMarksDoNotFilterModelsOrHideSelection() {
+        val mixed = openAi.copy(
+            models = openAi.models.orEmpty() + ListedModel("speech-local") + ListedModel("speech-tts"),
+            ttsModels = setOf("speech-local"),
+        )
+        val ttsOnly = openAi.copy(id = "speech-out", models = listOf(ListedModel("speech-local")), ttsModels = setOf("speech-local"))
+        val groups = SpeechOptions.groups(listOf(mixed, ttsOnly))
+        assertEquals(listOf("p1", "speech-out"), groups.map { it.provider.id })
+        assertEquals(listOf("gpt-4o", "whisper-1", "gpt-4o-mini", "speech-local", "speech-tts"), groups.first().models)
+
+        // 标了 ttsModels 的模型仍可按显式选择转写;summary 不再因此显示未设置
+        val choice = SpeechChoice.Provider(ttsOnly.id, "speech-local", TranscribeMethod.AudioTranscriptions)
+        assertEquals("speech-local", SpeechOptions.summary(choice, SystemCapability(false, false), listOf(ttsOnly)).title)
     }
 
     @Test fun autoWithSystemShowsPhoneAndOffline() {

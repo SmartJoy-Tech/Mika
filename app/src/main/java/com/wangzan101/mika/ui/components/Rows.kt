@@ -26,9 +26,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
@@ -37,6 +43,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wangzan101.mika.R
+import com.wangzan101.mika.i18n.tr
 import com.wangzan101.mika.ui.theme.MikaColors
 import com.wangzan101.mika.ui.theme.MikaIcons
 import com.wangzan101.mika.ui.theme.MikaShapes
@@ -59,6 +67,34 @@ fun FooterNote(text: String, modifier: Modifier = Modifier, color: Color = Color
     )
 }
 
+/** 一行摘要 + 可展开的「详情」:默认只显示 [summary],点「详情」展开 [detail] 全文。间距由调用方用 [modifier] 给。 */
+@Composable
+fun DetailNote(summary: String, detail: String, modifier: Modifier = Modifier) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    Column(modifier) {
+        Text(summary, style = MikaType.Hint, color = MikaTheme.colors.ink3)
+        if (detail.isNotBlank()) {
+            Row(
+                Modifier.clickable { open = !open }.padding(top = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                DirectionalIcon(
+                    MikaIcons.Chevron, null,
+                    Modifier.size(MikaSize.SmallIcon).rotate(if (open) 90f else 0f),
+                    tint = MikaTheme.colors.accent,
+                )
+                Text(
+                    tr(R.string.details), Modifier.padding(start = 2.dp),
+                    style = MikaType.Hint.copy(fontWeight = FontWeight.SemiBold), color = MikaTheme.colors.accent,
+                )
+            }
+            if (open) {
+                Text(detail, Modifier.padding(top = 6.dp), style = MikaType.Hint, color = MikaTheme.colors.ink2)
+            }
+        }
+    }
+}
+
 /** 图标块的底色和图形色。默认中性;只有状态才上色。 */
 enum class TileTone {
     Neutral, Accent, Ok, Warn, Bad;
@@ -72,10 +108,20 @@ enum class TileTone {
     }
 }
 
-/** 行左边的图标块:30dp、圆角 9,里面图形 18dp。 */
+/**
+ * 行左边的图标块:30dp、圆角 9,里面图形 18dp。
+ * [brandTile] 非空时是自着色的品牌标:底色用它(两种模式一致),图形保留自身颜色。
+ */
 @Composable
-fun IconTile(icon: ImageVector, tone: TileTone = TileTone.Neutral) {
-    val (bg, fg) = tone.colors(MikaTheme.colors)
+fun IconTile(icon: ImageVector, tone: TileTone = TileTone.Neutral, brandTile: Color? = null) {
+    val (bg, fg) = if (brandTile != null) (brandTile to Color.Unspecified) else tone.colors(MikaTheme.colors)
+    // 简约列表:图标直接画,不垫底块;占位宽度不变,分隔线和文字仍对齐
+    if (brandTile == null && LocalPlainList.current) {
+        Box(Modifier.size(MikaSize.Tile), contentAlignment = Alignment.Center) {
+            Icon(icon, null, Modifier.size(22.dp), tint = if (tone == TileTone.Neutral || tone == TileTone.Ok) MikaTheme.colors.ink else fg)
+        }
+        return
+    }
     Box(Modifier.size(MikaSize.Tile).background(bg, MikaShapes.Tile), contentAlignment = Alignment.Center) {
         Icon(icon, null, Modifier.size(MikaSize.TileIcon), tint = fg)
     }
@@ -106,14 +152,23 @@ fun ListRow(
     first: Boolean = false,
     titleColor: Color = Color.Unspecified,
     tone: TileTone = TileTone.Neutral,
+    brandTile: Color? = null,
     detail: String? = null,
     detailColor: Color = Color.Unspecified,
     onClick: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    /** 标题最多几行,超出省略(列表里的长标题用 1)。 */
+    titleMaxLines: Int = Int.MAX_VALUE,
+    /** 解释这一行是什么的说明:简约列表里收到卡片下面当脚注,别处照旧显示在标题下。 */
+    note: String? = null,
     trailing: @Composable RowScope.() -> Unit = {},
 ) {
     val c = MikaTheme.colors
+    val noteInCard = rememberCardNote(title, note)
+    val icon = if (brandTile != null) icon else rememberCardIcon(icon)
+    val sub = listOfNotNull(subtitle?.takeIf { it.isNotEmpty() }, note?.takeIf { !noteInCard && it.isNotEmpty() }).joinToString("\n").ifEmpty { null }
     Row(
-        Modifier.fillMaxWidth()
+        modifier.fillMaxWidth()
             .topHairline(first, if (icon != null) TextStartWithIcon else TextStartPlain, c.hair)
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
             .heightIn(min = MikaSize.RowMin)
@@ -121,10 +176,11 @@ fun ListRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        if (icon != null) IconTile(icon, tone)
+        if (icon != null) IconTile(icon, tone, brandTile)
         Column(Modifier.weight(1f).padding(vertical = 11.dp)) {
-            Text(title, style = MikaType.Body, color = titleColor.takeOrElse { c.ink })
-            if (!subtitle.isNullOrEmpty()) Text(subtitle, Modifier.padding(top = 2.dp), style = MikaType.Caption, color = c.ink3)
+            Text(title, style = MikaType.Body, color = titleColor.takeOrElse { c.ink },
+                maxLines = titleMaxLines, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+            if (!sub.isNullOrEmpty()) Text(sub, Modifier.padding(top = 2.dp), style = MikaType.Caption, color = c.ink3)
             if (!detail.isNullOrEmpty()) Text(detail, Modifier.padding(top = 2.dp), style = MikaType.Hint, color = detailColor.takeOrElse { c.ink3 })
         }
         trailing()
@@ -142,7 +198,8 @@ fun RowValue(text: String, tone: ValueTone = ValueTone.Plain) {
         fontWeight = if (tone == ValueTone.Link) FontWeight.Medium else FontWeight.Normal,
         color = when (tone) {
             ValueTone.Plain -> c.ink3
-            ValueTone.Ok -> c.ok
+            // 简约列表里「正常」不上色,只有要你处理的才有颜色
+            ValueTone.Ok -> if (LocalPlainList.current) c.ink3 else c.ok
             ValueTone.Warn -> c.warn
             ValueTone.Bad -> c.bad
             ValueTone.Link -> c.accent
@@ -169,11 +226,16 @@ fun RadioRow(
     titleStyle: TextStyle = MikaType.Body,
     /** 标题下面的附加内容(例如能力小标签)。 */
     below: (@Composable () -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    /** 这一项的说明:简约列表里只在选中时显示在卡片下面,别处显示在标题下。 */
+    note: String? = null,
     trailing: @Composable RowScope.() -> Unit = {},
 ) {
     val c = MikaTheme.colors
+    val noteInCard = rememberCardNote(title, note, selected)
+    val sub = listOfNotNull(subtitle?.takeIf { it.isNotEmpty() }, note?.takeIf { !noteInCard && it.isNotEmpty() }).joinToString("\n").ifEmpty { null }
     Row(
-        Modifier.fillMaxWidth()
+        modifier.fillMaxWidth()
             .topHairline(first, 50.dp, c.hair)
             .selectable(selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
             .heightIn(min = 56.dp)
@@ -184,7 +246,7 @@ fun RadioRow(
         RadioMark(selected, enabled)
         Column(Modifier.weight(1f).padding(vertical = 9.dp)) {
             Text(title, style = titleStyle, color = if (enabled) c.ink else c.ink3)
-            if (!subtitle.isNullOrEmpty()) Text(subtitle, Modifier.padding(top = 2.dp), style = MikaType.Caption, color = c.ink3)
+            if (!sub.isNullOrEmpty()) Text(sub, Modifier.padding(top = 2.dp), style = MikaType.Caption, color = c.ink3)
             if (below != null) Box(Modifier.padding(top = 4.dp)) { below() }
         }
         trailing()
@@ -195,8 +257,10 @@ fun RadioRow(
 private fun RadioMark(selected: Boolean, enabled: Boolean = true) {
     val c = MikaTheme.colors
     if (selected && enabled) {
-        Box(Modifier.size(22.dp).background(c.accent, CircleShape), contentAlignment = Alignment.Center) {
-            Box(Modifier.size(10.dp).background(c.onAccent, CircleShape))
+        // 简约列表里选中用正文色(和黑色开关一致),别处用强调色
+        val fill = if (LocalPlainList.current) c.ink else c.accent
+        Box(Modifier.size(22.dp).background(fill, CircleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(10.dp).background(if (LocalPlainList.current) c.surface else c.onAccent, CircleShape))
         }
     } else {
         Box(Modifier.size(22.dp).border(1.6.dp, c.hair, CircleShape))
@@ -206,6 +270,7 @@ private fun RadioMark(selected: Boolean, enabled: Boolean = true) {
 /**
  * 卡片里的输入行:左边固定宽的标题,右边单行输入框(空时显示 [placeholder])。
  * [secret] 为真时按密码显示;[trailing] 放在输入框右边(例如「显示」)。
+ * [onClear] 非空且输入框里有字时,在文字右边放一个清空按钮(和搜索框的叉同一套)。
  */
 @Composable
 fun InputRow(
@@ -218,6 +283,9 @@ fun InputRow(
     secret: Boolean = false,
     labelWidth: Dp = 84.dp,
     modifier: Modifier = Modifier,
+    onClear: (() -> Unit)? = null,
+    clearDescription: String = "",
+    clearModifier: Modifier = Modifier,
     trailing: (@Composable () -> Unit)? = null,
 ) {
     val c = MikaTheme.colors
@@ -237,7 +305,22 @@ fun InputRow(
                 visualTransformation = if (secret) PasswordVisualTransformation() else VisualTransformation.None,
             )
         }
+        if (onClear != null && value.isNotEmpty()) {
+            FieldClearButton(clearDescription, onClear, clearModifier.padding(start = 4.dp))
+        }
         if (trailing != null) Box(Modifier.padding(start = 8.dp)) { trailing() }
+    }
+}
+
+/** 输入框末尾的叉:点一下清空。和搜索框的清空按钮同一套大小和颜色,只在有内容时由调用方放出来。 */
+@Composable
+fun FieldClearButton(description: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier.size(30.dp).clip(CircleShape)
+            .clickable(role = Role.Button, onClickLabel = description) { onClick() },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(MikaIcons.Close, description, Modifier.size(14.dp), tint = MikaTheme.colors.ink3)
     }
 }
 

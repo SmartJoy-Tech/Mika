@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="calls_title">تماس‌های تلفنی هوش مصنوعی</string>
-    <string name="calls_entry_sub">تماس‌های سلولی با صدای بلادرنگ Volcengine</string>
+    <string name="calls_entry_sub">تماس‌های سلولی با صدای بلادرنگ سرویس صوتی انتخاب‌شده</string>
     <string name="calls_action_failed">اقدام تماس ناموفق بود. آمادگی را بررسی و دوباره تلاش کنید.</string>
     <string name="calls_permissions_required">مجوزهای تلفن و اعلان لازم است.</string>
     <string name="calls_ai_active">هوش مصنوعی در حال مدیریت تماس است</string>
@@ -19,23 +19,20 @@
     <string name="calls_sim">سیم‌کارت تماس خروجی</string>
     <string name="calls_default">پیش‌فرض</string>
     <string name="calls_dial">تماس با هوش مصنوعی</string>
-    <string name="calls_call_note">تماس‌ها از سیم‌کارت موجود استفاده می‌کنند. ممکن است هزینه‌های مصرف اپراتور و Volcengine اعمال شود. پیش از شماره‌گیری، هدف و پیام خوش‌آمد را در تنظیمات تعیین کنید.</string>
+    <string name="calls_call_note">تماس‌ها از سیم‌کارت موجود استفاده می‌کنند. ممکن است هزینه‌های مصرف اپراتور و سرویس صوتی انتخاب‌شده اعمال شود. پیش از شماره‌گیری، هدف و پیام خوش‌آمد را در تنظیمات تعیین کنید.</string>
     <string name="calls_prepare">بررسی و آماده‌سازی</string>
     <string name="calls_enable">فعال کردن تماس هوش مصنوعی</string>
     <string name="calls_disable">غیرفعال کردن و بازگرداندن تماس عادی</string>
     <string name="calls_provider">صدای بلادرنگ Volcengine 3.0</string>
-    <string name="calls_credentials">اعتبارنامه‌های صدای بلادرنگ</string>
-    <string name="calls_key_saved">اعتبارنامه‌ها به‌صورت امن ذخیره شدند؛ دسترسی به سرویس همچنان به آزمایش واقعی نیاز دارد</string>
     <string name="calls_key_missing">پیکربندی نشده</string>
     <string name="calls_profile">پیام خوش‌آمد و هدف تماس</string>
-    <string name="calls_model_label">مدل %1$s · مسیر صدای تماس</string>
     <string name="calls_incoming">تماس‌های ورودی</string>
     <string name="calls_auto_answer">پاسخ خودکار به تماس‌های ورودی</string>
     <string name="calls_all_incoming">شامل همه شماره‌های ورودی</string>
     <string name="calls_all_note">شامل شماره‌های خارج از فهرست و تماس‌گیرندگان ناشناس</string>
     <string name="calls_allowlist">شماره‌های ورودی مجاز</string>
     <string name="calls_allowlist_empty">فهرست خالی: بدون پاسخ خودکار مگر اینکه گزینه همه تماس‌گیرندگان فعال باشد</string>
-    <string name="calls_privacy_note">صدای تماس فقط هنگام مدیریت هوش مصنوعی به Volcengine ارسال می‌شود. هیچ ضبط صدایی ذخیره نمی‌شود. متن‌های گفتگو به‌صورت رمزنگاری‌شده روی این گوشی نگهداری می‌شوند؛ هر زمان می‌توانید از صحبت شخصی استفاده کنید.</string>
+    <string name="calls_privacy_note">صدای تماس فقط هنگام مدیریت هوش مصنوعی به سرویس صوتی انتخاب‌شده ارسال می‌شود. هیچ ضبط صدایی ذخیره نمی‌شود. متن‌های گفتگو به‌صورت رمزنگاری‌شده روی این گوشی نگهداری می‌شوند؛ هر زمان می‌توانید از صحبت شخصی استفاده کنید.</string>
     <string name="calls_history_empty">هنوز سابقه تماس هوش مصنوعی وجود ندارد</string>
     <string name="calls_collapse">جمع کردن</string>
     <string name="calls_transcript">نمایش متن گفتگو</string>
@@ -52,15 +49,15 @@
     <string name="calls_cancel">لغو</string>
     <string name="calls_greeting">پیام خوش‌آمد</string>
     <string name="calls_instructions">هدف و دستورالعمل‌ها</string>
-    <string name="calls_duration">حداکثر ثانیه‌های هوش مصنوعی (۱۵–۶۰۰)</string>
-    <string name="calls_speaker">شناسه صدای Volcengine</string>
+    <string name="calls_duration">حداکثر ثانیه‌های هوش مصنوعی (۰ = بدون محدودیت، ۱۵–۶۰۰)</string>
+    <string name="calls_limits_unlimited">هر بار یک تماس · صدای هوش مصنوعی بدون محدودیت زمانی</string>
+    <string name="calls_speaker">شناسه صدای سرویس صوتی انتخاب‌شده</string>
     <string name="calls_audio_route">مسیر صدای تماس</string>
     <string name="calls_audio_verified">تأیید کردم هر دو طرف می‌توانند تماس‌های هوش مصنوعی را روی این گوشی بشنوند</string>
     <string name="calls_verify_note">ابتدا یک تماس آزمایشی دستی برقرار کنید یا پاسخ دهید و هر دو جهت را تأیید کنید، سپس پاسخ خودکار را فعال کنید.</string>
     <string name="calls_tool_state">وضعیت تماس</string>
     <string name="calls_tool_dial">برقراری تماس</string>
     <string name="calls_tool_hangup">قطع کردن تماس</string>
-    <string name="calls_advanced">تنظیمات پیشرفته</string>
     <string name="calls_allowlist_hint">در هر خط یک شماره وارد کنید، یا شماره‌ها را با ویرگول جدا کنید.</string>
     <string name="calls_allowlist_invalid">از شماره تلفن‌های معتبر استفاده کنید (حداکثر %1$d).</string>
     <string name="calls_audio_direct">صدای مستقیم تلفن</string>
@@ -89,7 +86,7 @@
     <string name="calls_original_transcript">متن گفتگوی تماس</string>
     <string name="calls_outgoing_title">برقراری تماس</string>
     <string name="calls_rules">قوانین پاسخ‌دهی</string>
-    <string name="calls_setup_credentials">اعتبارنامه‌های صدای بلادرنگ Volcengine را پیکربندی کنید.</string>
+    <string name="calls_setup_credentials">اعتبارنامه‌های صدای بلادرنگ سرویس صوتی انتخاب‌شده را پیکربندی کنید.</string>
     <string name="calls_setup_shell">ابتدا دستیار داخلی Mika را متصل کنید.</string>
     <string name="calls_sim_clear_preferred">پاک کردن سیم‌کارت ترجیحی</string>
     <string name="calls_sim_preferred">سیم‌کارت ترجیحی: %1$s</string>
@@ -143,4 +140,21 @@
     <string name="calls_notification_connecting_audio">در حال اتصال صدای تماس</string>
     <string name="calls_notification_connected_waiting">هوش مصنوعی متصل شد. در انتظار صحبت طرف مقابل است؛ هر زمان می‌توانید تماس را بر عهده بگیرید.</string>
     <string name="calls_notification_connected">هوش مصنوعی متصل شد. هر زمان می‌توانید خودتان تماس را بر عهده بگیرید.</string>
+    <string name="calls_only_types">فقط انواع تماس انتخاب‌شده</string>
+    <string name="calls_pick_types">دست‌کم یک نوع تماس انتخاب کنید</string>
+    <string name="calls_type_note">Mika از دسترس‌پذیری برای تطبیق برچسب و شمارهٔ برنامهٔ تلفن با تماس ورودی استفاده می‌کند. اگر تطبیق ممکن نباشد، خودتان می‌توانید پاسخ دهید.</string>
+    <string name="calls_type_accessibility">باز کردن تنظیمات دسترس‌پذیری</string>
+    <string name="calls_type_takeout">ارسال غذا</string>
+    <string name="calls_type_parcel">ارسال بسته</string>
+    <string name="calls_type_delivery">توزیع یا لجستیک (نامشخص)</string>
+    <string name="calls_type_sales">فروش و تبلیغات</string>
+    <string name="calls_type_broker">واسطه‌ها و نمایندگان</string>
+    <string name="calls_type_financial_sales">فروش بیمه و سرمایه‌گذاری</string>
+    <string name="calls_type_spam">تماس مزاحم</string>
+    <string name="calls_type_fraud">احتمال کلاهبرداری</string>
+    <string name="calls_type_high_risk">خطر بالا</string>
+    <string name="calls_type_business">شرکت‌ها و خدمات مشتریان</string>
+    <string name="calls_type_transport">تاکسی و خدمات سفر</string>
+    <string name="calls_only_strangers">فقط شماره‌های ذخیره‌نشده</string>
+    <string name="calls_strangers_note">به Mika اجازهٔ خواندن مخاطبان را بدهید. هوش مصنوعی فقط وقتی پاسخ می‌دهد که مطمئن شود شماره ذخیره نشده است. اگر شماره پنهان باشد یا جستجو ناموفق باشد، پاسخ با شماست.</string>
 </resources>

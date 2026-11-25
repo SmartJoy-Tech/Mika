@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="calls_title">Звонки с ИИ</string>
-    <string name="calls_entry_sub">Звонки по мобильной сети с голосом Volcengine в реальном времени</string>
+    <string name="calls_entry_sub">Мобильные звонки с голосовым ИИ</string>
     <string name="calls_action_failed">Не удалось выполнить действие со звонком. Проверьте готовность и повторите попытку.</string>
     <string name="calls_permissions_required">Нужны разрешения на звонки и уведомления.</string>
     <string name="calls_ai_active">ИИ ведёт разговор</string>
@@ -19,23 +19,20 @@
     <string name="calls_sim">SIM-карта для исходящих</string>
     <string name="calls_default">По умолчанию</string>
     <string name="calls_dial">Позвонить с помощью ИИ</string>
-    <string name="calls_call_note">Для звонков используется текущая SIM-карта. Оператор и Volcengine могут взимать плату. Перед звонком укажите его цель и приветствие в настройках.</string>
+    <string name="calls_call_note">Для звонков используется текущая SIM-карта. Оператор и голосовой сервис могут взимать плату. Перед звонком укажите его цель и приветствие в настройках.</string>
     <string name="calls_prepare">Проверить и подготовить</string>
     <string name="calls_enable">Включить звонки с ИИ</string>
     <string name="calls_disable">Отключить и вернуться к обычным звонкам</string>
     <string name="calls_provider">Голос Volcengine 3.0 в реальном времени</string>
-    <string name="calls_credentials">Данные доступа к голосовому сервису</string>
-    <string name="calls_key_saved">Данные доступа сохранены безопасно. Доступ к сервису ещё нужно проверить пробным звонком</string>
     <string name="calls_key_missing">Не настроено</string>
     <string name="calls_profile">Приветствие и цель вызова</string>
-    <string name="calls_model_label">Модель %1$s · маршрут звука звонка</string>
     <string name="calls_incoming">Входящие звонки</string>
     <string name="calls_auto_answer">Автоматически отвечать на входящие</string>
     <string name="calls_all_incoming">Включать все входящие номера</string>
     <string name="calls_all_note">В том числе номера вне списка и скрытые номера</string>
     <string name="calls_allowlist">Номера, разрешённые для автоответа</string>
     <string name="calls_allowlist_empty">Список пуст: автоответ сработает, только если разрешён ответ на все звонки</string>
-    <string name="calls_privacy_note">Звук разговора отправляется в Volcengine, только пока звонок ведёт ИИ. Аудиозаписи не сохраняются. Расшифровки хранятся на этом телефоне в зашифрованном виде. Перехватить разговор можно в любой момент.</string>
+    <string name="calls_privacy_note">Звук разговора отправляется в выбранный голосовой сервис, только пока звонок ведёт ИИ. Аудиозаписи не сохраняются. Расшифровки хранятся на этом телефоне в зашифрованном виде. Перехватить разговор можно в любой момент.</string>
     <string name="calls_history_empty">В истории пока нет звонков с ИИ</string>
     <string name="calls_collapse">Свернуть</string>
     <string name="calls_transcript">Показать расшифровку</string>
@@ -52,15 +49,15 @@
     <string name="calls_cancel">Отмена</string>
     <string name="calls_greeting">Приветствие</string>
     <string name="calls_instructions">Цель и инструкции</string>
-    <string name="calls_duration">Максимальное время работы ИИ (15–600 с)</string>
-    <string name="calls_speaker">Идентификатор голоса Volcengine</string>
+    <string name="calls_duration">Максимальное время работы ИИ (0 = без ограничений, 15–600 с)</string>
+    <string name="calls_limits_unlimited">Один звонок за раз · время голосового общения с ИИ не ограничено</string>
+    <string name="calls_speaker">Идентификатор голоса</string>
     <string name="calls_audio_route">Маршрут звука звонка</string>
     <string name="calls_audio_verified">Подтверждаю, что обе стороны слышат звук при звонках с ИИ на этом телефоне</string>
     <string name="calls_verify_note">Сначала вручную совершите пробный звонок или ответьте на него. Убедитесь, что звук слышен в обе стороны, и только затем включите автоответ.</string>
     <string name="calls_tool_state">Состояние звонка</string>
     <string name="calls_tool_dial">Позвонить</string>
     <string name="calls_tool_hangup">Завершить звонок</string>
-    <string name="calls_advanced">Расширенные настройки</string>
     <string name="calls_allowlist_hint">Укажите по одному номеру на строку или разделите их запятыми.</string>
     <string name="calls_allowlist_invalid">Укажите действительные номера (до %1$d).</string>
     <string name="calls_audio_direct">Прямое аудио вызова</string>
@@ -89,7 +86,7 @@
     <string name="calls_original_transcript">Расшифровка вызова</string>
     <string name="calls_outgoing_title">Позвонить</string>
     <string name="calls_rules">Правила автоответа</string>
-    <string name="calls_setup_credentials">Настройте данные доступа к голосовому сервису Volcengine.</string>
+    <string name="calls_setup_credentials">Настройте данные доступа к выбранному голосовому сервису.</string>
     <string name="calls_setup_shell">Сначала подключите встроенный помощник Mika.</string>
     <string name="calls_sim_clear_preferred">Сбросить выбор SIM</string>
     <string name="calls_sim_preferred">Предпочитаемая SIM: %1$s</string>
@@ -143,4 +140,21 @@
     <string name="calls_notification_connecting_audio">Подключение звука звонка</string>
     <string name="calls_notification_connected_waiting">ИИ подключён. Ожидание речи собеседника. Вы можете перехватить звонок в любой момент.</string>
     <string name="calls_notification_connected">ИИ подключён. Вы можете перехватить звонок в любой момент.</string>
+    <string name="calls_only_types">Только выбранные типы звонков</string>
+    <string name="calls_pick_types">Выберите хотя бы один тип звонков</string>
+    <string name="calls_type_note">Mika использует специальные возможности для сверки метки и номера в приложении телефона с входящим вызовом. Если их не удалось подтвердить, вы можете ответить сами.</string>
+    <string name="calls_type_accessibility">Открыть специальные возможности</string>
+    <string name="calls_type_takeout">Доставка еды</string>
+    <string name="calls_type_parcel">Доставка посылок</string>
+    <string name="calls_type_delivery">Доставка или логистика без уточнения</string>
+    <string name="calls_type_sales">Реклама и продажи</string>
+    <string name="calls_type_broker">Агенты и посредники</string>
+    <string name="calls_type_financial_sales">Предложения страхования и инвестиций</string>
+    <string name="calls_type_spam">Спам</string>
+    <string name="calls_type_fraud">Возможное мошенничество</string>
+    <string name="calls_type_high_risk">Высокий риск</string>
+    <string name="calls_type_business">Компании и поддержка клиентов</string>
+    <string name="calls_type_transport">Такси и перевозки</string>
+    <string name="calls_only_strangers">Только номера вне контактов</string>
+    <string name="calls_strangers_note">Разрешите Mika читать контакты. ИИ ответит, только если проверит номер и не найдёт его в контактах. На звонки со скрытых номеров и при сбое проверки вы отвечаете сами.</string>
 </resources>

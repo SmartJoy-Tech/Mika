@@ -16,10 +16,11 @@ object SpeechOptions {
      */
     data class Group(val provider: Provider, val models: List<String>)
 
-    /** 能做转写的服务商各一组;列表里只留像语音模型的。 */
-    fun groups(providers: List<Provider>): List<Group> = providers.filter(Transcriber::supports).map { p ->
-        Group(p, p.models.orEmpty().filter(Transcriber::looksLikeSpeech).map { it.id })
-    }
+    /** 能做转写的服务商各一组;模型按服务商给的列表原样列出,不按名字猜用途。 */
+    fun groups(providers: List<Provider>): List<Group> =
+        providers.filter(Transcriber::supports).map { provider ->
+            Group(provider, provider.models.orEmpty().map { it.id })
+        }
 
     /** 卡片右边两行:[title] 是选了什么,[sub] 是补充(可能没有),[subOk] 为真时补充用「可用」的绿色。 */
     data class Summary(val title: String, val sub: String?, val subOk: Boolean)

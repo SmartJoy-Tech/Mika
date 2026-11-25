@@ -1,9 +1,12 @@
 package com.wangzan101.mika.settings
 
+import com.wangzan101.mika.core.cap.mcp.McpCopy
 import com.wangzan101.mika.core.cap.mcp.McpOAuthTokens
+import com.wangzan101.mika.core.cap.mcp.McpPreset
+import com.wangzan101.mika.core.cap.mcp.McpPresetField
 import com.wangzan101.mika.core.cap.mcp.McpStdioLauncher
 import com.wangzan101.mika.core.cap.mcp.McpStdioProcess
-import com.wangzan101.mika.core.resource.ResourceScope
+import com.wangzan101.mika.core.run.ResourceScope
 import com.wangzan101.mika.core.workspace.SandboxTree
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelAndJoin
@@ -99,6 +102,19 @@ class McpServerStoreTest {
         assertEquals(null, s.validate(ok.copy(url = "http://localhost:1/mcp")))
     }
 
+    @Test fun cgnatMeshHostCountsAsPrivateForHttp() {
+        val s = store()
+        fun config(url: String, allowLocalHttp: Boolean) =
+            McpServerConfig(name = "m", url = url, allowLocalHttp = allowLocalHttp)
+        // Tailscale 等组网工具用的 100.64/10:勾选允许本地 http 后应视为私有地址放行
+        assertEquals(null, s.validate(config("http://100.64.0.1:8080/mcp", allowLocalHttp = true)))
+        assertEquals(null, s.validate(config("http://100.127.255.254/mcp", allowLocalHttp = true)))
+        // 没勾选仍然不放行 http(和本地地址一致)
+        assertNotNull(s.validate(config("http://100.64.0.1:8080/mcp", allowLocalHttp = false)))
+        // 公网地址即使勾选也不放行
+        assertNotNull(s.validate(config("http://8.8.8.8/mcp", allowLocalHttp = true)))
+    }
+
     @Test fun connectionsConnectsEnabledServersAndReportsFailures() = runBlocking {
         val server = MockWebServer().also { it.start() }
         try {
@@ -124,7 +140,7 @@ class McpServerStoreTest {
     }
 
     /** 假的 stdio server:只回答 initialize 和 tools/list,用来验证 store 的启动与接入。 */
-    private fun stdioLauncher(): McpStdioLauncher = McpStdioLauncher { _, _ ->
+    private fun stdioLauncher(): McpStdioLauncher = McpStdioLauncher { _, _, _ ->
         val toServer = PipedOutputStream()
         val fromClient = PipedInputStream(toServer)
         val fromServer = PipedOutputStream()
@@ -208,8 +224,8 @@ class McpServerStoreTest {
     /** 像沙箱那样:进程活着时拿着树的租约,关掉时交还;被独占的收回时停进程、记进 [revokes]。命令是 silent 的不回话。 */
     private fun leasingLauncher(tree: SandboxTree, closes: AtomicInteger, revokes: AtomicInteger = AtomicInteger()): McpStdioLauncher {
         val inner = stdioLauncher()
-        return McpStdioLauncher { ws, argv ->
-            val p = if (argv.first() == "silent") silentProcess() else inner.launch(ws, argv)
+        return McpStdioLauncher { ws, argv, _ ->
+            val p = if (argv.first() == "silent") silentProcess() else inner.launch(ws, argv, emptyMap())
             val lease = tree.lease { revokes.incrementAndGet(); p.close() }
             object : McpStdioProcess by p {
                 override fun close() {
@@ -485,5 +501,114 @@ class McpServerStoreTest {
         } finally {
             server.shutdown()
         }
+    }
+
+    @Test fun fieldSecretsRoundTripMigrateBackupAndDelete() {
+        val s = store()
+        val a = s.add("A", "https://a.example/mcp").getOrThrow()
+        val b = s.add("B", "https://b.example/mcp").getOrThrow()
+        s.setToken(a.id, "legacy-bearer")
+        s.setOAuthTokens(a.id, McpOAuthTokens(accessToken = "legacy-oauth", clientId = "client", tokenEndpoint = "https://oauth.example/token"))
+        s.setSecret(a.id, "apiKey", "a-secret-one")
+        s.setSecret(a.id, "signingKey", "a-secret-two")
+        s.setSecret(b.id, "apiKey", "b-secret-one")
+
+        assertEquals(mapOf("apiKey" to "a-secret-one", "signingKey" to "a-secret-two"), s.secrets(a.id))
+        assertEquals("a-secret-one", s.secret(a.id, "apiKey"))
+        assertEquals("b-secret-one", s.secret(b.id, "apiKey"))
+        assertFalse(String(File(tmp.root, "mcp-server-secrets.bin").readBytes(), Charsets.UTF_8).contains("a-secret-one"))
+
+        val reopened = store()
+        assertEquals("a-secret-two", reopened.secret(a.id, "signingKey"))
+        assertEquals("legacy-bearer", reopened.token(a.id))
+        assertEquals("legacy-oauth", reopened.oauthTokens(a.id)?.accessToken)
+        reopened.setSecret(a.id, "apiKey", null)
+        assertEquals(null, reopened.secret(a.id, "apiKey"))
+        assertEquals("a-secret-two", reopened.secret(a.id, "signingKey"))
+
+        reopened.remove(a.id)
+        assertTrue(reopened.secrets(a.id).isEmpty())
+        assertEquals(null, reopened.token(a.id))
+        assertEquals(null, reopened.oauthTokens(a.id))
+        assertEquals("b-secret-one", reopened.secret(b.id, "apiKey"))
+    }
+
+    @Test fun legacyCustomConfigLoadsWithoutPresetFields() {
+        val id = "legacy-custom"
+        File(tmp.root, "mcp-servers.json").writeText("""[{"id":"$id","name":"Legacy","url":"https://legacy.example/mcp","enabled":true,"transport":"http-sse","auth":"oauth","allowedTools":["search"],"headers":{"X-Tenant":"demo"}}]""")
+        val oauthJson = """{"accessToken":"old-at","refreshToken":"old-rt","clientId":"old-client","tokenEndpoint":"https://legacy.example/token"}"""
+        val secrets = buildJsonObject {
+            put(id, "old-token")
+            put("oauth:$id", oauthJson)
+        }.toString()
+        File(tmp.root, "mcp-server-secrets.bin").writeBytes(ReverseCipher().encrypt(secrets.toByteArray()))
+
+        val s = store()
+        val config = s.servers.value.single()
+        assertEquals("http-sse", config.transport)
+        assertEquals("oauth", config.auth)
+        assertEquals(listOf("search"), config.allowedTools)
+        assertEquals("demo", config.headers["X-Tenant"])
+        assertEquals(null, config.presetId)
+        assertEquals(null, config.presetSnapshot)
+        assertTrue(config.fieldValues.isEmpty())
+        assertEquals("old-token", s.token(id))
+        assertEquals("old-at", s.oauthTokens(id)?.accessToken)
+    }
+
+    @Test fun presetConfigRejectsSecretInPlainFieldValues() {
+        val snapshot = McpPreset(
+            id = "demo", name = "Demo", summary = McpCopy(mapOf("en" to "Demo")),
+            category = "data", transport = "streamable-http", auth = "fields",
+            endpoint = "https://demo.example/mcp",
+            fields = listOf(
+                McpPresetField("apiKey", McpCopy(mapOf("en" to "API key")), secret = true, required = true, target = "bearer"),
+                McpPresetField("region", McpCopy(mapOf("en" to "Region")), secret = false, required = true, target = "header", name = "X-Region"),
+            ),
+            officialSource = "https://demo.example/docs",
+        )
+        val s = store()
+        val invalid = McpServerConfig(
+            name = "Demo", url = snapshot.endpoint, presetId = snapshot.id, presetSnapshot = snapshot,
+            fieldValues = mapOf("apiKey" to "must-not-be-plain"),
+        )
+        assertTrue(s.add(invalid).isFailure)
+        assertFalse(File(tmp.root, "mcp-servers.json").let { it.isFile && it.readText().contains("must-not-be-plain") })
+
+        val valid = s.add(invalid.copy(fieldValues = mapOf("region" to "cn"))).getOrThrow()
+        s.setSecret(valid.id, "apiKey", "encrypted-only")
+        val plain = File(tmp.root, "mcp-servers.json").readText()
+        assertFalse(plain.contains("encrypted-only"))
+        val reopened = store()
+        assertEquals("cn", reopened.servers.value.single().fieldValues["region"])
+        assertEquals("encrypted-only", reopened.secret(valid.id, "apiKey"))
+    }
+
+    /** 目录里同一预设换了形态(本地包 → 官方远程 OAuth):重连时旧形态留下的秘密不能让新配置永久「未知字段」。 */
+    @Test fun replacingPresetWithNewShapeDropsSecretsTheNewShapeDoesNotUse() {
+        val label = McpCopy(mapOf("en" to "Token"))
+        val local = McpPreset(
+            id = "docs", name = "Docs", summary = McpCopy(mapOf("en" to "Docs")), category = "docs",
+            transport = "stdio", auth = "fields", command = listOf("docs-mcp"),
+            fields = listOf(McpPresetField("token", label, secret = true, required = true, target = "env", name = "DOCS_TOKEN")),
+            officialSource = "https://docs.example/mcp",
+        )
+        val remote = local.copy(transport = "streamable-http", auth = "oauth", command = emptyList(), endpoint = "https://mcp.docs.example/mcp", fields = emptyList())
+        val s = store()
+        val old = s.savePreset(McpServerConfig(name = "Docs", url = "", command = "docs-mcp", transport = "stdio", auth = "fields", presetId = "docs", presetSnapshot = local)).getOrThrow()
+        s.setSecret(old.id, "token", "old-local-token")
+        s.setOAuthTokens(old.id, McpOAuthTokens(accessToken = "stale", clientId = "c", tokenEndpoint = "https://oauth.example/token"))
+
+        // 同一形态重试:秘密和授权都保留
+        s.savePreset(s.servers.value.single()).getOrThrow()
+        assertEquals("old-local-token", s.secret(old.id, "token"))
+        assertEquals("stale", s.oauthTokens(old.id)?.accessToken)
+
+        // 换成远程 OAuth:沿用同一 id,但旧字段秘密和发给旧目标的令牌都清掉
+        val replaced = s.savePreset(McpServerConfig(name = "Docs", url = remote.endpoint, transport = "streamable-http", auth = "oauth", presetId = "docs", presetSnapshot = remote)).getOrThrow()
+        assertEquals(old.id, replaced.id)
+        assertTrue(s.secrets(old.id).isEmpty())
+        assertEquals(null, s.oauthTokens(old.id))
+        assertEquals(1, s.servers.value.size)
     }
 }

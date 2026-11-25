@@ -1,4 +1,4 @@
-<!-- translated-from: README.md @ dbbd6498b424 -->
+<!-- translated-from: README.md @ 7b09b8113580 -->
 <div align="center">
 
 <img src="../media/logo.png" alt="Mika" width="88" />
@@ -9,9 +9,11 @@
 
 它在一块看不见的后台屏上干活，你照样刷你的手机。
 
-<a href="https://github.com/wangzan101/Mika/releases/latest"><img src="https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD%20APK-%E5%AE%89%E5%8D%93%2011%2B-2ea043?style=for-the-badge&logo=android&logoColor=white" alt="下载 APK" /></a>
+<a href="https://github.com/wangzan101/Mika"><img src="../media/star-banner-v2.png" alt="喜欢 Mika？点个 Star —— 点右上角的 Star 按钮" width="620" /></a>
 
-<a href="https://github.com/wangzan101/Mika/stargazers"><img src="https://img.shields.io/github/stars/wangzan101/Mika?style=flat&logo=github&label=Star&color=1f6feb" alt="stars" /></a>
+<br/>
+<a href="https://github.com/wangzan101/Mika/releases/latest"><img src="https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD%20APK-%E5%AE%89%E5%8D%93%2011%2B-2ea043?style=for-the-badge&logo=android&logoColor=white" alt="下载 APK" /></a> <a href="https://github.com/wangzan101/Mika"><img src="https://img.shields.io/github/stars/wangzan101/Mika?style=for-the-badge&logo=github&label=Star&color=FFD700&logoColor=white" alt="Star this repo" /></a>
+
 <a href="https://github.com/wangzan101/Mika/releases"><img src="https://img.shields.io/github/downloads/wangzan101/Mika/total?label=%E4%B8%8B%E8%BD%BD&color=2ea043" alt="downloads" /></a>
 <a href="https://github.com/wangzan101/Mika/releases/latest"><img src="https://img.shields.io/github/v/release/wangzan101/Mika?include_prereleases&label=%E7%89%88%E6%9C%AC" alt="version" /></a>
 <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-lightgrey" alt="license" /></a>
@@ -24,7 +26,7 @@
 
 <br/>
 
-[English](../../README.md) · 简体中文 · [繁體中文](README.zh-Hant.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md)
+[English](../../README.md) · 简体中文 · [繁體中文](README.zh-Hant.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Türkçe](README.tr.md)
 
 <br/>
 
@@ -108,7 +110,7 @@
 <!-- 这一段由 ./gradlew updateReadme 生成，不要手改 -->
 | 类别 | 内置 |
 |---|---|
-| **App** | 阿里巴巴、支付宝、Android 设置、百度、百家号、哔哩哔哩、BOSS直聘、Chrome、得到、大众点评、抖音、飞书、Gmail、京东、即刻、快手、领英、美团、美团外卖、拼多多、QQ、QQ邮箱、QQ音乐、淘宝、Telegram、今日头条、Uber、Uber Eats、微信、微博、WhatsApp、X、闲鱼、小黑盒、小红书、知乎 |
+| **App** | 阿里巴巴、支付宝、Amazon、Android 设置、百度、百家号、哔哩哔哩、BOSS直聘、ChatGPT、Chrome、得到、大众点评、Discord、抖音、飞书、GitHub、Gmail、Google Calendar、Google Maps、Instagram、京东、即刻、快手、领英、美团、美团外卖、Netflix、拼多多、QQ、QQ邮箱、QQ音乐、Reddit、Slack、Spotify、淘宝、Telegram、TikTok、今日头条、Uber、Uber Eats、微信、微博、WhatsApp、X、闲鱼、小黑盒、小红书、YouTube、知乎 |
 | **网站** | 铁路12306、1688、Amazon、百度搜索、哔哩哔哩、Google Calendar、携程旅行、大众点评、豆瓣、抖音、GitHub、Instagram、京东、Gmail、Google Maps、美团、淘宝网、Telegram、百度贴吧、百度热搜、微博、搜狗微信、WhatsApp、小红书、小宇宙、QQ音乐、YouTube、知乎、BOSS直聘 |
 | **通用做法**（技能） | 改 Mika 自己的设置、把内容整理成文字、处理 PDF 文档、查清一件事、消息与邮件、写技能 |
 <!-- generated:knowledge:end -->
@@ -120,7 +122,7 @@
 
 <!-- generated:providers:start -->
 <!-- 这一段由 ./gradlew updateReadme 生成，不要手改 -->
-内置 DeepSeek、通义千问、Kimi、智谱、智谱 Coding Plan、硅基流动、火山方舟、MiniMax、阶跃星辰、腾讯混元、百度千帆、OpenRouter、Requesty、OpenCode Go、Anthropic、Gemini、OpenAI、xAI、Mistral、Groq、Ollama、LM Studio 等服务商预设；其他服务商选「自定义」，OpenAI 兼容、Anthropic、Gemini、OpenAI Responses 接口都能接。
+内置 DeepSeek、通义千问、Kimi、智谱、智谱 Coding Plan、硅基流动、火山方舟、MiniMax、阶跃星辰、腾讯混元、百度千帆、OpenRouter、OpenDesign Go、OpenCode Go、Anthropic、Gemini、OpenAI、xAI、Mistral、Groq、Cloudflare Workers AI、Ollama、LM Studio 等服务商预设；其他服务商选「自定义」，OpenAI 兼容、Anthropic、Gemini、OpenAI Responses 接口都能接。
 <!-- generated:providers:end -->
 
 也可以不填 Key：ChatGPT（Plus / Pro）、xAI / Grok、OpenRouter 账号登录。添加模型的步骤和各家登录的注意事项见[模型与登录](../models.md)。
@@ -167,6 +169,8 @@
 - **关注作者**：X [@wangzan101](https://x.com/wangzan101)
 - **反馈问题**：[提 Issue](https://github.com/wangzan101/Mika/issues/new/choose)，App 里「关于 › 反馈问题」可以附上诊断信息
 - **参与贡献**：给某个 App、网站补一份使用知识（纯文本，不用写代码），或者贡献代码，见[贡献指南](../../.github/CONTRIBUTING.zh-CN.md)
+
+<p align="center">⭐ 如果 Mika 帮你省了时间，点个 Star，让更多人找到它。</p>
 
 ## Star History
 

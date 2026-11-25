@@ -1,18 +1,19 @@
 package com.wangzan101.mika.cap.phone.a11y
 
-import com.wangzan101.mika.core.uistate.ActionResult
-import com.wangzan101.mika.core.uistate.AfterTaskMarks
-import com.wangzan101.mika.core.uistate.AppCopy
-import com.wangzan101.mika.core.uistate.AppWait
-import com.wangzan101.mika.core.uistate.ScreenCheck
-import com.wangzan101.mika.core.uistate.ScreenPort
-import com.wangzan101.mika.core.uistate.ScreenSnapshot
-import com.wangzan101.mika.core.uistate.ScreenEvent
-import com.wangzan101.mika.core.uistate.VisibleTextLine
-import com.wangzan101.mika.core.uistate.SystemCommandResult
-import com.wangzan101.mika.core.uistate.SystemAction
-import com.wangzan101.mika.core.uistate.SystemActionResult
-import com.wangzan101.mika.core.uistate.WheelOutcome
+import com.wangzan101.mika.core.screen.uistate.ActionResult
+import com.wangzan101.mika.core.device.access.AppAccessPolicy
+import com.wangzan101.mika.core.screen.uistate.AfterTaskMarks
+import com.wangzan101.mika.core.screen.uistate.AppCopy
+import com.wangzan101.mika.core.screen.uistate.AppWait
+import com.wangzan101.mika.core.screen.uistate.ScreenCheck
+import com.wangzan101.mika.core.screen.uistate.ScreenPort
+import com.wangzan101.mika.core.screen.uistate.ScreenSnapshot
+import com.wangzan101.mika.core.screen.uistate.ScreenEvent
+import com.wangzan101.mika.core.screen.uistate.VisibleTextLine
+import com.wangzan101.mika.core.screen.uistate.SystemCommandResult
+import com.wangzan101.mika.core.screen.uistate.SystemAction
+import com.wangzan101.mika.core.screen.uistate.SystemActionResult
+import com.wangzan101.mika.core.screen.uistate.WheelOutcome
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -31,6 +32,8 @@ class LazyPhoneScreen(
     private val height: Int,
     private val listApps: suspend () -> List<Pair<String, String>>,
     private val appCopies: suspend () -> List<AppCopy> = { emptyList() },
+    override val canShareAudio: Boolean = false,
+    private val calendarBulkWriter: (suspend (List<SystemAction.AddCalendarEvent>) -> SystemActionResult)? = null,
     private val acquire: suspend () -> ScreenPort,
 ) : ScreenPort {
     private val lock = Mutex()
@@ -57,6 +60,9 @@ class LazyPhoneScreen(
 
     private fun unavailable() = ActionResult.Failed(PHONE_UNAVAILABLE, lastProblem)
 
+    override val appAccess: AppAccessPolicy get() = port?.appAccess ?: AppAccessPolicy.ALLOW
+    override suspend fun checkAppAccess() { port?.checkAppAccess() }
+
     override suspend fun openApp(packageName: String, cold: Boolean): ActionResult = built()?.openApp(packageName, cold) ?: unavailable()
     override suspend fun openAppCopy(packageName: String, userId: Int, cold: Boolean): ActionResult =
         built()?.openAppCopy(packageName, userId, cold) ?: unavailable()
@@ -66,7 +72,13 @@ class LazyPhoneScreen(
     override suspend fun openLink(action: String?, uri: String?, packageName: String?): ActionResult =
         built()?.openLink(action, uri, packageName) ?: unavailable()
     override suspend fun shareText(packageName: String, text: String): ActionResult = built()?.shareText(packageName, text) ?: unavailable()
+    override suspend fun shareAudio(packageName: String, path: String, text: String?): ActionResult =
+        built()?.shareAudio(packageName, path, text) ?: unavailable()
     override suspend fun systemAction(action: SystemAction): SystemActionResult = built()?.systemAction(action) ?: SystemActionResult(unavailable())
+    override suspend fun bulkCalendarInsert(events: List<SystemAction.AddCalendarEvent>): SystemActionResult =
+        calendarBulkWriter?.invoke(events)
+            ?: built()?.bulkCalendarInsert(events)
+            ?: SystemActionResult(unavailable())
     override suspend fun setWheel(ref: String, snapshotId: String, value: String): WheelOutcome =
         port?.setWheel(ref, snapshotId, value) ?: WheelOutcome(false, null, null, 0, "none", error = "no_app_open")
 

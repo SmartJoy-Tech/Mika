@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_dtmf_status_label">وضعیت تماس</string>
+    <string name="calls_dtmf_open">صفحه‌کلید</string>
+    <string name="calls_dtmf_title">صفحه‌کلید تماس</string>
+    <string name="calls_dtmf_close">بستن</string>
+    <string name="calls_dtmf_batch">ورود دنباله</string>
+    <string name="calls_dtmf_hint">هر کلید بلافاصله ارسال می‌شود. راهنمای صوتی را دنبال کنید.</string>
+    <string name="calls_dtmf_batch_hint">تا 32 کلید وارد کنید و ارسال را بزنید.</string>
+    <string name="calls_dtmf_input">0–9 یا * یا #</string>
+    <string name="calls_dtmf_delete">حذف</string>
+    <string name="calls_dtmf_send">ارسال</string>
+    <string name="calls_dtmf_sending">در حال ارسال…</string>
+    <string name="calls_dtmf_sent">کلیدها ارسال شدند؛ منتظر پاسخ بمانید</string>
+    <string name="calls_dtmf_failed">ارسال کامل نشد. منتظر پاسخ بمانید.</string>
+    <string name="calls_dtmf_invalid">فقط 0–9 و * و #، حداکثر 32 کلید.</string>
+    <string name="calls_voice_briefing_start">شرح صوتی کار</string>
+    <string name="calls_voice_briefing_note">به زبان ماندارین صحبت کنید. برای اجازه تماس، در پایان فقط «%1$s» را بگویید.</string>
+    <string name="calls_voice_briefing_stopped">شرح متوقف شد؛ تماسی برقرار نشد</string>
+    <string name="calls_voice_briefing_authorized">کار تأیید شد؛ در حال درخواست تماس</string>
+    <string name="calls_voice_briefing_permission_granted">میکروفون مجاز شد. دوباره دکمه صدا را بزنید.</string>
+    <string name="calls_voice_briefing_permission_denied">مجوز میکروفون داده نشد. از فرم متنی استفاده کنید.</string>
+    <string name="calls_voice_briefing_incomplete">پیش از شروع، دستورهای موجود را کامل یا پاک کنید.</string>
+    <string name="calls_voice_briefing_configure">ابتدا صدای زنده را در تنظیمات پیکربندی کنید.</string>
+    <string name="calls_owner_ask_title">طرف مقابل منتظر پاسخ شماست</string>
+    <string name="calls_owner_ask_reply">پاسخ</string>
+    <string name="calls_owner_ask_hint">پاسخ شما</string>
+    <string name="calls_transcript_owner_unrelayed">پاسخ مالک (منتقل نشد)</string>
+    <string name="calls_owner_ask_channel">پرسش‌های تماس</string>
+    <string name="calls_owner_ask_line">طرف مقابل در تماس می‌پرسد: %1$s\nهمین‌جا پاسخ دهید تا به او برسانم.</string>
+    <string name="calls_owner_ask_notify_off">اعلان‌های پرسش تماس خاموش است و ممکن است آن‌ها را نبینید. از تنظیمات سیستم ← اعلان‌ها روشنش کنید.</string>
+    <string name="calls_owner_ask_answered">به تماس منتقل شد.</string>
+    <string name="calls_owner_ask_withdrawn">تماس تمام شد، پس این سؤال پس گرفته شد. نیازی به پاسخ نیست.</string>
+</resources>

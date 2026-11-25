@@ -35,6 +35,47 @@ class OpenAiCompatModelTest {
     private fun body(): kotlinx.serialization.json.JsonObject =
         Json.parseToJsonElement(server.takeRequest().body.readUtf8()).jsonObject
 
+    /** Key 里的换行或中文不能在构造请求时把进程打掉,也不能把 Key 发出去。 */
+    @Test fun illegalApiKeyFailsBeforeAnyRequest() = runTest {
+        val newline = runCatching { model(key = "sk-\nabc").complete("s", user, emptyList()) }.exceptionOrNull()
+        val chinese = runCatching { model(key = "密钥：sk").complete("s", user, emptyList()) }.exceptionOrNull()
+        assertTrue(newline is ModelError.IllegalHeader)
+        assertTrue(chinese is ModelError.IllegalHeader)
+        assertEquals(0, server.requestCount)
+    }
+
+    /** 密钥被拒的回调要带上 HTTP 状态码(接线处据此区分 429 冷却与 401/403 耗尽),并就地换下一把 key 重试。 */
+    @Test fun keyRejectionCallbackCarriesStatusAndRotates() = runTest {
+        server.enqueue(MockResponse().setResponseCode(401).setBody("""{"error":{"message":"bad key"}}"""))
+        server.enqueue(ok("""{"choices":[{"message":{"content":"hi"}}]}"""))
+        val keys = ArrayDeque(listOf("sk-bad", "sk-good"))
+        val rejected = mutableListOf<Triple<String, Long?, Int>>()
+        val m = OpenAiCompatModel(
+            server.url("/v1").toString().trimEnd('/'), "sk-static", "m", caps(), OkHttpClient(),
+            keySupplier = { keys.removeFirstOrNull() },
+            onKeyRejected = { key, retryMs, status -> rejected += Triple(key, retryMs, status) },
+        )
+        val r = m.complete("sys", user, emptyList())
+        assertEquals(listOf(Triple("sk-bad", null, 401)), rejected)
+        assertEquals("Bearer sk-bad", server.takeRequest().getHeader("Authorization"))
+        assertEquals("Bearer sk-good", server.takeRequest().getHeader("Authorization"))
+        assertEquals("hi", r.parts.filterIsInstance<Part.Text>().joinToString("") { it.text })
+    }
+
+    @Test fun keyRejectionCallbackReportsRateLimitStatus() = runTest {
+        server.enqueue(MockResponse().setResponseCode(429).setHeader("retry-after", "7"))
+        server.enqueue(ok("""{"choices":[{"message":{"content":"hi"}}]}"""))
+        val keys = ArrayDeque(listOf("sk-a", "sk-b"))
+        val rejected = mutableListOf<Triple<String, Long?, Int>>()
+        val m = OpenAiCompatModel(
+            server.url("/v1").toString().trimEnd('/'), null, "m", caps(), OkHttpClient(),
+            keySupplier = { keys.removeFirstOrNull() },
+            onKeyRejected = { key, retryMs, status -> rejected += Triple(key, retryMs, status) },
+        )
+        m.complete("sys", user, emptyList())
+        assertEquals(listOf(Triple("sk-a", 7_000L, 429)), rejected)
+    }
+
     @Test fun parsesToolCalls() = runTest {
         server.enqueue(ok("""{"choices":[{"finish_reason":"tool_calls","message":{"content":null,"tool_calls":[{"id":"c1","type":"function","function":{"name":"phone_tap","arguments":"{\"ref\":\"a1\"}"}}]}}],"usage":{"prompt_tokens":10,"completion_tokens":3,"prompt_tokens_details":{"cached_tokens":4}}}"""))
         val r = model().complete("sys", user, listOf(ToolSpec("phone_tap", "d", """{"type":"object"}""")))
@@ -98,6 +139,23 @@ class OpenAiCompatModelTest {
             .setBody("data: {\"error\":{\"object\":\"error\",\"message\":\"$message\",\"type\":\"BadRequestError\",\"param\":null,\"code\":400}}\n\ndata: [DONE]\n\n")
         assertTrue(streamError(frame("The input (25123 tokens) is longer than the model's context length (16384 tokens).")) is ModelError.ContextTooLong)
         assertTrue(streamError(frame("bad input")) is ModelError.BadResponse)
+    }
+
+    @Test fun streamingRateLimitAndOverloadErrorsAreClassified() = runTest {
+        suspend fun streamError(type: String): ModelError {
+            server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream").setBody(
+                "data: {\"error\":{\"type\":\"$type\",\"message\":\"busy\"}}\n\ndata: [DONE]\n\n",
+            ))
+            return try {
+                model().completeStreaming("s", user, emptyList()) {}
+                throw AssertionError("expected ModelError")
+            } catch (e: ModelError) { e }
+        }
+
+        assertTrue(streamError("rate_limit_error") is ModelError.RateLimited)
+        val overloaded = streamError("overloaded_error") as ModelError.Server
+        assertEquals(529, overloaded.status)
+        assertTrue(overloaded.message.orEmpty().contains("busy"))
     }
 
     /** 整份回复已经收全,只是没发 `[DONE]`:照常说完,不当成流提前断了。 */
@@ -176,9 +234,9 @@ class OpenAiCompatModelTest {
         assertTrue(errorFor(MockResponse().setResponseCode(400).setBody("""{"error":"Trying to keep the first 15857 tokens when context the overflows. However, the model is loaded with context length of only 4096 tokens, which is not enough. Try to load the model with a larger context length, or provide a shorter input. Error Data: n/a, Additional Data: n/a"}""")) is ModelError.ContextTooLong)
         assertTrue(errorFor(MockResponse().setResponseCode(400).setBody("""{"error":"The number of tokens to keep from the initial prompt is greater than the context length. Try to load the model with a larger context length, or provide a shorter input. Error Data: n/a, Additional Data: n/a"}""")) is ModelError.ContextTooLong)
         // 提到 context、说的却不是超长:照旧;报错里回显了请求里的「context window」也不算
-        assertTrue(errorFor(MockResponse().setResponseCode(400).setBody("""{"error":{"message":"Invalid value for 'context': expected a string"}}""")) is ModelError.BadResponse)
-        assertTrue(errorFor(MockResponse().setResponseCode(400).setBody("""{"error":{"message":"Invalid type for 'messages[1].content': expected a string","input":"how big is your context window?"}}""")) is ModelError.BadResponse)
-        assertTrue(errorFor(MockResponse().setResponseCode(400).setBody("""{"error":{"message":"Invalid 'tools[3].function.name': string too long. Expected a string with maximum length 64, but got a string with length 67 instead."}}""")) is ModelError.BadResponse)
+        assertTrue(errorFor(MockResponse().setResponseCode(400).setBody("""{"error":{"message":"Invalid value for 'context': expected a string"}}""")) is ModelError.Server)
+        assertTrue(errorFor(MockResponse().setResponseCode(400).setBody("""{"error":{"message":"Invalid type for 'messages[1].content': expected a string","input":"how big is your context window?"}}""")) is ModelError.Server)
+        assertTrue(errorFor(MockResponse().setResponseCode(400).setBody("""{"error":{"message":"Invalid 'tools[3].function.name': string too long. Expected a string with maximum length 64, but got a string with length 67 instead."}}""")) is ModelError.Server)
         assertEquals("m", (errorFor(MockResponse().setResponseCode(404)) as ModelError.ModelNotFound).model)
         // 网关回的 404 不一定是模型名不对:带上它 JSON 里的原话;HTML 页不当原话
         val gateway = errorFor(MockResponse().setResponseCode(404).setBody("""{"error":{"type":"not_found_error","message":"none of group/rpa's models is ready"}}""")) as ModelError.ModelNotFound
@@ -369,6 +427,52 @@ class OpenAiCompatModelTest {
         assertEquals(first.subList(1, 3), second.subList(1, 3))
     }
 
+    // 没有 uncached 消息时请求逐字不变(锁住加 uncached 之前的请求形状),显式、隐式缓存都看
+    @Test fun requestShapeWithoutUncachedIsUnchanged() = runTest {
+        val history = listOf(
+            Message(Role.User, listOf(Part.Text("goal")), Author.User),
+            Message(Role.Assistant, listOf(Part.Text("ok"), Part.ToolCall("t1", "a", "{}")), Author.Mika),
+            Message(Role.Tool, listOf(Part.ToolResult("t1", "r1", false)), Author.Mika),
+            Message(Role.User, listOf(Part.Text("state 1")), Author.Mika),
+            Message(Role.Assistant, listOf(Part.Text("done")), Author.Mika),
+        )
+        val tools = listOf(ToolSpec("a", "d", """{"type":"object"}"""), ToolSpec("b", "d", """{"type":"object"}"""))
+        val explicit = OpenAiCompatModel(server.url("/v1").toString().trimEnd('/'), "k", "m",
+            Capabilities(true, true, 32000, false, promptCaching = PromptCaching.Explicit), OkHttpClient())
+        server.enqueue(ok("""{"choices":[{"finish_reason":"stop","message":{"content":"ok"}}]}"""))
+        explicit.complete("SYS", history, tools)
+        val rawExplicit = server.takeRequest().body.readUtf8()
+        server.enqueue(ok("""{"choices":[{"finish_reason":"stop","message":{"content":"ok"}}]}"""))
+        model().complete("SYS", history, tools)
+        val rawImplicit = server.takeRequest().body.readUtf8()
+        assertEquals(GOLDEN_OPENAI_EXPLICIT, rawExplicit)
+        assertEquals(GOLDEN_OPENAI_IMPLICIT, rawImplicit)
+    }
+
+    // 末尾的 uncached 消息不带移动标记:标记落在它前面最后一条能标的消息上,uncached 那条原样发
+    @Test fun explicitCachingSkipsTrailingUncachedMessages() = runTest {
+        val m = OpenAiCompatModel(server.url("/v1").toString().trimEnd('/'), "k", "m",
+            Capabilities(true, true, 32000, false, promptCaching = PromptCaching.Explicit), OkHttpClient())
+        val history = listOf(
+            Message(Role.User, listOf(Part.Text("任务")), Author.User),
+            Message(Role.Assistant, listOf(Part.ToolCall("c1", "a", "{}")), Author.Mika),
+            Message(Role.Tool, listOf(Part.ToolResult("c1", "屏幕", false)), Author.Mika),
+        )
+        val notes = listOf(
+            Message(Role.User, listOf(Part.Text("board v1")), Author.Mika, uncached = true),
+            Message(Role.User, listOf(Part.Text("memory")), Author.Mika, uncached = true),
+        )
+        server.enqueue(ok("""{"choices":[{"finish_reason":"stop","message":{"content":"ok"}}]}"""))
+        m.complete("SYS", history + notes, emptyList())
+        val sent = body()["messages"]!!.jsonArray.map { it.jsonObject }
+        val marks = sent.mapIndexedNotNull { i, msg ->
+            (msg["content"] as? JsonArray)?.takeIf { c -> c.any { "cache_control" in it.jsonObject } }?.let { i }
+        }
+        assertEquals(listOf(0, 3), marks)
+        assertEquals("tool", sent[3]["role"]!!.jsonPrimitive.content)
+        assertEquals(listOf("board v1", "memory"), sent.drop(4).map { it["content"]!!.jsonPrimitive.content })
+    }
+
     @Test fun implicitCachingSendsNoMarks() = runTest {
         server.enqueue(ok("""{"choices":[{"finish_reason":"stop","message":{"content":"ok"}}]}"""))
         model().complete("SYS", user, emptyList())
@@ -397,5 +501,12 @@ class OpenAiCompatModelTest {
         assertEquals(InterruptedHistory.PARTIAL, msgs[2]["content"]!!.jsonPrimitive.content)
         assertEquals(InterruptedHistory.STEER, msgs[3]["content"]!!.jsonPrimitive.content)
         assertEquals(InterruptedHistory.RUNTIME, msgs[4]["content"]!!.jsonPrimitive.content)
+    }
+
+    private companion object {
+        const val GOLDEN_OPENAI_EXPLICIT =
+            """{"model":"m","messages":[{"role":"system","content":[{"type":"text","text":"SYS","cache_control":{"type":"ephemeral"}}]},{"role":"user","content":"goal"},{"role":"assistant","content":"ok","tool_calls":[{"id":"t1","type":"function","function":{"name":"a","arguments":"{}"}}]},{"role":"tool","tool_call_id":"t1","content":"r1"},{"role":"user","content":[{"type":"text","text":"state 1","cache_control":{"type":"ephemeral"}}]},{"role":"assistant","content":"done"}],"tools":[{"type":"function","function":{"name":"a","description":"d","parameters":{"type":"object"}}},{"type":"function","function":{"name":"b","description":"d","parameters":{"type":"object"}}}],"stream":false}"""
+        const val GOLDEN_OPENAI_IMPLICIT =
+            """{"model":"m","messages":[{"role":"system","content":"SYS"},{"role":"user","content":"goal"},{"role":"assistant","content":"ok","tool_calls":[{"id":"t1","type":"function","function":{"name":"a","arguments":"{}"}}]},{"role":"tool","tool_call_id":"t1","content":"r1"},{"role":"user","content":"state 1"},{"role":"assistant","content":"done"}],"tools":[{"type":"function","function":{"name":"a","description":"d","parameters":{"type":"object"}}},{"type":"function","function":{"name":"b","description":"d","parameters":{"type":"object"}}}],"stream":false}"""
     }
 }

@@ -40,14 +40,21 @@ class GeminiModel(
     private val maxOutputTokens: Int? = null,
     /** 用户选的思考档位;null 不发,`none` 尽量关掉思考,其余作为 `thinkingConfig.thinkingLevel` 发出。 */
     private val reasoningEffort: String? = null,
+    private val keySupplier: (() -> String?)? = null,
+    /** 密钥被上游拒绝(429/401/403)时带上 HTTP 状态码回调;接线处按状态决定冷却(429)还是标耗尽(401/403)。 */
+    private val onKeyRejected: ((key: String, retryAfterMs: Long?, status: Int) -> Unit)? = null,
 ) : StreamingChatModel {
     override val name: String get() = model
     private val endpoint = baseUrl.trimEnd('/') + "/v1beta/models/$model:generateContent"
     private val streamEndpoint = baseUrl.trimEnd('/') + "/v1beta/models/$model:streamGenerateContent?alt=sse"
     private val json = Json { ignoreUnknownKeys = true }
 
+    private fun resolveKey(): String = keySupplier?.invoke()?.takeIf { it.isNotBlank() } ?: apiKey
+
     override suspend fun complete(system: String, messages: List<Message>, tools: List<ToolSpec>): ModelReply {
-        val (status, retryAfter, text) = HttpSupport.execute(http, request(system, messages, tools, stream = false))
+        val (status, retryAfter, text) = requestWithKeyRotation(::resolveKey, onKeyRejected) { key ->
+            HttpSupport.execute(http, request(system, messages, tools, stream = false, key = key.orEmpty()))
+        }
         if (status !in 200..299) throw mapError(status, retryAfter, text)
         return parse(text)
     }
@@ -55,8 +62,11 @@ class GeminiModel(
     override suspend fun completeStreaming(
         system: String, messages: List<Message>, tools: List<ToolSpec>, onText: (String) -> Unit,
     ): ModelReply {
-        val stream = GeminiStream(onText, ::parse, ::parseUsage)
-        val (status, retryAfter, text) = HttpSupport.stream(http, request(system, messages, tools, stream = true), stream::accept)
+        var stream = GeminiStream(onText, ::parse, ::parseUsage)
+        val (status, retryAfter, text) = requestWithKeyRotation(::resolveKey, onKeyRejected) { key ->
+            stream = GeminiStream(onText, ::parse, ::parseUsage)
+            HttpSupport.stream(http, request(system, messages, tools, stream = true, key = key.orEmpty()), stream::accept)
+        }
         if (status !in 200..299) throw mapError(status, retryAfter, text)
         if (text.isNotEmpty()) return parse(text).also { reply ->
             reply.parts.filterIsInstance<Part.Text>().joinToString("") { it.text }.takeIf(String::isNotEmpty)?.let(onText)
@@ -64,7 +74,7 @@ class GeminiModel(
         return stream.finish()
     }
 
-    private suspend fun request(system: String, messages: List<Message>, tools: List<ToolSpec>, stream: Boolean): Request {
+    private suspend fun request(system: String, messages: List<Message>, tools: List<ToolSpec>, stream: Boolean, key: String = resolveKey()): Request {
         val systemText = (listOf(system) + messages.filter { it.role == Role.System }
             .map { m -> m.parts.filterIsInstance<Part.Text>().joinToString("\n") { it.text } })
             .filter { it.isNotBlank() }.joinToString("\n\n")
@@ -94,7 +104,7 @@ class GeminiModel(
         }
         return Request.Builder().url(if (stream) streamEndpoint else endpoint)
             .withHeaders(headers)
-            .header("x-goog-api-key", apiKey)
+            .headerOrReject("x-goog-api-key", key)
             .postInference(InferenceProtocol.Gemini, payload)
             .build()
     }
@@ -238,7 +248,8 @@ class GeminiModel(
         val inT = n("promptTokenCount") ?: return null
         // promptTokenCount 已含缓存命中部分,与统一口径一致
         val thoughts = n("thoughtsTokenCount") ?: 0
-        return Usage(inT, (n("candidatesTokenCount") ?: 0) + thoughts, n("cachedContentTokenCount") ?: 0, thoughts)
+        val cached = n("cachedContentTokenCount")
+        return Usage(inT, (n("candidatesTokenCount") ?: 0) + thoughts, cached ?: 0, thoughts, cacheReported = cached != null)
     }
 }
 

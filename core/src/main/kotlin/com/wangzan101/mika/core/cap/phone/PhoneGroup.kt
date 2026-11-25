@@ -1,7 +1,7 @@
 package com.wangzan101.mika.core.cap.phone
 
-import com.wangzan101.mika.core.uistate.ScreenFamily
-import com.wangzan101.mika.core.uistate.tools.ScreenTool
+import com.wangzan101.mika.core.screen.uistate.ScreenFamily
+import com.wangzan101.mika.core.screen.uistate.tools.ScreenTool
 import com.wangzan101.mika.core.tool.AgentTool
 
 /** 手机能力的 id,也是手机那一套工具名字的前缀。 */
@@ -26,7 +26,7 @@ internal interface PhoneTool : AgentTool {
 internal object PhoneGroup {
     val tools: List<AgentTool> = ScreenTool.of(PHONE_FAMILY) + listOf(
         PhoneQuery, PhoneFind, PhoneExtract, PhoneCollect, PhoneWait, PhoneEventTool,
-        PhoneDialog, PhoneGesture, SetWheel, PhoneRun, PhoneCommand, ListApps, LaunchApp, AppAfterTask, ShareText, OpenLink,
+        PhoneDialog, PhoneGesture, PhoneSmsLogin, SetWheel, PhoneRun, DoEach, PhoneCommand, ListApps, LaunchApp, AppAfterTask, ShareText, ShareAudio, ShareImage, OpenLink,
         SetAlarm, SetTimer, ShowAlarms, AddCalendarEvent, BulkAddCalendarEvents,
     )
 }

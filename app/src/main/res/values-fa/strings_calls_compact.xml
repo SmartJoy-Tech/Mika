@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_auto_off_short">خاموش</string>
+    <string name="calls_auto_standby_short">در انتظار</string>
+    <string name="calls_rule_delay">پاسخ پس از</string>
+    <string name="calls_seconds_value">%1$d ثانیه</string>
+    <string name="calls_none_added">هیچ</string>
+    <string name="calls_not_set">تنظیم نشده</string>
+    <string name="calls_is_set">تنظیم شده</string>
+    <string name="calls_numbers_count">%1$d شماره</string>
+    <string name="calls_scope_all_short">همهٔ تماس‌ها</string>
+    <string name="calls_scope_strangers_short">شماره‌های ناشناس</string>
+    <string name="calls_allowlist_empty_short">فهرست خالی است</string>
+    <string name="calls_list_count_short">%1$d در فهرست</string>
+    <string name="calls_not_confirmed">تأیید نشده</string>
+    <string name="calls_task_more">پرسش‌ها، زمینه، محدودیت‌ها</string>
+    <string name="calls_this_call">این تماس</string>
+</resources>

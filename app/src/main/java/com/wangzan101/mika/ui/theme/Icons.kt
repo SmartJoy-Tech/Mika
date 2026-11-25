@@ -38,6 +38,8 @@ object MikaIcons {
     val Plus = stroke("plus", "M12 5 v14 M5 12 h14")
     /** 发送。 */
     val Up = stroke("up", "M12 19 V5 M6 11 l6 -6 l6 6", width = 2.2f)
+    /** 回到底部。 */
+    val Down = stroke("down", "M12 5 V19 M6 13 l6 6 l6 -6", width = 2.2f)
     val Check = stroke("check", "M5 12.5 l4.5 4.5 L19 7.5", width = 2.2f)
     val Close = stroke("close", "M6 6 l12 12 M18 6 L6 18", width = 2f)
     /** 多选:勾选清单。 */
@@ -52,6 +54,19 @@ object MikaIcons {
     val Trash = stroke("trash", "M4 7 h16 M9 7 V4.5 h6 V7", "M6.5 7 l1 13 h9 l1 -13")
     /** 语音转文字:一支话筒。 */
     val Mic = stroke("mic", "M9 6 a3 3 0 0 1 6 0 v5 a3 3 0 0 1 -6 0 z", "M5 11 a7 7 0 0 0 14 0", "M12 18 v3")
+    /** 麦克风关了:话筒加一道斜线(通话静音)。 */
+    val MicOff = stroke("mic-off", "M9 6 a3 3 0 0 1 6 0 v5 a3 3 0 0 1 -6 0 z", "M5 11 a7 7 0 0 0 14 0", "M12 18 v3", "M4 4 l16 16")
+    /** 挂断:横放的听筒。 */
+    val HangUp = stroke(
+        "hang-up",
+        "M3.5 14.5 c0 -3 3.8 -5.5 8.5 -5.5 s8.5 2.5 8.5 5.5 l-0.3 1.3 a1 1 0 0 1 -1.2 0.7 l-3 -0.8 a1 1 0 0 1 -0.7 -1 v-1.6 " +
+            "c-2.1 -0.7 -4.5 -0.7 -6.6 0 v1.6 a1 1 0 0 1 -0.7 1 l-3 0.8 a1 1 0 0 1 -1.2 -0.7 z",
+    )
+    /** 键盘:改用打字。 */
+    val Keyboard = stroke(
+        "keyboard", "M5.5 6 h13 a2.5 2.5 0 0 1 2.5 2.5 v7 a2.5 2.5 0 0 1 -2.5 2.5 h-13 a2.5 2.5 0 0 1 -2.5 -2.5 v-7 a2.5 2.5 0 0 1 2.5 -2.5 z",
+        "M7 10 h.01 M10.3 10 h.01 M13.7 10 h.01 M17 10 h.01 M8 14.5 h8",
+    )
     /** 轻量模型:一片叶子。 */
     val Leaf = stroke("leaf", "M5 19 c0 -8 5 -13 14 -14 c0 9 -5 14 -13 14", "M5 19 l7 -7")
     val Apps = stroke(
@@ -68,13 +83,29 @@ object MikaIcons {
     val Doc = stroke(
         "doc", "M14 3 H7 a2 2 0 0 0 -2 2 v14 a2 2 0 0 0 2 2 h10 a2 2 0 0 0 2 -2 V8 z", "M14 3 v5 h5 M9 13 h6 M9 17 h4",
     )
+    /** 文件夹:设备目录。 */
+    val Folder = stroke(
+        "folder",
+        "M3.5 6.5 a2 2 0 0 1 2 -2 h4 l2 2.5 h7 a2 2 0 0 1 2 2 v8.5 a2 2 0 0 1 -2 2 h-13 a2 2 0 0 1 -2 -2 z",
+    )
     /** 柱状图:Token 用量。 */
     val Chart = stroke("chart", "M4 20 h16", "M7 16 v-4 M12 16 V6 M17 16 v-7")
     val Clock = stroke("clock", "M3 12 a9 9 0 1 0 18 0 a9 9 0 1 0 -18 0", "M12 7 v5 l3 2")
+    /** 日历:选日期。 */
+    val Calendar = stroke(
+        "calendar",
+        "M5 5.5 h14 a2 2 0 0 1 2 2 v12 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 v-12 a2 2 0 0 1 2 -2 z",
+        "M3 10.5 h18 M8 3.5 v4 M16 3.5 v4",
+    )
     val Alarm = stroke(
         "alarm", "M5 13 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0", "M12 10 v3 l2 1.5 M5 4 L2.5 6.5 M19 4 l2.5 2.5",
     )
     val Message = stroke("message", "M21 12 a8 8 0 0 1 -11.6 7.1 L4 20 l1 -4.6 A8 8 0 1 1 21 12 z")
+    /** 人:关注某个人、对某个人做什么。 */
+    val Person = stroke(
+        "person", "M8.5 8 a3.5 3.5 0 1 0 7 0 a3.5 3.5 0 1 0 -7 0",
+        "M4.5 20 a7.5 7.5 0 0 1 15 0",
+    )
     val Heart = stroke(
         "heart", "M12 20.5 s-8 -4.6 -8 -10.4 A4.6 4.6 0 0 1 12 7 a4.6 4.6 0 0 1 8 3.1 c0 5.8 -8 10.4 -8 10.4 z",
     )
@@ -115,7 +146,18 @@ object MikaIcons {
         "M9 2.5 h6 a2.5 2.5 0 0 1 2.5 2.5 v14 a2.5 2.5 0 0 1 -2.5 2.5 h-6 a2.5 2.5 0 0 1 -2.5 -2.5 v-14 a2.5 2.5 0 0 1 2.5 -2.5 z",
         "M11 18.5 h2",
     )
+    /** 听筒:打语音通话(与「手机」区分,一眼看出是打电话)。 */
+    val Handset = stroke(
+        "handset",
+        "M6.39 5.17 A9.1 9.1 0 0 1 18.82 17.6 A2.5 2.5 0 0 1 16.32 13.27 A4.1 4.1 0 0 0 10.72 7.67 A2.5 2.5 0 0 1 6.39 5.17 Z",
+    )
     val Moon = stroke("moon", "M20 14.5 A8 8 0 0 1 9.5 4 a8 8 0 1 0 10.5 10.5 z")
+    /** 一个点和两圈波纹:留意着周围的动静(主动能力)。 */
+    val Ripple = stroke(
+        "ripple", "M11.4 12 a0.6 0.6 0 1 0 1.2 0 a0.6 0.6 0 1 0 -1.2 0",
+        "M8.6 8.6 a4.8 4.8 0 0 0 0 6.8 M15.4 8.6 a4.8 4.8 0 0 1 0 6.8",
+        "M5.6 5.6 a9 9 0 0 0 0 12.8 M18.4 5.6 a9 9 0 0 1 0 12.8",
+    )
     val Bell = stroke("bell", "M18 16 V11 a6 6 0 1 0 -12 0 v5 l-2 2 h16 z M10 20.5 a2 2 0 0 0 4 0")
     val Key = stroke("key", "M4 15 a4 4 0 1 0 8 0 a4 4 0 1 0 -8 0", "M10.8 12.2 L20 3 M17 6 l3 3 M14.5 8.5 l2 2")
     val Terminal = stroke(
@@ -188,6 +230,8 @@ object MikaIcons {
     )
     /** 引用:往回指的箭头(接着前面那条说)。 */
     val Quote = stroke("quote", "M9.5 6.5 L4.5 11.5 l5 5", "M4.5 11.5 h9 a5.5 5.5 0 0 1 5.5 5.5 v1")
+    /** 引导当前任务:向右转入的弯箭头。 */
+    val Steer = stroke("steer", "M15 4 l5 5 -5 5", "M20 9 H10 a6 6 0 0 0 -6 6 v5")
     /** 选择文字:文字光标。 */
     val SelectText = stroke("select-text", "M9 4.5 h6 M9 19.5 h6 M12 4.5 v15")
     /** 图钉:置顶了的对话。 */
@@ -227,6 +271,8 @@ object MikaIcons {
         "stop",
         "M8.28 6 h7.44 a2.28 2.28 0 0 1 2.28 2.28 v7.44 a2.28 2.28 0 0 1 -2.28 2.28 H8.28 A2.28 2.28 0 0 1 6 15.72 V8.28 A2.28 2.28 0 0 1 8.28 6 z",
     )
+    /** 实心:播放(操作回放)。 */
+    val Play = filled("play", "M8 5 v14 l11 -7 z")
     /** 实心:感叹号。 */
     val Exclaim = filled(
         "exclaim", "M12 4.5 a1.5 1.5 0 0 1 1.5 1.5 v7.5 a1.5 1.5 0 0 1 -3 0 V6 A1.5 1.5 0 0 1 12 4.5 z",

@@ -1,0 +1,187 @@
+package com.wangzan101.mika.chat.ui
+
+import com.wangzan101.mika.core.agent.QuoteMessage
+import com.wangzan101.mika.core.agent.AttachedPage
+import com.wangzan101.mika.R
+import com.wangzan101.mika.i18n.tr
+import com.wangzan101.mika.i18n.uiLocale
+import com.wangzan101.mika.i18n.trPlural
+
+/** 对话页上按状态算出来的文字;不碰界面,单测直接测。 */
+object ChatCopy {
+    /** 空对话的问候,按时段。 */
+    fun greeting(hour: Int): String = when (hour) {
+        in 5..10 -> tr(R.string.chat_greeting_morning)
+        in 11..12 -> tr(R.string.chat_greeting_noon)
+        in 13..17 -> tr(R.string.chat_greeting_afternoon)
+        in 18..22 -> tr(R.string.chat_greeting_evening)
+        else -> tr(R.string.chat_greeting_night)
+    }
+
+    val EMPTY_PROMPT get() = tr(R.string.chat_empty_prompt)
+    /** 空对话里的一句价值主张:说明 Mika 能干嘛。 */
+    val EMPTY_VALUE get() = tr(R.string.chat_empty_value)
+
+    /** 内置示例的类型,决定卡片上用哪个 App 的图标。 */
+    enum class ExampleKind { Web, Follow, GroupChat, Share, Alarm, Schedule }
+    data class Example(val kind: ExampleKind, val title: String, val prompt: String, val blurb: String? = null)
+
+    /** 界面是不是中文。中文界面的推广卡用国内 App(小红书、微信),其他语言用海外的。 */
+    private fun chineseUi(): Boolean = uiLocale().language == "zh"
+
+    /**
+     * 空对话顶部的推广卡,写死在这里,每次按当前界面语言取,点了填进去的也是当前语言。
+     * 中文:GitHub star、小红书关注、微信群总结;其他语言:GitHub star、X 关注、把 Mika 分享给朋友。
+     * 用户自己加的任务不在这里,在输入框加号面板里。
+     */
+    val promos get() = listOf(
+        Example(ExampleKind.Web, tr(R.string.chat_example_github_star_title), tr(R.string.chat_example_github_star), tr(R.string.chat_example_github_star_blurb)),
+        Example(ExampleKind.Follow, tr(R.string.chat_example_follow_title), tr(R.string.chat_example_follow), tr(R.string.chat_example_follow_blurb)),
+        if (chineseUi()) Example(ExampleKind.GroupChat, tr(R.string.chat_example_group_summary_title), tr(R.string.chat_example_group_summary), tr(R.string.chat_example_group_summary_blurb))
+        else Example(ExampleKind.Share, tr(R.string.chat_example_share_title), tr(R.string.chat_example_share), tr(R.string.chat_example_share_blurb)),
+    )
+
+    /**
+     * 推荐任务(加号面板里那份)第一次初始化用的内容。只在本机还没有保存过时用一次,
+     * 之后就是用户自己的列表,不会因为换语言或升级被加回来。
+     */
+    val examples get() = listOf(
+        Example(ExampleKind.Alarm, tr(R.string.chat_example_alarms_title), tr(R.string.chat_example_alarms)),
+        Example(ExampleKind.Schedule, tr(R.string.chat_example_schedule_title), tr(R.string.chat_example_schedule)),
+    )
+
+    fun recommendationSeeds(): List<Pair<String, String>> = examples.map { it.title to it.prompt }
+
+    /**
+     * 曾经放进推荐任务、现在不放了的示例:PDF 总结,还有挪到顶部推广卡写死的那三条。
+     * 升级时把用户没动过的从推荐列表里清掉;改过的留着——那已经是用户自己的任务了。
+     * 当初是按那时的界面语言存的,所以每种语言的原文都比一遍。
+     */
+    fun retiredRecommendationSeeds(context: android.content.Context): List<Pair<String, String>> {
+        val ids = listOf(
+            R.string.chat_example_pdf_title to R.string.chat_example_pdf,
+            R.string.chat_example_github_star_title to R.string.chat_example_github_star,
+            R.string.chat_example_follow_title to R.string.chat_example_follow,
+            R.string.chat_example_group_summary_title to R.string.chat_example_group_summary,
+        )
+        return com.wangzan101.mika.i18n.AppLanguage.entries.mapNotNull { it.tag }.flatMap { tag ->
+            val config = android.content.res.Configuration(context.resources.configuration)
+            config.setLocale(java.util.Locale.forLanguageTag(tag))
+            val res = context.createConfigurationContext(config).resources
+            ids.mapNotNull { (t, p) -> runCatching { res.getString(t) to res.getString(p) }.getOrNull() }
+        }.distinct()
+    }
+
+    /** 对话页顶栏的标题:固定是 App 名;副标题说此刻在做什么。 */
+    const val APP_TITLE = "TinyFox"
+
+    /** 对话的名字:第一句话(只取第一行,附件那几行不算;只发了屏幕时是「你此刻的屏幕」);空对话为空。侧栏里用它称呼对话。 */
+    fun title(exchanges: List<Exchange>): String =
+        exchanges.firstOrNull { it.goal.isNotBlank() }?.goal?.let(::plainTitle).orEmpty()
+
+    /**
+     * 一句用户的话当标题怎么写:去掉网页说明([AttachedPage])、引用([QuoteMessage])、附件那几行(只发了附件时是「照片」「合同.pdf」之类)和屏幕那一行(只发了屏幕时是「你此刻的屏幕」),
+     * 只取第一行。
+     */
+    fun plainTitle(text: String): String =
+        ScreenCopy.plain(AttachmentMessage.plain(QuoteMessage.words(AttachedPage.words(text)))).lineSequence().firstOrNull { it.isNotBlank() }?.trim().orEmpty()
+
+    /**
+     * 分支的标题:源标题(或第一句话)后面加本地化后缀,总长不超过 [max] 字。
+     * 截的是源标题,后缀留着;按码点截,不会把 emoji 截成半个。
+     */
+    fun branchTitle(base: String, suffix: String, max: Int = 24): String {
+        val room = (max - suffix.length).coerceAtLeast(0)
+        var end = 0
+        var taken = 0
+        while (end < base.length && taken < room) {
+            end += Character.charCount(base.codePointAt(end))
+            taken++
+        }
+        return base.substring(0, end).trimEnd() + suffix
+    }
+
+    enum class Tone { Accent, Warn, Ok }
+
+    /** 顶栏副标题:这个对话留着一页在后台运行(没有任务在跑时)。 */
+    val KEPT_PAGE: String get() = tr(R.string.kept_chat_sub)
+
+    /** 顶栏副标题:正在做什么(强调色)或等你(橙色);没有任务在跑时为 null。[place] 是正在操作的 App 或网站。 */
+    fun subtitle(ex: Exchange?, place: String?): Pair<String, Tone>? = when (ex?.status) {
+        null -> null
+        ExchangeStatus.Working -> (if (place.isNullOrBlank()) tr(R.string.chat_working) else tr(R.string.chat_working_on, place)) to Tone.Accent
+        ExchangeStatus.WaitingUnlock -> tr(R.string.chat_wait_unlock) to Tone.Warn
+        is ExchangeStatus.Queued -> tr(R.string.chat_queued) to Tone.Accent
+        is ExchangeStatus.NeedsTakeover, is ExchangeStatus.NeedsInput,
+        is ExchangeStatus.NeedsConfirmation, is ExchangeStatus.Paused -> tr(R.string.chat_waiting_for_you) to Tone.Warn
+        else -> null
+    }
+
+    /** 进度那一行:在跑时是此刻的进展,停下来等你时是「已暂停」。 */
+    fun progressLine(ex: Exchange): String =
+        if (paused(ex.status)) tr(R.string.chat_paused) else liveLine(ex) ?: tr(R.string.chat_working)
+
+    /** 任务停下来等你(要你处理、回答、同意、解锁、点继续)。 */
+    fun paused(status: ExchangeStatus): Boolean =
+        status is ExchangeStatus.NeedsTakeover || status is ExchangeStatus.NeedsInput ||
+            status is ExchangeStatus.NeedsConfirmation || status is ExchangeStatus.Paused || status == ExchangeStatus.WaitingUnlock
+
+    /** 进度行右边的用时:「0:24」「12:05」「1:02:03」。 */
+    fun clock(ms: Long): String {
+        val s = (ms / 1000).coerceAtLeast(0)
+        val h = s / 3600
+        val m = s % 3600 / 60
+        val sec = s % 60
+        return if (h > 0) "%d:%02d:%02d".format(h, m, sec) else "%d:%02d".format(m, sec)
+    }
+
+    /** 在跑时步骤只列最近这几步,前面的收成一行「前面还有 n 步」,点开看全部。 */
+    const val VISIBLE_STEPS = 5
+
+    fun earlierSteps(n: Int) = trPlural(R.plurals.chat_earlier_steps, n)
+
+    /** 在后台操作手机时步骤下面那行小字。 */
+    val BACKGROUND_NOTE get() = tr(R.string.chat_background_note)
+
+    /**
+     * 一个动作的结果(记录里的 effect 代号 → 给人看的一句话)。错误码只对开发有意义,
+     * 给人看的一律说「没成功」;按规矩没收的那几种除外([declinedLabel])。运行过程页用的是同一份说法。
+     */
+    fun effectLabel(effect: String?): String = when (effect) {
+        "changed", "done", "place_changed" -> tr(R.string.result_effective)
+        "small_change" -> tr(R.string.effect_small_change)
+        "unchanged", "no_effect" -> tr(R.string.result_unchanged)
+        "completed" -> tr(R.string.result_completed)
+        null, "" -> ""
+        else -> declinedLabel(effect) ?: tr(R.string.step_failed)
+    }
+
+    /**
+     * 写记忆、存技能、改资料时按规矩没收(不是用户亲口说的、敏感、没明确要改删):这不是出了故障,
+     * 写「没成功」会让人以为坏了。说清没收和原因;别的错误码返回 null。
+     */
+    fun declinedLabel(code: String?): String? = when (code) {
+        "quote_not_from_user", "content_not_from_user" -> tr(R.string.step_declined_not_said)
+        "inference_not_requested" -> tr(R.string.step_declined_not_requested)
+        "sensitive" -> tr(R.string.step_declined_sensitive)
+        "edit_not_requested" -> tr(R.string.step_declined_not_asked)
+        else -> null
+    }
+
+    /** 点开一步后每件事一行:做了什么 · 对什么 · 结果(结果为空时不写)。 */
+    fun actionLine(a: StepAction): String =
+        listOfNotNull(a.label, a.target?.takeIf(String::isNotBlank), effectLabel(a.effect).takeIf(String::isNotBlank)).joinToString(" · ")
+
+    fun placeholder(mode: ComposerMode, hasHistory: Boolean): String = when (mode) {
+        ComposerMode.Busy -> tr(R.string.chat_placeholder_busy)
+        ComposerMode.Answer -> tr(R.string.chat_placeholder_answer)
+        ComposerMode.Idle -> if (hasHistory) tr(R.string.chat_placeholder_more) else EMPTY_PROMPT
+    }
+
+    /** 能按住说话时的居中灰字:告诉人能按住说、点一下打字;任务在跑时说的就是补充消息。 */
+    fun voicePlaceholder(mode: ComposerMode): String = when (mode) {
+        ComposerMode.Busy -> tr(R.string.voice_placeholder_busy)
+        ComposerMode.Answer -> tr(R.string.voice_placeholder_answer)
+        ComposerMode.Idle -> tr(R.string.voice_placeholder_idle)
+    }
+}

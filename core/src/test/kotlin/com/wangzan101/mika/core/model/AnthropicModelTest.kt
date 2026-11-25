@@ -219,7 +219,7 @@ class AnthropicModelTest {
     // 别的 400 照常报错;签名本身坏了(只有前半句)不重发;这次没带思考块(关掉了思考)时不重发;去掉以后还被拒的不再发第三次
     @Test fun otherRejectionsAreNotSentAgain() = runTest {
         suspend fun rejected(m: AnthropicModel) =
-            try { m.complete("s", signedHistory(endpoint), emptyList()); null } catch (e: ModelError.BadResponse) { e }
+            try { m.complete("s", signedHistory(endpoint), emptyList()); null } catch (e: ModelError.Server) { e }
         server.enqueue(MockResponse().setResponseCode(400).setBody("""{"type":"error","error":{"type":"invalid_request_error","message":"tools.0.name: invalid"}}"""))
         assertTrue(rejected(model(reasoningEffort = "high")) != null)
         assertEquals(1, server.requestCount)
@@ -258,6 +258,24 @@ class AnthropicModelTest {
         server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream").setBody(sse))
         val r = model(reasoningEffort = "high").completeStreaming("s", user, emptyList()) {}
         assertEquals(listOf(Part.Thinking("想", SignedThinking.signed(endpoint, "sig"))), r.parts)
+    }
+
+    @Test fun streamingRateLimitAndOverloadErrorsAreClassified() = runTest {
+        suspend fun streamError(type: String): ModelError {
+            server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream").setBody(
+                "event: error\ndata: {\"type\":\"error\",\"error\":{\"type\":\"$type\",\"message\":\"busy\"}}\n\n",
+            ))
+            return try {
+                model().completeStreaming("s", user, emptyList()) {}
+                fail("expected ModelError")
+                error("unreachable")
+            } catch (e: ModelError) { e }
+        }
+
+        assertTrue(streamError("rate_limit_error") is ModelError.RateLimited)
+        val overloaded = streamError("overloaded_error") as ModelError.Server
+        assertEquals(529, overloaded.status)
+        assertTrue(overloaded.message.orEmpty().contains("busy"))
     }
 
     @Test fun marksCacheOnSystemAndTools() = runTest {
@@ -300,6 +318,52 @@ class AnthropicModelTest {
         // 上一次标记的那块在下一次请求里不带标记,其余逐字相同
         assertEquals(a[0], b[0]); assertEquals(a[1], b[1])
         assertEquals(a[2].jsonObject.arr("content")[0], b[2].jsonObject.arr("content")[0])
+    }
+
+    // 没有 uncached 消息时请求逐字不变(锁住加 uncached 之前的请求形状)
+    @Test fun requestShapeWithoutUncachedIsUnchanged() = runTest {
+        val history = listOf(
+            Message(Role.User, listOf(Part.Text("goal")), Author.User),
+            Message(Role.Assistant, listOf(Part.Text("ok"), Part.ToolCall("t1", "a", "{}")), Author.Mika),
+            Message(Role.Tool, listOf(Part.ToolResult("t1", "r1", false)), Author.Mika),
+            Message(Role.User, listOf(Part.Text("state 1")), Author.Mika),
+            Message(Role.Assistant, listOf(Part.Text("done")), Author.Mika),
+        )
+        val tools = listOf(ToolSpec("a", "d", """{"type":"object"}"""), ToolSpec("b", "d", """{"type":"object"}"""))
+        server.enqueue(ok("""{"content":[],"stop_reason":"end_turn"}"""))
+        model().complete("SYS", history, tools)
+        val raw = server.takeRequest().body.readUtf8()
+        assertEquals(GOLDEN_ANTHROPIC, raw)
+    }
+
+    // 末尾的 uncached 消息不带移动标记:标记落在它前面最后一块能标的上;uncached 的块原样跟在后面、合进同一条 user 消息
+    @Test fun trailingUncachedMessageShiftsMarkToPrecedingBlock() = runTest {
+        val history = listOf(
+            Message(Role.User, listOf(Part.Text("goal")), Author.User),
+            Message(Role.Assistant, listOf(Part.ToolCall("t1", "a", "{}")), Author.Mika),
+            Message(Role.Tool, listOf(Part.ToolResult("t1", "r1", false)), Author.Mika),
+        )
+        val note = Message(Role.User, listOf(Part.Text("board v1")), Author.Mika, uncached = true)
+        val tools = listOf(ToolSpec("a", "d", """{"type":"object"}"""))
+        repeat(2) { server.enqueue(ok("""{"content":[],"stop_reason":"end_turn"}""")) }
+        model().complete("SYS", history + note, tools)
+        val j = sentBody()
+        val ms = j.arr("messages")
+        fun marked(ms: JsonArray) = ms.flatMapIndexed { i, m ->
+            m.jsonObject.arr("content").mapIndexedNotNull { k, c -> if ("cache_control" in c.jsonObject) i to k else null }
+        }
+        assertEquals(listOf(2 to 0), marked(ms))
+        assertEquals("tool_result", ms[2].jsonObject.arr("content")[0].jsonObject.str("type"))
+        assertEquals("board v1", ms[2].jsonObject.arr("content")[1].jsonObject.str("text"))
+        // 一共的断点不超过 4 个:工具、system、对话各一个
+        assertEquals(3, j.toString().split("cache_control").size - 1)
+
+        // 只有 uncached 前面一条 user 时,标在那条上;多条末尾 uncached 都跳过
+        val notes = listOf(note, Message(Role.User, listOf(Part.Text("memory")), Author.Mika, uncached = true))
+        model().complete("SYS", listOf(Message(Role.User, listOf(Part.Text("hi")), Author.User)) + notes, emptyList())
+        val b = sentBody().arr("messages")
+        assertEquals(listOf(0 to 0), marked(b))
+        assertEquals(3, b[0].jsonObject.arr("content").size)
     }
 
     @Test fun toolResultIsUserMessageAndRolesAlternate() = runTest {
@@ -402,5 +466,10 @@ class AnthropicModelTest {
         assertEquals(InterruptedHistory.PARTIAL, asst[0].str("text"))
         val texts = msgs[2].arr("content").map { it.jsonObject.str("text") }
         assertEquals(listOf(InterruptedHistory.STEER, InterruptedHistory.RUNTIME), texts)
+    }
+
+    private companion object {
+        const val GOLDEN_ANTHROPIC =
+            """{"model":"claude-x","max_tokens":4096,"system":[{"type":"text","text":"SYS","cache_control":{"type":"ephemeral"}}],"tools":[{"name":"a","description":"d","input_schema":{"type":"object"}},{"name":"b","description":"d","input_schema":{"type":"object"},"cache_control":{"type":"ephemeral"}}],"messages":[{"role":"user","content":[{"type":"text","text":"goal"}]},{"role":"assistant","content":[{"type":"text","text":"ok"},{"type":"tool_use","id":"t1","name":"a","input":{}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"t1","content":"r1","is_error":false},{"type":"text","text":"state 1","cache_control":{"type":"ephemeral"}}]},{"role":"assistant","content":[{"type":"text","text":"done"}]}]}"""
     }
 }

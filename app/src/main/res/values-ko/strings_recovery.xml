@@ -2,6 +2,7 @@
 <resources>
     <string name="rec_a11y">접근성 자동으로 켜기</string>
     <string name="rec_default_on">기본적으로 켜짐</string>
+    <string name="rec_learn_what">이 항목들은 무엇을 하나요?</string>
     <string name="rec_a11y_body">Mika는 접근성을 이용해 화면의 글자와 버튼을 읽어요. 이 기능을 켜면 Mika가 시스템 설정에서 자체 접근성 서비스를 대신 켜 줘요. 이미 켜 둔 다른 접근성 서비스에는 영향이 없어요. 이 기능을 끄면 Mika가 자체 서비스도 꺼요.</string>
     <string name="rec_battery">배터리 제한 없음</string>
     <string name="rec_battery_body">이 기능을 켜면 Mika가 시스템의 배터리 최적화 예외 목록에 추가돼요. 전력 절약을 이유로 백그라운드에서 종료되지 않아 휴대전화 제어가 덜 끊겨요. 배터리를 조금 더 쓸 수 있어요. 끄면 시스템 기본값으로 돌아가요.</string>
@@ -20,4 +21,5 @@
     <string name="rec_setting_unavailable">이 휴대전화에서는 Mika가 시작할 때 무선 디버깅을 켤 수 없어요. 재부팅한 뒤 직접 켜면 Mika가 연결해요.</string>
     <string name="rec_not_recovered">지난 시작 때 자동으로 다시 연결하지 못했어요. 신뢰한 Wi-Fi에 연결되어 있고 무선 디버깅이 켜져 있는지 확인하면 Mika가 연결해요.</string>
     <string name="rec_needs_pairing">무선 디버깅을 페어링한 뒤에만 쓸 수 있어요. 도우미를 USB 명령으로 시작했다면 휴대전화를 재부팅한 뒤 그 명령을 다시 실행하세요.</string>
+    <string name="rec_shizuku_no_wireless">Shizuku가 선택된 동안에는 무선 디버깅을 사용하지 않습니다. Shizuku가 실행되면 Mika는 Shizuku를 통해 다시 연결됩니다.</string>
 </resources>

@@ -20,18 +20,18 @@ Below, `<tag>` means the version tag of the [latest release](https://github.com/
 Requires Python 3.10+, Git and pipx; ADB connections also need Android platform-tools. Install:
 
 ```bash
-pipx install 'git+https://github.com/wangzan101/Mika.git@<tag>#subdirectory=tools/mika'
+pipx install 'git+https://github.com/wangzan101/Mika.git@<tag>#subdirectory=companions/mika'
 mika --version
 ```
 
-The pipx package is `mika-phone-cli` and the command is `mika`. The CLI has its own version number, separate from the APK's. With a repository checkout you can also run `pipx install ./tools/mika` from the repository root, or skip installing and run `python3 tools/mika/scripts/mika_cli.py` directly (`py -3` on Windows).
+The pipx package is `mika-phone-cli` and the command is `mika`. The CLI has its own version number, separate from the APK's. With a repository checkout you can also run `pipx install ./companions/mika` from the repository root, or skip installing and run `python3 companions/mika/scripts/mika_cli.py` directly (`py -3` on Windows).
 
 ## CLI: update, roll back and remove
 
 To update, use the new `<tag>`; to roll back, use the previous one; `--force` replaces the installed copy:
 
 ```bash
-pipx install --force 'git+https://github.com/wangzan101/Mika.git@<tag>#subdirectory=tools/mika'
+pipx install --force 'git+https://github.com/wangzan101/Mika.git@<tag>#subdirectory=companions/mika'
 ```
 
 `pipx upgrade` does not move to another tag; use the command above to change versions. To remove:
@@ -42,10 +42,10 @@ pipx uninstall mika-phone-cli
 
 ## Skill: install
 
-The Skill is the repository's `tools/mika` folder: `SKILL.md` tells the agent how to use it, and `scripts/mika_cli.py` is the bundled CLI, which needs only Python 3.10+ (plus platform-tools for ADB connections).
+The Skill is the repository's `companions/mika` folder: `SKILL.md` tells the agent how to use it, and `scripts/mika_cli.py` is the bundled CLI, which needs only Python 3.10+ (plus platform-tools for ADB connections).
 
 1. From the [latest release](https://github.com/wangzan101/Mika/releases/latest), download **Source code (zip)** and extract it.
-2. Copy the **whole** `tools/mika` folder into your agent's skills directory (see that agent's own documentation for where it is). The result should be `<skills-directory>/mika/SKILL.md`, without an extra nested `mika` folder.
+2. Copy the **whole** `companions/mika` folder into your agent's skills directory (see that agent's own documentation for where it is). The result should be `<skills-directory>/mika/SKILL.md`, without an extra nested `mika` folder.
 3. Check that the bundled script runs:
 
    ```bash
@@ -58,7 +58,7 @@ If a `mika` command is already installed on the computer, the Skill uses it firs
 
 ## Skill: update, roll back and remove
 
-- **Update or roll back**: move the old `mika` folder out of the skills directory as a backup, then copy the whole `tools/mika` folder of the target version. Do not copy over the old folder.
+- **Update or roll back**: move the old `mika` folder out of the skills directory as a backup, then copy the whole `companions/mika` folder of the target version. Do not copy over the old folder.
 - **Remove**: delete only the `mika` folder in the skills directory.
 
 Start a new agent session after any change.
@@ -85,7 +85,7 @@ mika --url http://PHONE:8765 --token-file /path/to/private-token-file doctor --j
 
 | Symptom | What to do |
 | --- | --- |
-| `incompatible_api` | The APK on the phone is too old to include task API v1; update it. |
+| `incompatible_api` | The APK on the phone is too old. The message names the phone version and the missing capability: update the APK, or rerun without the gated option (for example `--request-id`; the task still runs, only recovery after a lost receipt is unavailable). |
 | `stale_connection` | The phone has rebooted; run `connect` again. |
 | `device_selection` | More than one phone is online; find the serial with `mika devices` and add `--device SERIAL`. |
 | `connection_info` | Mika's connection information could not be read (the phone is locked, Mika hasn't been opened yet, and so on): unlock the phone, open Mika once, then run `connect` again. |

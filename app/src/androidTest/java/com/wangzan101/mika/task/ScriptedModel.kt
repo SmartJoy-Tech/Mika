@@ -9,7 +9,7 @@ import com.wangzan101.mika.core.model.Part
 import com.wangzan101.mika.core.model.StopReason
 import com.wangzan101.mika.core.model.ToolSpec
 import com.wangzan101.mika.core.prompt.Prompts
-import com.wangzan101.mika.core.verify.Verifier
+import com.wangzan101.mika.core.safety.verify.Verifier
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -32,11 +32,13 @@ class ScriptedModel : ChatModel {
     @Volatile var verdict: String = PASS
     /**
      * 从界面发起的任务在提议第一个工具调用时,会另问一次模型「用户是在讨论、要读还是要操作」;没配轻量模型时问的就是这个模型。
-     * 设了它,这一问固定这样回答(ACT / READ / DISCUSS),不占脚本也不计次;为 null 时这一问和别的调用一样要测试来喂。
+     * 默认固定回答 ACT(测试脚本都是操作任务),不占脚本也不计次;要测别的判断时改成 READ / DISCUSS,
+     * 设为 null 时这一问和别的调用一样要测试来喂。
      */
-    @Volatile var intent: String? = null
+    @Volatile var intent: String? = "ACT"
 
     override suspend fun complete(system: String, messages: List<Message>, tools: List<ToolSpec>): ModelReply {
+        if (system == Prompts.role("task_stages")) return ModelReply(listOf(Part.Text("[]")), StopReason.EndTurn, null)
         // 回答交出前的核查:固定回答,不占脚本也不计次
         if (system == Verifier.PROMPT) {
             verifierRequests.incrementAndGet()

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="chat_confirmed_goals">Objetivos confirmados: %1$d/%2$d</string>
+    <string name="chat_last_confirmed_goals">Última confirmação: %1$d/%2$d</string>
     <string name="chat_greeting_morning">Bom dia</string>
     <string name="chat_greeting_noon">Boa tarde</string>
     <string name="chat_greeting_afternoon">Boa tarde</string>
@@ -13,14 +15,14 @@
     <string name="chat_example_replace_title">Substituir o rascunho atual?</string>
     <string name="chat_example_replace_body">A tarefa recomendada substituirá o que você já digitou.</string>
     <string name="chat_example_replace_action">Substituir rascunho</string>
-    <string name="recommendations_title">Tarefas recomendadas</string>
+    <string name="recommendations_title">Tarefas salvas</string>
     <string name="recommendations_drag">Arraste para mudar a ordem</string>
     <string name="recommendations_drag_hint">Arraste a alça para mudar a ordem de exibição.</string>
     <string name="recommendations_move_up">Mover para cima</string>
     <string name="recommendations_move_down">Mover para baixo</string>
     <string name="recommendations_sub">Gerencie as tarefas e os prompts da tela inicial</string>
-    <string name="recommendations_add">Adicionar tarefa recomendada</string>
-    <string name="recommendations_edit">Editar tarefa recomendada</string>
+    <string name="recommendations_add">Adicionar tarefa</string>
+    <string name="recommendations_edit">Editar tarefa</string>
     <string name="recommendations_empty">Nenhuma tarefa recomendada</string>
     <string name="recommendations_empty_sub">As tarefas adicionadas aparecem em um novo chat</string>
     <string name="recommendations_title_label">Título</string>
@@ -80,6 +82,7 @@
     <string name="chat_attach_rejected">Não foi possível adicionar: %1$s (cada arquivo deve ter menos de 200 MB)</string>
     <string name="chat_stop">Parar</string>
     <string name="chat_send">Enviar</string>
+    <string name="chat_scroll_to_bottom">Ir para o final</string>
     <string name="drawer_running_task">Tarefa em andamento</string>
     <string name="drawer_running">Em andamento</string>
     <string name="drawer_yesterday">Ontem</string>
@@ -237,6 +240,9 @@
     <string name="zoom_in">Ampliar</string>
     <string name="chat_message_actions">Opções da mensagem</string>
     <string name="chat_copy">Copiar</string>
+    <string name="share_card_question">Pergunta</string>
+    <string name="share_card_answer">Resposta</string>
+    <string name="share_card_made_by">Concluído por Mika</string>
     <string name="chat_quote">Citar</string>
     <string name="chat_select_text">Selecionar texto</string>
     <string name="chat_copied">Copiado</string>
@@ -249,7 +255,7 @@
     <string name="chat_branch_retry">Perguntar de novo daqui</string>
     <string name="chat_branch_attachments_readd">Anexe novamente os arquivos que quiser incluir</string>
     <string name="chat_attach_unavailable">Não foi possível adicionar: %1$s. Verifique se os arquivos estão disponíveis e dentro do limite de tamanho.</string>
-    <string name="chat_attach_too_large">%1$s: excede o limite de 200 MiB</string>
+    <string name="chat_attach_too_large">%1$s: excede o limite de %2$s</string>
     <string name="chat_attach_low_device_space">%1$s: espaço insuficiente no celular; libere espaço e tente novamente</string>
     <string name="chat_attach_workspace_limit">%1$s: o armazenamento do espaço de trabalho atingiu o limite; remova arquivos do espaço de trabalho e tente novamente</string>
     <string name="chat_attach_io_error">%1$s: não foi possível ler ou copiar; verifique se o arquivo está disponível e tente novamente</string>
@@ -271,6 +277,9 @@
     <string name="pip_closed_hint">Fechada para esta tarefa. Toque em “Mostrar tela” no canto inferior direito ou abra “Telas em segundo plano” no menu lateral.</string>
     <string name="chat_conversation_tokens">Esta conversa: %1$s</string>
     <string name="chat_conversation_tokens_partial">Esta conversa: pelo menos %1$s</string>
+    <string name="chat_task_cost_estimate">Aprox. %1$s</string>
+    <string name="chat_task_cost_partial">%1$s (parcial)</string>
+    <string name="chat_task_cost_unavailable">Custo indisponível</string>
     <string name="follow_up_steer">Guiar</string>
     <string name="follow_up_queue">Enfileirar</string>
     <string name="follow_up_steer_hint">O próximo passo vai ajustar a tarefa atual</string>
@@ -296,4 +305,58 @@
         <item quantity="many">%1$d não arquivadas</item>
         <item quantity="other">%1$d não arquivadas</item>
     </plurals>
+    <string name="chat_example_github_star_title">Dê estrela a um projeto do GitHub</string>
+    <string name="chat_example_follow_title">Siga um criador</string>
+    <string name="chat_example_group_summary_title">Resuma um chat em grupo</string>
+    <string name="chat_example_alarms_title">Defina alguns alarmes</string>
+    <string name="chat_example_pdf_title">Resuma um PDF</string>
+    <string name="chat_example_schedule_title">Defina um lembrete diário</string>
+    <string name="chat_example_pdf">Resuma o PDF que eu enviar em um resumo curto.</string>
+    <string name="chat_example_schedule">Toda manhã às 8h, lembre-me de ver o tempo.</string>
+    <string name="chat_empty_value">Diga uma vez e eu resolvo no seu celular</string>
+    <string name="saved_task_save">Salvar como tarefa</string>
+    <string name="task_field_add">Adicionar campo</string>
+    <string name="task_field_name">Nome do campo</string>
+    <string name="task_field_name_invalid">Use de 1 a 40 caracteres, sem chaves nem quebras de linha.</string>
+    <string name="task_field_insert">Inserir</string>
+    <string name="task_fields_too_many">Use no máximo %1$d campos diferentes.</string>
+    <string name="task_fill_apply">Preencher entrada</string>
+    <string name="chat_read_aloud">Read aloud</string>
+    <string name="chat_stop_speaking">Stop speaking</string>
+    <string name="chat_audio">Audio</string>
+    <string name="chat_audio_play">Play</string>
+    <string name="chat_audio_stop">Stop</string>
+    <string name="plus_sub_album">Escolher das suas fotos, várias permitidas</string>
+    <string name="plus_sub_files">Documentos, PDFs, arquivos</string>
+    <string name="plus_sub_device">Explorar pastas neste telefone</string>
+    <string name="plus_clipboard">Área de transferência</string>
+    <string name="plus_sub_clipboard">Colar o que você acabou de copiar</string>
+    <string name="plus_sub_teach">Mostre uma vez e o Mika aprende</string>
+    <string name="plus_sub_skills">Usar uma habilidade neste turno</string>
+    <string name="plus_sub_tasks">Preencher uma tarefa salva na entrada</string>
+    <string name="plus_sub_browser">Navegador integrado</string>
+    <string name="plus_skills_empty">Ainda não há habilidades pessoais. As que o Mika aprender com tarefas concluídas aparecerão aqui.</string>
+    <string name="plus_clipboard_empty">Nada para colar da área de transferência</string>
+    <string name="plus_skill_directive">Usar a habilidade “%1$s”: </string>
+    <string name="plus_reuse">Salvos</string>
+    <string name="plus_reuse_hint">Frases · listas · fluxos</string>
+    <string name="plus_reuse_phrases">Frases salvas</string>
+    <string name="drawer_calls">Chamadas IA</string>
+    <!-- 空对话滚动条里的灵感示例;点了填进输入框 -->
+    <string name="chat_idea_maps">Me leve à cafeteria mais próxima</string>
+    <string name="chat_idea_camera">Abra a câmera e tire uma foto</string>
+    <string name="chat_idea_sms">Mande para a mãe: cheguei em casa</string>
+    <string name="chat_idea_news">Pesquise as notícias de tecnologia de hoje</string>
+    <string name="chat_idea_dark">Ative o modo escuro</string>
+    <string name="chat_idea_music">Toque uma música relaxante</string>
+    <string name="chat_idea_email">O que dizem meus últimos e-mails?</string>
+    <string name="chat_idea_screenshot">Encontre minha captura de tela mais recente</string>
+    <string name="chat_idea_meeting">Adicione uma reunião amanhã às 15h</string>
+    <!-- 空对话推广卡上的一句话说明;完整提示词点了才填进输入框 -->
+    <string name="chat_example_github_star_blurb">Apoie o projeto de código aberto Mika</string>
+    <string name="chat_example_follow_blurb">Siga o autor e entre no chat</string>
+    <string name="chat_example_group_summary_blurb">Resuma as mensagens não lidas de hoje</string>
+    <string name="chat_example_share_title">Compartilhe o Mika com um amigo</string>
+    <string name="chat_example_share_blurb">Indique para quem vai usar</string>
+    <string name="chat_example_share">Compartilhe o link do projeto Mika https://github.com/wangzan101/mika com um amigo e diga que ele opera o celular por você.</string>
 </resources>

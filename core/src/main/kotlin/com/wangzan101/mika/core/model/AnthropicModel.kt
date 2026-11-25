@@ -139,7 +139,7 @@ class AnthropicModel(
         }
         return Request.Builder().url(endpoint)
             .withHeaders(headers)
-            .header("x-api-key", apiKey)
+            .headerOrReject("x-api-key", apiKey)
             .header("anthropic-version", "2023-06-01")
             .postInference(InferenceProtocol.Anthropic, payload)
             .build()
@@ -153,7 +153,7 @@ class AnthropicModel(
         status == 404 -> ModelError.ModelNotFound(model, ModelAccessErrors.jsonDetail(body))
         status == 529 || body.contains("overloaded_error") -> ModelError.Server(529)
         status in 500..599 -> ModelError.Server(status)
-        else -> ModelError.BadResponse("HTTP $status ${body.take(200)}")
+        else -> if (status >= 400) ModelError.Server(status, ModelAccessErrors.detail(body)) else ModelError.BadResponse("HTTP $status ${body.take(200)}")
     }
 
     private fun toolJson(t: ToolSpec, last: Boolean): JsonObject = buildJsonObject {
@@ -168,18 +168,23 @@ class AnthropicModel(
     private fun buildMessages(messages: List<Message>): JsonArray {
         // (role, blocks) 先按相邻同角色合并,再输出
         val merged = mutableListOf<Pair<String, MutableList<JsonObject>>>()
-        for (m in messages) {
-            if (m.role == Role.System) continue
+        // 对话缓存到最后一条 user 消息的最后一块为止,下一步的开头与它相同就从缓存取;助手消息可能以思考块结尾,不标。
+        // 末尾每次都变的 uncached 消息不算:标在它们前面,它们的块照常合进去、跟在标记后面。
+        val stable = messages.size - messages.takeLastWhile { it.uncached }.size
+        var mark: Pair<Int, Int>? = null
+        messages.forEachIndexed { index, m ->
+            if (m.role == Role.System) return@forEachIndexed
             val role = if (m.role == Role.Assistant) "assistant" else "user"
             val blocks = if (role == "assistant") assistantBlocks(m) else userBlocks(m)
-            if (blocks.isEmpty()) continue
+            if (blocks.isEmpty()) return@forEachIndexed
             if (merged.lastOrNull()?.first == role) merged.last().second += blocks else merged += role to blocks.toMutableList()
+            if (role == "user" && index < stable) mark = merged.lastIndex to merged.last().second.lastIndex
         }
-        // 对话缓存到最后一条 user 消息为止,下一步的开头与它相同就从缓存取;助手消息可能以思考块结尾,不标
-        val lastUser = merged.indexOfLast { it.first == "user" }
         return buildJsonArray {
             merged.forEachIndexed { i, (role, blocks) ->
-                val content = if (i == lastUser) blocks.dropLast(1) + JsonObject(blocks.last() + ("cache_control" to ephemeral)) else blocks
+                val content = mark?.takeIf { it.first == i }?.let { (_, at) ->
+                    blocks.mapIndexed { j, b -> if (j == at) JsonObject(b + ("cache_control" to ephemeral)) else b }
+                } ?: blocks
                 add(buildJsonObject { put("role", role); put("content", JsonArray(content)) })
             }
         }
@@ -267,9 +272,9 @@ class AnthropicModel(
         val u = el as? JsonObject ?: return null
         fun n(k: String) = (u[k] as? JsonPrimitive)?.intOrNull
         val inT = n("input_tokens") ?: return null
-        val cached = n("cache_read_input_tokens") ?: 0
+        val cached = n("cache_read_input_tokens")
         // Anthropic 的 input_tokens 不含缓存部分;统一成总输入口径。output_tokens 含思考但不单独报,reasoningTokens 记 0
-        return Usage(inT + cached + (n("cache_creation_input_tokens") ?: 0), n("output_tokens") ?: 0, cached)
+        return Usage(inT + (cached ?: 0) + (n("cache_creation_input_tokens") ?: 0), n("output_tokens") ?: 0, cached ?: 0, cacheReported = cached != null)
     }
 }
 
@@ -333,7 +338,7 @@ private class AnthropicStream(
                 }
             }
             "message_stop" -> stopped = true
-            "error" -> throw ModelError.BadResponse(root["error"].toString().take(200))
+            "error" -> throw ModelHttp.streamError(root) ?: ModelError.BadResponse(root["error"].toString().take(200))
         }
         return stopped
     }

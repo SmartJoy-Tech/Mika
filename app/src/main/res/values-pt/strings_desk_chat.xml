@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="desk_tool_added">Adicionado a “%1$s”</string>
+    <string name="desk_tool_answered">Respondido em “%1$s”</string>
+    <string name="desk_tool_cancelled">Cancelado: “%1$s”</string>
+    <string name="desk_reply_failed">Não consegui responder agora. Pode repetir?</string>
+    <string name="desk_thinking">Pensando</string>
+    <string name="desk_phase_running">Em andamento</string>
+    <string name="desk_phase_queued">Na fila</string>
+    <string name="desk_phase_queued_at">Na fila · nº %1$d</string>
+    <string name="desk_phase_needs_you">Precisa de você</string>
+    <string name="desk_phase_done">Pronto</string>
+    <string name="desk_phase_failed">Não deu certo</string>
+    <string name="desk_phase_cancelled">Cancelado</string>
+    <string name="desk_tray_expand">Mostrar tarefas</string>
+    <string name="desk_tray_collapse">Ocultar tarefas</string>
+    <string name="chat_time_yesterday">Ontem %1$s</string>
+    <string name="desk_need_choose">Escolha uma · %1$s</string>
+    <string name="desk_need_answer">Precisa da sua resposta · %1$s</string>
+    <string name="desk_need_takeover">Assuma · %1$s</string>
+    <string name="desk_need_handle">Precisa de você · %1$s</string>
+    <string name="desk_need_choose_foot">Nenhuma? Digite abaixo ou segure para falar.</string>
+    <string name="desk_need_answer_foot">Digite abaixo ou segure para falar.</string>
+    <string name="desk_need_takeover_foot">Quando terminar na tela, eu continuo.</string>
+    <string name="desk_need_stop">Parar esta tarefa</string>
+    <string name="desk_tray_stop">Parar</string>
+    <string name="desk_tray_detail">Ver o processo completo ›</string>
+    <string name="chat_menu_tasks">Tarefas desta conversa</string>
+    <string name="desk_tasks_empty">Ainda nenhuma tarefa foi pedida nesta conversa.</string>
+</resources>

@@ -36,11 +36,12 @@ class CapsuleWindowDeviceTest {
         try {
             flags.setQuitRequested(false)
             flags.setCapsuleMode(CapsuleMode.Always)
-            app.capsule.resume()
+            instrumentation.runOnMainSync { app.capsule.resume() } // 胶囊控制器只在主线程上动窗口
             DeviceSupport.startTestActivity(Display.DEFAULT_DISPLAY, GestureTapTestActivity::class.java)
             assertNotNull("test page did not open", pollUntil(5_000) { findText(service, "taps:0") })
             Thread.sleep(300) // 等页面进入动画结束,再记录用于判断残帧的静态基准
             assertNotNull("idle capsule did not appear", pollUntil(15_000) { find(service, CapsuleCopy.IDLE) })
+            Thread.sleep(3_500) // 等胶囊入场动效(约 272ms)结束并走完空闲淡出(CapsuleFade.IDLE_MS=3s,alpha 1→0.4);否则基准是全不透明,而关卡片耗时>3s 时胶囊已淡出,会被误判成残帧
             val baseline = screenshot()
 
             assertTrue("idle capsule was not clickable", click(service, CapsuleCopy.IDLE))
@@ -63,9 +64,63 @@ class CapsuleWindowDeviceTest {
             find(service, CardCopy.COLLAPSE)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
             flags.setCapsuleMode(oldMode)
             flags.setQuitRequested(oldQuit)
-            app.capsule.resume()
+            instrumentation.runOnMainSync { app.capsule.resume() } // 胶囊控制器只在主线程上动窗口
             instrumentation.uiAutomation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)
         }
+    }
+
+    /** 展开后的卡片要落到完整几何:整张在屏内、水平居中、高度到位,不停在半开的缩放上(#323 第 1 点)。 */
+    @Test fun openedCardReachesFullCenteredGeometry() {
+        val service = DeviceSupport.service()
+        val oldMode = flags.capsuleMode()
+        val oldQuit = flags.quitRequested()
+        try {
+            flags.setQuitRequested(false)
+            flags.setCapsuleMode(CapsuleMode.Always)
+            instrumentation.runOnMainSync { app.capsule.resume() } // 胶囊控制器只在主线程上动窗口
+            DeviceSupport.startTestActivity(Display.DEFAULT_DISPLAY, GestureTapTestActivity::class.java)
+            assertNotNull("test page did not open", pollUntil(5_000) { findText(service, "taps:0") })
+            assertNotNull("idle capsule did not appear", pollUntil(15_000) { find(service, CapsuleCopy.IDLE) })
+            assertTrue("idle capsule was not clickable", click(service, CapsuleCopy.IDLE))
+            assertNotNull("card did not open", pollUntil(5_000) { find(service, CardCopy.COLLAPSE) })
+
+            // 参照 = 测试页窗口(铺满主屏可用区);卡片窗口 = 里面有收起按钮(×)的那个浮层窗口
+            val screen = windowBounds(service) { it.text?.toString() == "taps:0" } ?: error("test page window not found")
+            val card = pollUntil(5_000) { windowBounds(service) { it.contentDescription?.toString() == CardCopy.COLLAPSE } }
+                ?: error("card window not found")
+            assertTrue("card extends past the screen: $card vs $screen", card.left >= screen.left - 8 && card.right <= screen.right + 8)
+            val drift = abs(card.centerX() - screen.centerX())
+            assertTrue("card is not centered: drift ${drift}px of ${screen.width()}px", drift <= screen.width() * 0.06f)
+            assertTrue(
+                "card is shorter than a fully opened card: ${card.height()}px of ${screen.height()}px",
+                card.height() >= screen.height() * 0.45f,
+            )
+        } finally {
+            find(service, CardCopy.COLLAPSE)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            flags.setCapsuleMode(oldMode)
+            flags.setQuitRequested(oldQuit)
+            instrumentation.runOnMainSync { app.capsule.resume() } // 胶囊控制器只在主线程上动窗口
+            instrumentation.uiAutomation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)
+        }
+    }
+
+    /** 第一个有节点满足 [match] 的窗口的屏幕边界;没有为 null。浮层窗口不经 uiautomator,只有自己服务看得见。 */
+    private fun windowBounds(service: ScreenAccessibility, match: (AccessibilityNodeInfo) -> Boolean): android.graphics.Rect? {
+        for (window in service.windowsOn(Display.DEFAULT_DISPLAY)) {
+            val root = window.root ?: continue
+            val queue = ArrayDeque<AccessibilityNodeInfo>().apply { add(root) }
+            var hit = false
+            while (queue.isNotEmpty()) {
+                val node = queue.removeFirst()
+                if (node.isVisibleToUser && match(node)) {
+                    hit = true
+                    break
+                }
+                for (i in 0 until node.childCount) node.getChild(i)?.let(queue::add)
+            }
+            if (hit) return android.graphics.Rect().also { window.getBoundsInScreen(it) }
+        }
+        return null
     }
 
     /** 自己服务的浮层也在窗口列表里;只找用户看得见的节点,不可见窗口里的旧 Compose 树不算。 */

@@ -69,8 +69,9 @@
     <string name="speech_doubao_plan">요금 방식</string>
     <string name="speech_doubao_duration_note">인식한 시간만큼 과금</string>
     <string name="speech_doubao_concurrent_note">동시 연결 수만큼 과금</string>
-    <string name="speech_funasr_model">Fun-ASR (직접 운영)</string>
-    <string name="speech_funasr_setup_hint">말하는 동안 글자가 나타납니다. 직접 운영하는 Fun-ASR 실시간 서버(Fun-ASR 프로젝트의 serve_realtime_ws.py, 보통 로컬 네트워크)가 인식합니다. 계정이나 키가 필요 없습니다.</string>
+    <string name="speech_funasr_model">Qwen (직접 운영)</string>
+    <string name="speech_funasr_setup_hint">말하는 동안 글자가 나타납니다. 직접 운영하는 실시간 인식 서버(보통 로컬 네트워크)가 인식합니다. 계정이나 키가 필요 없습니다. Fun-ASR-Nano와 Qwen3-ASR을 지원합니다.</string>
+    <string name="speech_funasr_deploy_guide">배포 안내</string>
     <string name="speech_funasr_server">서버</string>
     <string name="speech_funasr_address">주소</string>
     <string name="speech_funasr_enter_address">예: 192.168.1.10:10095</string>
@@ -92,7 +93,7 @@
     <string name="speech_live_auth">서비스가 키를 거부했습니다. 키가 맞는지, 선택한 리전의 키인지 확인하세요.</string>
     <string name="speech_live_refused">서비스가 요청을 거부했습니다(%1$s).</string>
     <string name="speech_live_unreachable">서비스에 연결할 수 없습니다. 주소와 서비스 실행 여부를 확인하세요.</string>
-    <string name="speech_funasr_service">Fun-ASR 실시간 음성 인식</string>
+    <string name="speech_funasr_service">Qwen 실시간 음성 인식</string>
     <string name="speech_funasr_choose_note">직접 운영하는 서버 또는 Alibaba Cloud Bailian</string>
     <string name="speech_funasr_tab_local">직접 운영</string>
     <string name="speech_bailian_tab">Bailian · %1$s</string>
@@ -140,4 +141,25 @@
     <string name="personal_replay_pause">일시정지</string>
     <string name="personal_replay_play">재생</string>
     <string name="personal_replay_return_live">실시간으로 돌아가기</string>
+    <string name="drawer_projects">프로젝트</string>
+    <string name="drawer_new_project">새 프로젝트</string>
+    <string name="drawer_project_new_title">새 프로젝트</string>
+    <string name="drawer_project_name_hint">프로젝트 이름</string>
+    <string name="drawer_project_rename_title">프로젝트 이름 변경</string>
+    <string name="drawer_project_new_chat">프로젝트에서 새 대화</string>
+    <string name="drawer_project_empty">아직 대화가 없습니다</string>
+    <string name="drawer_project_delete_title">이 프로젝트를 삭제할까요?</string>
+    <string name="drawer_project_delete_body">"%1$s"의 모든 대화와 공유 작업 공간 파일이 삭제되며 복구할 수 없습니다.</string>
+    <string name="drawer_project_actions">프로젝트 작업</string>
+    <string name="chat_project_shared">프로젝트</string>
+    <string name="desk_report_line">%1$s: %2$s</string>
+    <string name="desk_report_started">시작했어요</string>
+    <string name="desk_report_needs_answer">질문이 있어요: %1$s</string>
+    <string name="desk_report_needs_confirm">휴대폰에서 확인해 주세요</string>
+    <string name="desk_report_needs_takeover">휴대폰에서 이어받아 주세요</string>
+    <string name="desk_report_needs_prerequisite">계속하려면 휴대폰에서 먼저 처리해 주세요</string>
+    <string name="desk_report_succeeded">완료: %1$s</string>
+    <string name="desk_report_failed">하지 못했어요: %1$s</string>
+    <string name="desk_report_cancelled">취소됨</string>
+    <string name="desk_task_not_started">작업을 시작하지 못했어요. Mika를 열고 다시 시도해 주세요.</string>
 </resources>

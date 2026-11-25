@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_auto_off_short">إيقاف</string>
+    <string name="calls_auto_standby_short">في الانتظار</string>
+    <string name="calls_rule_delay">الرد بعد</string>
+    <string name="calls_seconds_value">%1$d ث</string>
+    <string name="calls_none_added">لا شيء</string>
+    <string name="calls_not_set">غير مُعيَّن</string>
+    <string name="calls_is_set">مُعيَّن</string>
+    <string name="calls_numbers_count">%1$d أرقام</string>
+    <string name="calls_scope_all_short">كل المكالمات</string>
+    <string name="calls_scope_strangers_short">أرقام غير معروفة</string>
+    <string name="calls_allowlist_empty_short">القائمة فارغة</string>
+    <string name="calls_list_count_short">%1$d في القائمة</string>
+    <string name="calls_not_confirmed">غير مؤكَّد</string>
+    <string name="calls_task_more">الأسئلة والخلفية والحدود</string>
+    <string name="calls_this_call">هذه المكالمة</string>
+</resources>

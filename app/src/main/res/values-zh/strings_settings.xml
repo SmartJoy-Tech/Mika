@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="language_title">语言</string>
+    <string name="language_prompt_title">语言偏好</string>
+    <string name="language_prompt_hint">选择 Mika 进行思考、执行步骤旁白与回复的语言。</string>
+    <string name="language_search_hint">搜索语言</string>
+    <string name="language_prompt_confirm">确定</string>
+    <string name="language_prompt_dismiss">暂不设置</string>
     <string name="language_system">跟随系统</string>
     <string name="language_system_detail">系统语言 Mika 有译文时用它,没有时用英文</string>
-    <string name="settings_basic">常用</string>
     <string name="settings_language_appearance">语言与外观</string>
     <string name="settings_personal_start">启动时打开个人助手</string>
     <string name="settings_personal_start_sub">把个人助手设为 Mika 首屏</string>
@@ -14,7 +18,6 @@
     <string name="settings_during_work">任务运行</string>
     <string name="settings_during_work_sub">自主模式、操作节奏、步数上限与声音</string>
     <string name="settings_notif_sub">什么时候弹出、去系统里改</string>
-    <string name="settings_privacy">我的数据</string>
     <string name="settings_memory_data">记忆与数据</string>
     <string name="settings_memory_sub">记忆、技能、操作路线与网站登录</string>
     <string name="settings_saved_data">保存的数据</string>
@@ -22,10 +25,8 @@
     <plurals name="settings_count_sites">
         <item quantity="other">%1$d 个</item>
     </plurals>
-    <string name="settings_other">其他</string>
-    <string name="settings_advanced">高级与其他</string>
-    <string name="settings_advanced_sub">代理、计算环境、连接与修复</string>
-    <string name="settings_connections">网络与连接</string>
+    <string name="settings_advanced">高级</string>
+    <string name="settings_advanced_sub">扩展、网络、运行环境与维护</string>
     <string name="settings_maintenance">维护</string>
     <string name="settings_sandbox">文件与计算环境</string>
     <string name="settings_routes">记住的操作路线</string>
@@ -54,6 +55,8 @@
     <string name="settings_notif_master">通知总开关</string>
     <string name="settings_allowed">已允许</string>
     <string name="settings_task_notifs">任务通知</string>
+    <string name="settings_live_task_updates">实时任务通知</string>
+    <string name="settings_live_task_updates_detail">在系统设置中选择是否在状态栏显示进行中的任务</string>
     <string name="settings_keep_on">屏幕保持常亮</string>
     <string name="settings_keep_on_sub">任务进行时屏幕不熄灭(没在用时照常变暗),结束后恢复</string>
     <string name="settings_mute">被操作的 App 静音</string>
@@ -66,6 +69,15 @@
     <string name="settings_pace_human">像人</string>
     <string name="settings_pace_human_detail">在所有 App 里都放慢，每一屏先看一会儿再往下点</string>
     <string name="settings_pace_foot">有的 App 发现操作太快会退出登录或要求验证。节奏越慢，任务用时越长。</string>
+    <string name="settings_pace_per_app">按应用设置</string>
+    <string name="settings_pace_per_app_sub">给风控严的 App 单独放慢，或把不需要等的单独加快；没设的跟随上面的全局档</string>
+    <string name="settings_pace_per_app_intro">列表里的 App 按自己的档位执行；未列入的跟随全局档位（现在是 %1$s）。</string>
+    <string name="settings_pace_per_app_empty">还没有按应用设置的 App。</string>
+    <string name="settings_pace_per_app_add">添加 App</string>
+    <string name="settings_pace_per_app_search">搜索 App</string>
+    <string name="settings_pace_per_app_none">没有匹配的 App</string>
+    <string name="settings_pace_per_app_pick">选它</string>
+    <string name="settings_pace_per_app_remove">删除（跟随全局档位）</string>
     <string name="settings_parallel">同时进行的任务</string>
     <string name="settings_parallel_sub">不同对话的任务各占一块虚拟屏</string>
     <plurals name="settings_count_tasks">
@@ -102,6 +114,8 @@
     <string name="net_proxy">网络代理</string>
     <string name="net_proxy_row_sub">调模型、下更新、内置浏览器和命令都走它</string>
     <string name="net_proxy_hint">Mika 调模型（对话、模型列表、账号登录）、在 App 里下载更新、内置浏览器，以及「文件与计算环境」里的命令（那里允许联网时）都走这个代理。这台手机和局域网里的地址（localhost、192.168.x.x、10.x.x.x、以 .local 结尾的名字）始终直连，本地模型照常能用。可以带「用户:密码@」，加密保存在这台手机上。留空表示直连。</string>
+    <string name="net_proxy_summary">模型请求、更新、内置浏览器和文件环境的命令走这个代理</string>
+    <string name="details">详情</string>
     <string name="net_proxy_invalid">写成 http://主机:端口 的样子（也可以是 socks5、socks5h、https），主机前面可以带「用户:密码@」。</string>
     <string name="net_proxy_container_only">https:// 代理只给「文件与计算环境」里的命令用，Mika 自己的连接照旧直连。想全部走代理，请用 http:// 或 socks5://。</string>
     <string name="net_proxy_browser_unsupported">这台手机的 WebView 不支持单独设代理，内置浏览器直连。</string>
@@ -152,7 +166,7 @@
     <string name="skin_accent_follow">强调色跟随图片</string>
     <string name="skin_accent_follow_sub">用图上的主色代替上面选的强调色；图上没有明显颜色时照旧</string>
     <string name="settings_self_config">允许 Mika 改自己的设置</string>
-    <string name="settings_self_config_sub">打开后，任务里会多一件工具，能看和改这些偏好（操作节奏、静音、胶囊、外观、强调色、屏幕常亮）。模型和 Key、容器联网、任何删数据的操作都不在其中</string>
+    <string name="settings_self_config_sub">只能改指定偏好，不能碰模型、Key、联网或删数据。</string>
     <string name="settings_step_limit">每个任务的步数上限</string>
     <string name="settings_step_limit_sub">关着表示不限制。到达上限时任务会停下，并说明停在哪一步。</string>
     <string name="settings_step_limit_off">不限制</string>
@@ -192,6 +206,60 @@
     <string name="mcp_servers_status_fail">连接失败:%1$s</string>
     <string name="mcp_servers_refresh_all">测试全部</string>
     <string name="mcp_servers_allowlist">允许的工具(英文逗号分隔,留空为全部)</string>
+    <string name="mcp_category_all">全部</string>
+    <string name="mcp_category_ai">AI</string>
+    <string name="mcp_category_data">数据</string>
+    <string name="mcp_category_dev">开发工具</string>
+    <string name="mcp_category_comm">沟通</string>
+    <string name="mcp_category_prod">效率</string>
+    <string name="mcp_category_design">设计与媒体</string>
+    <string name="mcp_category_cloud">云</string>
+    <string name="mcp_category_web">搜索与网页</string>
+    <string name="mcp_category_maps">地图</string>
+    <string name="mcp_category_local">在本机运行</string>
+    <string name="mcp_catalog_title">MCP 服务</string>
+    <string name="mcp_catalog_search_hint">搜索服务</string>
+    <string name="mcp_catalog_no_results">没有匹配的服务</string>
+    <string name="mcp_catalog_no_results_sub">换个关键词或分类试试，或设置自定义服务器。</string>
+    <string name="mcp_catalog_custom">自定义 MCP 服务器</string>
+    <string name="mcp_catalog_browse">浏览服务目录</string>
+    <string name="mcp_catalog_custom_server">自定义服务器</string>
+    <string name="mcp_connect_auth_oauth">使用账号登录</string>
+    <string name="mcp_connect_auth_fields">API 密钥</string>
+    <string name="mcp_connect_auth_none">无需登录</string>
+    <string name="mcp_connect_auth_stdio">在本机运行</string>
+    <string name="mcp_connect_authorize">登录并连接</string>
+    <string name="mcp_connect_connect">连接</string>
+    <string name="mcp_connect_connecting">正在连接…</string>
+    <string name="mcp_connect_cancel">取消</string>
+    <string name="mcp_connect_retry">重试</string>
+    <string name="mcp_connect_success_title">已连接</string>
+    <string name="mcp_connect_success_tools">提供 %1$d 个工具</string>
+    <string name="mcp_connect_done">完成</string>
+    <string name="mcp_connect_view_tools">查看工具</string>
+    <string name="mcp_connect_data_note">你的请求和数据会发送到该服务。</string>
+    <string name="mcp_connect_package_title">需要下载</string>
+    <string name="mcp_connect_package_body">要使用此服务器，Mika 会在设备上下载并缓存该包：\n%1$s %2$s\n来源：%3$s</string>
+    <string name="mcp_connect_package_confirm">下载并连接</string>
+    <string name="mcp_connect_help">获取 API 密钥</string>
+    <string name="mcp_connect_official">官方文档</string>
+    <string name="mcp_connect_about">关于此服务</string>
+    <string name="mcp_manage_test">立即测试</string>
+    <string name="mcp_manage_reauthorize">重新登录</string>
+    <string name="mcp_manage_replace">更换凭据</string>
+    <string name="mcp_manage_replace_hint">留空表示保留当前值。</string>
+    <string name="mcp_manage_edit">编辑详情</string>
+    <string name="mcp_manage_delete_note">删除会从 Mika 移除该服务器及其保存的凭据,但不会撤销你在该服务官网上授予的访问权限。</string>
+    <string name="mcp_custom_headers">请求头</string>
+    <string name="mcp_custom_header_name">请求头名称</string>
+    <string name="mcp_custom_header_value">请求头值</string>
+    <string name="mcp_custom_add_header">添加请求头</string>
+    <string name="mcp_custom_advanced">高级</string>
+    <string name="mcp_custom_timeout">连接超时(秒)</string>
+    <string name="mcp_custom_preview">结果预览长度</string>
+    <string name="mcp_custom_budget">单次任务成本预算</string>
+    <string name="settings_show_task_cost">显示任务费用</string>
+    <string name="settings_show_task_cost_sub">按人民币估算新任务的 DeepSeek API 费用。</string>
     <string name="quit_title">完全退出 Mika</string>
     <string name="quit_row_sub">停止后台任务，收起悬浮胶囊</string>
     <string name="quit_confirm_body">正在进行的任务会停止，悬浮胶囊和通知都会收起。下次打开 Mika 就回来。</string>
@@ -204,8 +272,40 @@
     <string name="settings_token_budget_invalid">请输入 %1$s 到 %2$s 的整数。</string>
     <string name="settings_auto_archive">自动归档对话</string>
     <string name="settings_auto_archive_sub">太久没有新消息的对话自动收进归档</string>
-    <string name="settings_auto_archive_hint">超过选定的时间没有新消息的对话会收进归档。置顶的对话和有任务在运行的对话不归档；随时可以在对话列表的归档里恢复。</string>
+    <string name="settings_auto_archive_hint">超过选定的时间没有新消息的对话会收进归档。</string>
     <plurals name="settings_auto_archive_days">
         <item quantity="other">%1$d 天</item>
+    </plurals>
+    <string name="settings_scheduled_quiet">定时任务免打扰</string>
+    <string name="settings_scheduled_quiet_detail">定时任务的结果和提醒会静默显示在通知栏。</string>
+    <string name="settings_scheduled_quiet_start">开始时间</string>
+    <string name="settings_scheduled_quiet_end">结束时间</string>
+    <string name="settings_scheduled_quiet_equal">开始和结束时间设为不同时间后，通知才会静音。</string>
+    <string name="settings_capabilities">能力</string>
+    <string name="settings_preferences">偏好</string>
+    <string name="settings_data">数据</string>
+    <string name="settings_extensions">扩展与连接</string>
+    <string name="settings_network">网络</string>
+    <string name="settings_runtime">运行环境</string>
+    <string name="settings_trigger_run_limit">定时任务最长运行时间</string>
+    <string name="settings_trigger_run_limit_sub">定时任务跑的时候没人看着。关着表示不限制；到时间任务会停下，并说明是超时。</string>
+    <plurals name="settings_trigger_run_minutes_n">
+        <item quantity="other">%1$d 分钟</item>
+    </plurals>
+
+    <string name="settings_sandbox_budget">每个任务的沙箱时间上限</string>
+    <string name="settings_sandbox_budget_sub">一个任务里沙箱命令累计最多能跑多久（装依赖、编译这类活）。默认 30 分钟；改了之后下一个任务起生效。</string>
+    <plurals name="settings_sandbox_budget_minutes_n">
+        <item quantity="other">%1$d 分钟</item>
+    </plurals>
+    <string name="settings_attachment_file_limit">单个上传文件上限</string>
+    <string name="settings_attachment_file_limit_sub">聊天附件与设备文件导入接受的单个文件最大体积;微信图片与电脑传输仍是固定限额。默认 200 MB。</string>
+    <plurals name="settings_attachment_file_limit_mb_n">
+        <item quantity="other">%1$d MB</item>
+    </plurals>
+    <string name="settings_workspace_size_limit">单个工作区上限</string>
+    <string name="settings_workspace_size_limit_sub">聊天附件与设备文件导入可用的工作区空间;默认 4 GB。</string>
+    <plurals name="settings_workspace_size_limit_gb_n">
+        <item quantity="other">%1$d GB</item>
     </plurals>
 </resources>

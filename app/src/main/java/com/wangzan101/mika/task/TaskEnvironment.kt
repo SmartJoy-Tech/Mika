@@ -1,10 +1,15 @@
 package com.wangzan101.mika.task
 
 import android.content.Context
+import com.wangzan101.mika.core.model.decision.DecisionModel
 import com.wangzan101.mika.core.model.ChatModel
 import com.wangzan101.mika.core.model.ModelRole
 import com.wangzan101.mika.core.model.ModelSession
+import com.wangzan101.mika.settings.DecisionSettings
 import com.wangzan101.mika.settings.ProviderStore
+import com.wangzan101.mika.settings.lightFallbackChain
+import com.wangzan101.mika.settings.modelFor
+import com.wangzan101.mika.settings.visionFallbackChain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -32,6 +37,16 @@ class TaskEnvironment {
     @Volatile var lightModelFactory: (Context, ModelSession) -> ChatModel? = defaultLightModelFactory
     /** 视觉模型(核查时看截图);设置里没有能看图的模型时为空。 */
     @Volatile var visionModelFactory: (Context, ModelSession) -> ChatModel? = defaultVisionModelFactory
+    /** 视觉模型备援链 */
+    @Volatile var visionFallbackFactory: (Context, ModelSession) -> List<ChatModel> = defaultVisionFallbackFactory
+    /** 轻量模型备援链 */
+    @Volatile var lightFallbackFactory: (Context, ModelSession) -> List<ChatModel> = defaultLightFallbackFactory
+    /** 独立的决策接口,不占主/视觉/轻量用途。测试可注入;替换主模型时不隐式调用真实决策服务。 */
+    @Volatile var decisionModelFactory: (Context) -> DecisionModel? = defaultDecisionModelFactory
+
+    fun decisionModel(context: Context): DecisionModel? =
+        if (modelFactory !== defaultModelFactory && decisionModelFactory === defaultDecisionModelFactory) null
+        else decisionModelFactory(context)
 
     /** 评测跑器用的钩子;产品里全是默认值。 */
     val evalHooks = EvalHooks()
@@ -45,6 +60,9 @@ class TaskEnvironment {
         val defaultModelFactory: (Context, ModelSession) -> ChatModel? = { c, s -> ProviderStore.get(c).modelFor(ModelRole.Main, s) }
         val defaultLightModelFactory: (Context, ModelSession) -> ChatModel? = { c, s -> ProviderStore.get(c).modelFor(ModelRole.Light, s) }
         val defaultVisionModelFactory: (Context, ModelSession) -> ChatModel? = { c, s -> ProviderStore.get(c).modelFor(ModelRole.Vision, s) }
+        val defaultVisionFallbackFactory: (Context, ModelSession) -> List<ChatModel> = { c, s -> ProviderStore.get(c).visionFallbackChain(s) }
+        val defaultLightFallbackFactory: (Context, ModelSession) -> List<ChatModel> = { c, s -> ProviderStore.get(c).lightFallbackChain(s) }
+        val defaultDecisionModelFactory: (Context) -> DecisionModel? = { c -> DecisionSettings.get(c).createModel() }
 
         fun of(context: Context): TaskEnvironment = (context.applicationContext as Owner).tasks
     }

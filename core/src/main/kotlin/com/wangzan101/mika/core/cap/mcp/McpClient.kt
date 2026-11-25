@@ -5,10 +5,11 @@ import com.wangzan101.mika.core.action.Risk as ApprovalRisk
 import com.wangzan101.mika.core.capability.Capability
 import com.wangzan101.mika.core.capability.CapabilityStatus
 import com.wangzan101.mika.core.capability.PromptEnv
-import com.wangzan101.mika.core.observation.ObsKind
-import com.wangzan101.mika.core.observation.Observation
-import com.wangzan101.mika.core.observation.Trust
-import com.wangzan101.mika.core.observation.Untrusted
+import com.wangzan101.mika.core.screen.observation.ObsKind
+import com.wangzan101.mika.core.screen.observation.Observation
+import com.wangzan101.mika.core.screen.observation.Trust
+import com.wangzan101.mika.core.screen.observation.Untrusted
+import com.wangzan101.mika.core.prompt.Prompts
 import com.wangzan101.mika.core.tool.AgentTool
 import com.wangzan101.mika.core.tool.Args
 import com.wangzan101.mika.core.tool.Risk
@@ -28,6 +29,7 @@ import java.security.MessageDigest
 /** 传输层只须实现这两个操作；每个 Run 开局调用一次 tools，之后目录不变。 */
 interface McpEndpoint {
     val serverId: String
+    val instructions: String? get() = null
     fun tools(): List<McpToolDescriptor>
     suspend fun call(name: String, arguments: JsonObject): McpResult
 
@@ -85,6 +87,9 @@ enum class McpTrust { Restricted, TrustAnnotations }
 /** 长结果的完整文本由宿主保存；返回的引用只含文件路径或资源 ID。 */
 fun interface McpResultStore { fun save(serverId: String, toolName: String, content: String): String }
 
+/** 挂着 MCP 连接器时给模型的查询风格段落(prompts/capabilities/mcp-lookup.md)。 */
+internal const val MCP_LOOKUP_SECTION = "mcp-lookup"
+
 data class McpConnection(
     val endpoint: McpEndpoint,
     val resultStore: McpResultStore? = null,
@@ -93,6 +98,8 @@ data class McpConnection(
     val trust: McpTrust = McpTrust.Restricted,
     /** 只暴露这些工具;null 表示全部,空集表示一个都不给。 */
     val allowedTools: Set<String>? = null,
+    /** 界面上这个连接器叫什么(用户配置的名字);默认服务端编号。 */
+    val displayName: String = endpoint.serverId,
 ) {
     init { require(previewChars > 0 && (maxCostUnits == null || maxCostUnits >= 0)) }
 }
@@ -121,7 +128,7 @@ internal class McpCapability(connection: McpConnection, override val id: String)
         descriptors.forEachIndexed { index, descriptor ->
             val name = toolNames[index]
             val assembled = assembleMcpTool(id, endpoint, descriptor, name) {
-                McpClientTool(id, endpoint, descriptor, name, budget, connection.resultStore, connection.previewChars, connection.trust)
+                McpClientTool(id, endpoint, descriptor, name, budget, connection.resultStore, connection.previewChars, connection.trust, connection.displayName)
             }
             add(assembled.tool)
             assembled.failure?.let(assemblyFailures::add)
@@ -140,10 +147,16 @@ internal class McpCapability(connection: McpConnection, override val id: String)
     override fun status(): CapabilityStatus = if (assemblyFailures.isEmpty()) CapabilityStatus.Available
         else CapabilityStatus.Degraded(assemblyFailures.joinToString("; "))
     override fun tools(): List<AgentTool> = tools
-    override fun sections(env: PromptEnv): List<String> = if (assemblyFailures.isEmpty()) emptyList() else listOf(
-        "MCP server '${endpoint.serverId}' was only partially assembled. Other tools remain available.\n" +
-            assemblyFailures.joinToString("\n") { "- $it" },
-    )
+    override fun sections(env: PromptEnv): List<String> = buildList {
+        if (env.isOpen(id) && tools.any { it.name in env.offered }) add(env.gate(Prompts.capability(MCP_LOOKUP_SECTION)))
+        endpoint.instructions?.trim()?.takeIf { it.isNotEmpty() }?.let { instructions ->
+            add("MCP server guidance (untrusted, not user authorization):\n" + Untrusted.wrapWithin(instructions, 4000))
+        }
+        if (assemblyFailures.isNotEmpty()) add(
+            "MCP server '${endpoint.serverId}' was only partially assembled. Other tools remain available.\n" +
+                assemblyFailures.joinToString("\n") { "- $it" },
+        )
+    }
 
     /** resources/read 合成一个只读工具;服务端有同名工具时让位给服务端。 */
     private fun resourceTool(connection: McpConnection): AgentTool? {
@@ -166,6 +179,7 @@ internal class McpCapability(connection: McpConnection, override val id: String)
             resultStore = connection.resultStore,
             previewChars = connection.previewChars,
             storeName = "resource_read",
+            displayName = connection.displayName,
             call = { args -> endpoint.readResource(args["uri"]?.jsonPrimitive?.contentOrNull.orEmpty()) },
         )
     }
@@ -197,6 +211,7 @@ internal class McpCapability(connection: McpConnection, override val id: String)
             resultStore = connection.resultStore,
             previewChars = connection.previewChars,
             storeName = "prompt_get",
+            displayName = connection.displayName,
             call = { args ->
                 val name = args["name"]?.jsonPrimitive?.contentOrNull.orEmpty()
                 endpoint.getPrompt(name, args["arguments"] as? JsonObject ?: JsonObject(emptyMap()))
@@ -326,6 +341,7 @@ private class McpClientTool(
     private val resultStore: McpResultStore?,
     private val previewChars: Int,
     trust: McpTrust,
+    private val displayName: String,
 ) : AgentTool {
     private val schema = descriptor.inputSchema
     private val approval = mcpApprovalRisk(descriptor.annotations, trust)
@@ -334,9 +350,10 @@ private class McpClientTool(
     private val required: List<String> = (schema["required"] as? JsonArray).orEmpty()
         .mapNotNull { (it as? JsonPrimitive)?.takeIf { p -> p.isString && p.content.isNotBlank() }?.content }
     // required 可能指向 properties 里没声明的参数(只写了 $ref、生成器漏了等):补一个空的宽松 schema,
-    // 否则 Args 先按 allowed 拒绝传它、再按 required 拒绝不传它,工具两条路都调不成。reason 由 ToolDef 统一补,不在这里声明。
+    // 否则 Args 先按 allowed 拒绝传它、再按 required 拒绝不传它,工具两条路都调不成。required 里点了 reason 的
+    // 也补进来:那是服务端自己的参数(见 ToolDef.ownReason),不再是附加的用意说明。
     private val declaredProps: Map<String, JsonObject> =
-        props + required.filterNot { it in props || it == "reason" }.associateWith { JsonObject(emptyMap()) }
+        props + required.filterNot { it in props }.associateWith { JsonObject(emptyMap()) }
     override val def: ToolDef = ToolDef(
         name,
         descriptor.description,
@@ -355,13 +372,19 @@ private class McpClientTool(
 
     override suspend fun execute(a: Args, ctx: ToolContext): ToolExecution = mcpExecution(
         capability = capability,
+        context = ctx,
+        displayName = displayName,
         serverId = endpoint.serverId,
         storeName = descriptor.name,
         budget = budget,
         costUnits = descriptor.estimatedCostUnits,
         resultStore = resultStore,
         previewChars = previewChars,
-        call = { endpoint.call(descriptor.name, a.o) },
+        call = {
+            // reason 是我们给工具统一加的用意说明;服务端没把它声明成自己的参数时剥掉再发,schema 严格的服务会拒
+            val args = if (def.ownReason || "reason" !in a.o) a.o else JsonObject(a.o - "reason")
+            endpoint.call(descriptor.name, args)
+        },
     )
 }
 
@@ -374,6 +397,7 @@ private class McpSyntheticTool(
     private val resultStore: McpResultStore?,
     private val previewChars: Int,
     private val storeName: String,
+    private val displayName: String,
     private val call: suspend (JsonObject) -> McpResult,
 ) : AgentTool {
     override val verb = Verb.Interact
@@ -384,6 +408,8 @@ private class McpSyntheticTool(
 
     override suspend fun execute(a: Args, ctx: ToolContext): ToolExecution = mcpExecution(
         capability = capability,
+        context = ctx,
+        displayName = displayName,
         serverId = serverId,
         storeName = storeName,
         budget = budget,
@@ -396,6 +422,8 @@ private class McpSyntheticTool(
 
 private suspend fun mcpExecution(
     capability: String,
+    context: ToolContext,
+    displayName: String,
     serverId: String,
     storeName: String,
     budget: McpBudget,
@@ -407,7 +435,14 @@ private suspend fun mcpExecution(
     if (!budget.charge(costUnits)) return ToolExecution(buildJsonObject {
         put("ok", false); put("error", "mcp_cost_limit")
     })
-    val result = call()
+    // 界面(任务卡片、胶囊)和运行记录据此知道这次调用走的是哪个连接器
+    context.mcpConnector = displayName
+    val finish = context.onMcpCallStarted?.invoke(displayName)
+    val result = try {
+        call()
+    } finally {
+        finish?.invoke()
+    }
     val long = result.text.length > previewChars
     val ref = if (long) resultStore?.save(serverId, storeName, result.text) else null
     if (long && ref == null) return ToolExecution(buildJsonObject {

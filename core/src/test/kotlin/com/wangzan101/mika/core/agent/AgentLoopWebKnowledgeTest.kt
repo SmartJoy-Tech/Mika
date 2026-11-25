@@ -1,8 +1,8 @@
 package com.wangzan101.mika.core.agent
 
-import com.wangzan101.mika.core.knowledge.ChannelFacts
-import com.wangzan101.mika.core.knowledge.KnowledgeStore
-import com.wangzan101.mika.core.knowledge.entry
+import com.wangzan101.mika.core.learn.knowledge.ChannelFacts
+import com.wangzan101.mika.core.learn.knowledge.KnowledgeStore
+import com.wangzan101.mika.core.learn.knowledge.entry
 import com.wangzan101.mika.core.model.Message
 import com.wangzan101.mika.core.model.ModelReply
 import com.wangzan101.mika.core.model.Part
@@ -90,7 +90,7 @@ class AgentLoopWebKnowledgeTest {
 
     @Test fun webPromptOnlyWhenWebAvailable() = runTest {
         val groups = { offered: Set<String> -> com.wangzan101.mika.core.capability.PromptEnv(offered, false).gate(SystemPrompt.read("groups")) }
-        val phone = SystemPrompt.read("phone").lines().filterNot { "<!-- needs: phone_open_link -->" in it || "<!-- needs: phone_find_visually -->" in it }.joinToString("\n")
+        val phone = SystemPrompt.read("phone").lines().filterNot { "<!-- needs: phone_open_link -->" in it || "<!-- needs: phone_find_visually -->" in it || "<!-- needs: phone_sms_login -->" in it }.joinToString("\n")
         val web = SystemPrompt.read("web").lines().filterNot { "<!-- needs: share_file -->" in it || "<!-- needs: web_run_site_command -->" in it }.joinToString("\n")
         // 两组都收着:只有入口一段和选渠道一段
         val collapsed = run("t", KnowledgeStore(emptyList()), finish)

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="desk_tool_added">已加到「%1$s」</string>
+    <string name="desk_tool_answered">已回复「%1$s」</string>
+    <string name="desk_tool_cancelled">已取消「%1$s」</string>
+    <string name="desk_reply_failed">刚才没能回话，再说一次试试</string>
+    <string name="desk_thinking">在想</string>
+    <string name="desk_phase_running">在办</string>
+    <string name="desk_phase_queued">排队中</string>
+    <string name="desk_phase_queued_at">排队中 · 第 %1$d 个</string>
+    <string name="desk_phase_needs_you">要你处理</string>
+    <string name="desk_phase_done">办好了</string>
+    <string name="desk_phase_failed">没办成</string>
+    <string name="desk_phase_cancelled">已取消</string>
+    <string name="desk_tray_expand">展开在办的事</string>
+    <string name="desk_tray_collapse">收起在办的事</string>
+    <string name="chat_time_yesterday">昨天 %1$s</string>
+    <string name="desk_need_choose">要你选 · %1$s</string>
+    <string name="desk_need_answer">要你回答 · %1$s</string>
+    <string name="desk_need_takeover">要你接管 · %1$s</string>
+    <string name="desk_need_handle">要你处理 · %1$s</string>
+    <string name="desk_need_choose_foot">都不是？直接在下面打字或按住说。</string>
+    <string name="desk_need_answer_foot">直接在下面打字或按住说。</string>
+    <string name="desk_need_takeover_foot">你在画面里点完，我接着往下办。</string>
+    <string name="desk_need_stop">停止这件事</string>
+    <string name="desk_tray_stop">停止</string>
+    <string name="desk_tray_detail">查看详细过程 ›</string>
+    <string name="chat_menu_tasks">本对话任务</string>
+    <string name="desk_tasks_empty">这个对话里还没派过事。</string>
+</resources>

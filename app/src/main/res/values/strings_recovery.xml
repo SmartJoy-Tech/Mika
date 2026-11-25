@@ -2,6 +2,7 @@
 <resources>
     <string name="rec_a11y">Turn on accessibility for me</string>
     <string name="rec_default_on">On by default</string>
+    <string name="rec_learn_what">What do these do?</string>
     <string name="rec_a11y_body">Mika uses Accessibility to read the text and buttons on screen. With this on, Mika turns on its own accessibility service in system settings for you; other accessibility services you have on aren’t affected. Turn this off and Mika turns its own service off.</string>
     <string name="rec_battery">Unrestricted battery</string>
     <string name="rec_battery_body">With this on, Mika adds itself to the system’s battery optimization exceptions, so it isn’t stopped in the background to save power and phone control drops less often. It may use a bit more battery. Turn it off to go back to the system default.</string>
@@ -20,4 +21,5 @@
     <string name="rec_setting_unavailable">This phone doesn’t let Mika turn on Wireless debugging at startup. After a restart, turn it on yourself and Mika will connect.</string>
     <string name="rec_not_recovered">Couldn’t reconnect automatically at the last startup. Make sure you’re on trusted Wi-Fi with Wireless debugging on, and Mika will connect.</string>
     <string name="rec_needs_pairing">Only works after pairing Wireless debugging. The helper was started with the USB command, so run the command again after a phone restart.</string>
+    <string name="rec_shizuku_no_wireless">Wireless debugging isn’t used while Shizuku is selected. Mika reconnects through Shizuku once Shizuku is running.</string>
 </resources>

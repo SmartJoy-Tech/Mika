@@ -132,6 +132,24 @@ interface IMikaShell {
     boolean flushCallAudio(IBinder owner) = 55;
     Bundle callAudioStats(IBinder owner) = 56;
 
+    // 当前用户的 /sdcard 或 /storage/emulated/<user> 绝对路径,按名称排序;首次 afterName=null,limit 为 1..128。
+    // status=ok/not_found/denied/not_directory/invalid/io_error;成功时 names、types
+    // (0=其他或链接 1=普通文件 2=目录)等长,next 非空时传给下一页;目录变化时不保证快照。
+    Bundle listFiles(String path, String afterName, int limit) = 57;
+    // 只读打开普通文件;结果 status=ok/not_found/denied/not_file/invalid/io_error,
+    // 成功时 fd 为 ParcelFileDescriptor,调用方负责关闭。路径按 shell 的权限访问。
+    Bundle openFile(String path) = 58;
+    // 只读、有界搜索；返回 status、paths、visited、truncated 和可选 reason。
+    Bundle searchFiles(String path, String name, String extension, long modifiedAfter, long modifiedBefore, int maxDepth, int maxEntries, int timeoutMs) = 59;
+    // Replace the device-file bridge policy. Empty roots deny all access; protocol and revision are separate.
+    Bundle setDeviceFilePolicy(int protocol, String session, long revision, in String[] roots, in boolean[] recursive) = 60;
+
+    // 把工作区里的一个文件分享给一个包:ACTION_SEND + EXTRA_STREAM,content URI 已授权可读;只打开分享页,不发出。
+    int startShareFile(int displayId, String packageName, String uri, String mime, String text) = 61;
+
+    // 原地改变 Mika 虚拟屏尺寸并替换接收画面的 Surface，保留屏上的任务。
+    boolean resizeDisplay(int displayId, in Surface surface, int width, int height, int dpi) = 62;
+
     // 沿用早先定下的销毁事务号;AIDL 要求要么全部方法编号要么都不编号
     void destroy() = 16777114;
 }

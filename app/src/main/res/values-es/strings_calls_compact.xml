@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_auto_off_short">Desactivado</string>
+    <string name="calls_auto_standby_short">En espera</string>
+    <string name="calls_rule_delay">Responder tras</string>
+    <string name="calls_seconds_value">%1$d s</string>
+    <string name="calls_none_added">Ninguno</string>
+    <string name="calls_not_set">Sin configurar</string>
+    <string name="calls_is_set">Configurado</string>
+    <string name="calls_numbers_count">%1$d números</string>
+    <string name="calls_scope_all_short">Todas las llamadas</string>
+    <string name="calls_scope_strangers_short">Números desconocidos</string>
+    <string name="calls_allowlist_empty_short">Lista vacía</string>
+    <string name="calls_list_count_short">%1$d en la lista</string>
+    <string name="calls_not_confirmed">Sin confirmar</string>
+    <string name="calls_task_more">Preguntas, contexto, límites</string>
+    <string name="calls_this_call">Esta llamada</string>
+</resources>

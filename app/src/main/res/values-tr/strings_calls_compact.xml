@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calls_auto_off_short">Kapalı</string>
+    <string name="calls_auto_standby_short">Beklemede</string>
+    <string name="calls_rule_delay">Şu süre sonra yanıtla</string>
+    <string name="calls_seconds_value">%1$d sn</string>
+    <string name="calls_none_added">Yok</string>
+    <string name="calls_not_set">Ayarlanmadı</string>
+    <string name="calls_is_set">Ayarlandı</string>
+    <string name="calls_numbers_count">%1$d numara</string>
+    <string name="calls_scope_all_short">Tüm aramalar</string>
+    <string name="calls_scope_strangers_short">Bilinmeyen numaralar</string>
+    <string name="calls_allowlist_empty_short">Liste boş</string>
+    <string name="calls_list_count_short">Listede %1$d</string>
+    <string name="calls_not_confirmed">Onaylanmadı</string>
+    <string name="calls_task_more">Sorular, arka plan, sınırlar</string>
+    <string name="calls_this_call">Bu arama</string>
+</resources>

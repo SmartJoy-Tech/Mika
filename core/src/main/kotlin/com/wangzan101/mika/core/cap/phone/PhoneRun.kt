@@ -20,8 +20,8 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.put
-import com.wangzan101.mika.core.uistate.screen
-import com.wangzan101.mika.core.uistate.session
+import com.wangzan101.mika.core.screen.uistate.screen
+import com.wangzan101.mika.core.screen.uistate.session
 
 /** 根据每一步读到的当前无障碍树重新定位目标,然后把动作交回统一执行入口。 */
 internal object PhoneRun : PhoneTool {
@@ -159,6 +159,10 @@ internal object PhoneRun : PhoneTool {
     private data class Target(val ref: String? = null, val snapshotId: String? = null, val error: String? = null)
 
     private suspend fun select(sub: SubActions, ctx: ToolContext, index: Int, command: JsonObject, editable: Boolean): Target {
+        // 复合工具(do_each 的 @item)直接给 ref + snapshotId:跳过按字重找,原样点。
+        val directRef = command.string("ref")
+        val directSid = command.string("snapshotId")
+        if (directRef != null && directSid != null) return Target(ref = directRef, snapshotId = directSid)
         val text = command.string("targetText")
         val id = command.string("resourceId")
         val role = command.string("role")

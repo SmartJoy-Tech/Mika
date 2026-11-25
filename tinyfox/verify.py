@@ -43,7 +43,7 @@ def verify_sources():
             'SmartJoy artwork differs from the reviewed asset')
     require(f'applicationId = "{APP_ID}"' in read('app/build.gradle.kts'), 'Wrong applicationId')
     require('buildConfigField("boolean", "TINYFOX_ADVANCED_SETTINGS", "true")' in read('app/build.gradle.kts')
-            and 'BuildConfig.TINYFOX_ADVANCED_SETTINGS' in read('app/src/main/java/com/wangzan101/mika/ui/SettingsScreen.kt'),
+            and 'BuildConfig.TINYFOX_ADVANCED_SETTINGS' in read('app/src/main/java/com/wangzan101/mika/settings/ui/SettingsScreen.kt'),
             'Personal advanced preferences are not exposed')
     manifest = ET.fromstring(read('app/src/main/AndroidManifest.xml'))
     permissions = {e.get(ANDROID + 'name') for e in manifest.findall('uses-permission')}
@@ -61,11 +61,11 @@ def verify_sources():
     require('class TinyFoxInCallService : MikaInCallService()' in
             read('app/src/main/java/io/github/smartjoytech/tinyfox/calls/TinyFoxInCallService.kt'),
             'Missing TinyFox InCall service implementation')
-    require(f'val service = "{SERVICE}"' in read('core/src/main/kotlin/com/wangzan101/mika/core/shell/RecoveryPermissions.kt'),
+    require(f'val service = "{SERVICE}"' in read('core/src/main/kotlin/com/wangzan101/mika/core/device/shell/RecoveryPermissions.kt'),
             'Recovery service identity drifted')
     require('class TinyFoxAccessibilityService : ScreenAccessibility()' in
             read('app/src/main/java/io/github/smartjoytech/tinyfox/a11y/TinyFoxAccessibilityService.kt'), 'Missing service implementation')
-    require(f'DEFAULT_PACKAGE = "{APP_ID}"' in read('tools/mika/scripts/mika_cli.py'), 'Computer CLI package drifted')
+    require(f'DEFAULT_PACKAGE = "{APP_ID}"' in read('companions/mika/scripts/mika_cli.py'), 'Computer CLI package drifted')
     links = read('app/src/main/java/com/wangzan101/mika/about/MikaLinks.kt')
     require(f'"https://github.com/{REPO}"' in links and
             f'"https://api.github.com/repos/{REPO}/releases/latest"' in links, 'Update channel drifted')
@@ -101,7 +101,10 @@ def verify_apk(apk, aapt, certificate=None, apksigner=None):
             'APK must contain exactly one protected InCall service registration')
     require('com.wangzan101.mika.helper' not in tree, 'Provider authority points to the original app')
     permissions = set(re.findall(r"uses-permission: name='([^']+)'", badging))
-    allowed = set(json.loads(read('tinyfox/permissions.json'))) | {APP_ID + '.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'}
+    allowed = set(json.loads(read('tinyfox/permissions.json'))) | {
+        APP_ID + '.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION',
+        'moe.shizuku.manager.permission.API_V23',
+    }
     require(permissions == allowed, 'Merged APK permissions differ from the reviewed baseline')
     branding = json.loads(read('tinyfox/branding.json'))
     resources = run_tool(aapt, 'dump', '--values', 'resources', apk.name, cwd=apk.parent)

@@ -1,11 +1,11 @@
 package com.wangzan101.mika.core.tool
 
-import com.wangzan101.mika.core.observation.ObsKind
+import com.wangzan101.mika.core.screen.observation.ObsKind
 import com.wangzan101.mika.core.model.Part
 import com.wangzan101.mika.core.cap.sandbox.CommandResult
 import com.wangzan101.mika.core.cap.sandbox.FakeSandbox
 import com.wangzan101.mika.core.cap.sandbox.SandboxStatus
-import com.wangzan101.mika.core.knowledge.ScriptEntry
+import com.wangzan101.mika.core.learn.knowledge.ScriptEntry
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -27,6 +27,9 @@ import java.io.File
 import com.wangzan101.mika.core.cap.sandbox.SandboxTools
 import com.wangzan101.mika.core.cap.sandbox.SearchLimits
 import com.wangzan101.mika.core.assembly.toolDispatcher
+import com.wangzan101.mika.core.screen.vision.JvmTestImageOps
+import com.wangzan101.mika.core.screen.vision.VisionService
+import com.wangzan101.mika.core.screen.vision.says
 
 private var seq = 0
 private fun call(name: String, args: JsonObject) = Part.ToolCall("c${++seq}", name, args.toString())
@@ -143,9 +146,9 @@ class ToolDispatcherSandboxTest {
 
     // 沙箱就绪时看个人技能:照常返回正文,不列脚本(个人技能不在沙箱的技能目录里)
     @Test fun personalSkillViewWithSandboxReady() = runTest {
-        val catalog = com.wangzan101.mika.core.knowledge.GuideCatalog.withPersonal(
-            com.wangzan101.mika.core.knowledge.GuideCatalog.loadBundled(),
-            com.wangzan101.mika.core.skills.InMemoryPersonalSkills(com.wangzan101.mika.core.skills.personalSkill("my-trip")),
+        val catalog = com.wangzan101.mika.core.learn.knowledge.GuideCatalog.withPersonal(
+            com.wangzan101.mika.core.learn.knowledge.GuideCatalog.loadBundled(),
+            com.wangzan101.mika.core.learn.skills.InMemoryPersonalSkills(com.wangzan101.mika.core.learn.skills.personalSkill("my-trip")),
         )
         val d = toolDispatcher(FakeScreen(), false, catalog, sandbox = sb, workspace = { "conv1" })
         val r = d.execute(call("skill_read", buildJsonObject { put("name", "my-trip") })).content
@@ -258,6 +261,22 @@ class ToolDispatcherSandboxTest {
         assertEquals("true", seen.content.s("ok"))
         assertArrayEquals(png, seen.image)
         assertEquals("file_not_found", read("none.txt").content.s("error"))
+    }
+
+    @Test fun viewImageRoutesToTheVisionModel() = runTest {
+        File(ws, "note.png").writeBytes(byteArrayOf(-119, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0))
+        val vision = VisionService(says("图里写着「已订好」"), JvmTestImageOps)
+        val d = toolDispatcher(FakeScreen(), false, vision = vision, sandbox = sb, workspace = { "conv1" })
+        // 配了看图模型才提供这个工具
+        assertTrue(d.definitions().any { it.name == "view_image" })
+        assertTrue(dispatcher().definitions().none { it.name == "view_image" })
+        val r = d.execute(call("view_image", buildJsonObject { put("path", "note.png"); put("question", "写的什么字") })).content
+        assertEquals("true", r.s("ok"))
+        assertEquals("图里写着「已订好」", r.s("seen"))
+        // 不是图片按 not_text 拒绝
+        File(ws, "a.txt").writeText("hi")
+        val txt = d.execute(call("view_image", buildJsonObject { put("path", "a.txt") })).content
+        assertEquals("not_text", txt.s("error"))
     }
 
     @Test fun readFileUsesByteOffsetAndLimit() = runTest {

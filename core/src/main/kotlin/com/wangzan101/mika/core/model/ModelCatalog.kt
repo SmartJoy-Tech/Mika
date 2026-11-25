@@ -107,6 +107,8 @@ data class ModelEndpoint(val protocol: ModelProtocol, val baseUrl: String, val r
 enum class ListFailure(val text: String) {
     BadUrl("接口地址不对,要以 http:// 或 https:// 开头"),
     Auth("API Key 无效或没有权限"),
+    /** 粘贴进来的 Key 含有放不进 HTTP 头的字符。请求没有发出。 */
+    IllegalKey("API Key 含有无法使用的字符，请只粘贴密钥本身"),
     Quota("账户额度已用完"),
     RateLimited("请求太频繁,请稍后再试"),
     Network("连不上这个地址,请检查网络和接口地址"),
@@ -153,9 +155,17 @@ class ModelCatalog(private val http: OkHttpClient) {
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun openAiCompat(baseUrl: String, apiKey: String?, headers: Map<String, String> = emptyMap()): ModelListResult = run {
+        if (isCloudflareWorkersAi(baseUrl)) {
+            val cfResult = cloudflareWorkersAi(baseUrl, apiKey, headers)
+            if (cfResult is ModelListResult.Ok && cfResult.models.isNotEmpty()) {
+                return@run cfResult
+            }
+        }
         val url = endpoint(baseUrl, "/models") ?: return@run badUrl()
-        val req = Request.Builder().url(url).get().withHeaders(headers)
-            .apply { if (!apiKey.isNullOrEmpty()) header("Authorization", "Bearer $apiKey") }.build()
+        val req = buildRequest {
+            Request.Builder().url(url).get().withHeaders(headers)
+                .apply { if (!apiKey.isNullOrEmpty()) headerOrReject("Authorization", "Bearer $apiKey") }.build()
+        } ?: return@run illegalKey()
         val root = fetch(req).getOrElse { return@run it.asFailure() }
         val data = (root["data"] ?: root["models"]) as? JsonArray ?: return@run ModelListResult.Failed(ListFailure.BadResponse)
         ModelListResult.Ok(data.mapNotNull { (it as? JsonObject)?.let(::openAiModel) }.distinctBy { it.id })
@@ -168,8 +178,10 @@ class ModelCatalog(private val http: OkHttpClient) {
         repeat(MAX_PAGES) {
             val url = base.newBuilder().addQueryParameter("limit", "1000")
                 .apply { if (after != null) addQueryParameter("after_id", after) }.build()
-            val req = Request.Builder().url(url).get().withHeaders(headers)
-                .header("x-api-key", apiKey).header("anthropic-version", "2023-06-01").build()
+            val req = buildRequest {
+                Request.Builder().url(url).get().withHeaders(headers)
+                    .headerOrReject("x-api-key", apiKey).header("anthropic-version", "2023-06-01").build()
+            } ?: return@run illegalKey()
             val root = fetch(req).getOrElse { return@run it.asFailure() }
             val data = root["data"] as? JsonArray ?: return@run ModelListResult.Failed(ListFailure.BadResponse)
             all += data.mapNotNull { (it as? JsonObject)?.let(::anthropicModel) }
@@ -186,7 +198,9 @@ class ModelCatalog(private val http: OkHttpClient) {
         repeat(MAX_PAGES) {
             val url = base.newBuilder().addQueryParameter("pageSize", "1000")
                 .apply { if (token != null) addQueryParameter("pageToken", token) }.build()
-            val req = Request.Builder().url(url).get().withHeaders(headers).header("x-goog-api-key", apiKey).build()
+            val req = buildRequest {
+                Request.Builder().url(url).get().withHeaders(headers).headerOrReject("x-goog-api-key", apiKey).build()
+            } ?: return@run illegalKey()
             val root = fetch(req).getOrElse { return@run it.asFailure() }
             val data = root["models"] as? JsonArray ?: JsonArray(emptyList())
             all += data.mapNotNull { (it as? JsonObject)?.let(::geminiModel) }
@@ -298,6 +312,62 @@ class ModelCatalog(private val http: OkHttpClient) {
         )
     }
 
+    private fun isCloudflareWorkersAi(baseUrl: String): Boolean {
+        val trimmed = baseUrl.trim()
+        return trimmed.contains("/accounts/", ignoreCase = true) &&
+            (trimmed.contains("api.cloudflare.com", ignoreCase = true) || trimmed.contains("/ai", ignoreCase = true))
+    }
+
+    private suspend fun cloudflareWorkersAi(baseUrl: String, apiKey: String?, headers: Map<String, String>): ModelListResult = run {
+        val trimmed = baseUrl.trim().trimEnd('/')
+        val searchUrl = trimmed.removeSuffix("/v1").trimEnd('/') + "/models/search?task=Text%20Generation"
+        val url = searchUrl.toHttpUrlOrNull() ?: return@run badUrl()
+        val req = buildRequest {
+            Request.Builder().url(url).get().withHeaders(headers)
+                .apply { if (!apiKey.isNullOrEmpty()) headerOrReject("Authorization", "Bearer $apiKey") }.build()
+        } ?: return@run illegalKey()
+        val root = fetch(req).getOrElse { return@run it.asFailure() }
+        val result = root["result"] as? JsonArray ?: return@run ModelListResult.Failed(ListFailure.BadResponse)
+        val models = result.mapNotNull { (it as? JsonObject)?.let(::cloudflareModel) }
+            .sortedWith(compareByDescending<ListedModel> { it.toolCalls == true }.thenBy { it.id })
+            .distinctBy { it.id }
+        ModelListResult.Ok(models)
+    }
+
+    private fun cloudflareModel(o: JsonObject): ListedModel? {
+        val id = (o.str("name") ?: o.str("id"))?.takeIf { it.isNotBlank() } ?: return null
+        val props = (o["properties"] as? JsonArray)?.mapNotNull { item ->
+            val obj = item as? JsonObject ?: return@mapNotNull null
+            val pid = obj.str("property_id") ?: return@mapNotNull null
+            pid to obj["value"]
+        }?.toMap().orEmpty()
+
+        if (props.containsKey("planned_deprecation_date")) return null
+
+        fun propStr(pid: String): String? = (props[pid] as? JsonPrimitive)?.contentOrNull
+        fun propBool(pid: String): Boolean? = propStr(pid)?.toBooleanStrictOrNull()
+
+        val context = propStr("context_window")?.toIntOrNull()
+        val tools = propBool("function_calling")
+        val vision = propBool("vision")
+        val reasoning = propBool("reasoning")
+
+        val efforts = (props["reasoning_effort"] as? JsonObject)?.obj("value")?.let { effortObj ->
+            (effortObj["supported_efforts"] as? JsonArray)?.mapNotNull { (it as? JsonPrimitive)?.contentOrNull }
+        }
+
+        return ListedModel(
+            id = id,
+            displayName = id.removePrefix("@cf/"),
+            toolCalls = tools,
+            vision = vision,
+            contextTokens = context,
+            reasoning = reasoning,
+            reasoningEfforts = efforts,
+            chat = true,
+        )
+    }
+
     private class Failure(val result: ModelListResult.Failed) : Exception(result.message)
 
     private fun Throwable.asFailure(): ModelListResult.Failed =
@@ -318,17 +388,33 @@ class ModelCatalog(private val http: OkHttpClient) {
     }
 
     private fun failureFor(status: Int, body: String): ModelListResult.Failed = when {
-        status == 401 || status == 403 -> ModelListResult.Failed(ListFailure.Auth)
+        status == 401 -> ModelListResult.Failed(ListFailure.Auth)
+        // 403 带 insufficient_quota 是额度用尽,不是 Key 无效;和 [ModelHttp.openAiError] 保持同一顺序(额度先于 403)。
+        status == 402 || body.contains("insufficient_quota") -> ModelListResult.Failed(ListFailure.Quota)
         // Gemini 对无效 Key 回 400 INVALID_ARGUMENT,原因写在内容里
         status == 400 && (body.contains("API_KEY_INVALID") || body.contains("API key not valid")) -> ModelListResult.Failed(ListFailure.Auth)
-        status == 402 || body.contains("insufficient_quota") -> ModelListResult.Failed(ListFailure.Quota)
         status == 429 -> ModelListResult.Failed(ListFailure.RateLimited)
         status == 404 || status == 405 || status == 501 -> ModelListResult.Failed(ListFailure.NotSupported)
         status in 500..599 -> ModelListResult.Failed(ListFailure.Server, "HTTP $status")
+        status == 403 -> ModelListResult.Failed(ListFailure.Auth)
         else -> ModelListResult.Failed(ListFailure.BadResponse, "HTTP $status")
     }
 
     private fun badUrl() = ModelListResult.Failed(ListFailure.BadUrl)
+
+    private fun illegalKey() = ModelListResult.Failed(ListFailure.IllegalKey)
+
+    /**
+     * 构造请求。头值放不进 OkHttp 时返回 null,不让 [IllegalArgumentException] 逃出去
+     * (那条异常的消息里带着头的原文)。
+     */
+    private fun buildRequest(build: () -> Request): Request? = try {
+        build()
+    } catch (e: ModelError.IllegalHeader) {
+        null
+    } catch (e: IllegalArgumentException) {
+        null
+    }
 
     private fun endpoint(baseUrl: String, path: String) = (baseUrl.trim().trimEnd('/') + path).toHttpUrlOrNull()
 

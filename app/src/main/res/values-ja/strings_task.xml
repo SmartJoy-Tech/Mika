@@ -6,7 +6,7 @@
     <string name="parallel_second_display_failed">2 つ目の仮想画面を作成できなかったため、今は一度に 1 つのタスクだけを実行します</string>
     <string name="parallel_needs_14">複数のタスクを同時に実行するには Android 14 以降が必要です</string>
     <string name="parallel_low_ram">このスマホはメモリが少ないため、一度に 1 つのタスクだけを実行します</string>
-    <string name="skill_suspended">このスキルは最近うまく動いていないため、一時停止しました</string>
+    <string name="skill_suspended">このスキルは最近うまく動いていないため、一時停止しました: %1$s</string>
     <string name="skill_verified">スキルが有効でした。通常の利用に移りました: %1$s</string>
     <string name="skill_learned">Mika がスキルを学習しました: %1$s</string>
     <string name="skill_app_draft">Mika が %1$s についてのメモを作りました。ご確認ください</string>
@@ -54,6 +54,15 @@
     <string name="task_too_old">スマホのアプリの操作には Android 12 以降が必要です。チャット、ウェブ、サンドボックスのタスクは使えます。</string>
     <string name="task_shell_died">スマホの操作のヘルパーが切断され、仮想画面が閉じました。再接続したら、もう一度お試しください。</string>
     <string name="task_running">実行中</string>
+    <string name="chip_thinking">思考中</string>
+    <string name="chip_read_screen">画面を確認中</string>
+    <string name="chip_use_phone">端末を操作中</string>
+    <string name="chip_browse">ウェブ閲覧中</string>
+    <string name="chip_take_over">操作を引き継ぐ</string>
+    <string name="chip_route_step">手順 %1$d/%2$d</string>
+    <string name="chip_count">進捗 %1$d/%2$d</string>
+    <string name="chip_done">完了 %1$d</string>
+    <string name="chip_wait_app">アプリ待機中</string>
     <string name="channel_task_accepted">受け付けました。タスクを登録しました。</string>
     <string name="task_step_note">ステップ %1$d: %2$s</string>
     <string name="task_wait_unlock">ロック解除を待っています</string>
@@ -78,4 +87,8 @@
     <string name="screens_waiting">待機中</string>
     <string name="screens_needs_you">あなたの対応が必要</string>
     <string name="screens_zoom">この画面を拡大</string>
+    <string name="task_trigger_time_limit">スケジュールタスクが %1$d 分を超えたため停止しました。</string>
+    <string name="trigger_failed_streak">スケジュールタスクが %1$d 回続けて失敗しました</string>
+    <string name="trigger_failed_streak_hint">スケジュールタスクのページでこの予定を一時停止または変更できます。</string>
+    <string name="task_no_phone_helper_shizuku">電話操作の準備ができていません。Shizuku を起動して Mika に権限を与えてください（または「設定 › 電話操作」を確認）。Web・ファイルタスクには影響しません。</string>
 </resources>

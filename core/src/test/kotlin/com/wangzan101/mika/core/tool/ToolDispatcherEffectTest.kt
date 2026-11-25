@@ -2,11 +2,11 @@ package com.wangzan101.mika.core.tool
 
 import com.wangzan101.mika.core.assembly.toolDispatcher
 import com.wangzan101.mika.core.model.Part
-import com.wangzan101.mika.core.uistate.ActionResult
-import com.wangzan101.mika.core.uistate.EffectTuning
-import com.wangzan101.mika.core.uistate.ScreenPort
-import com.wangzan101.mika.core.uistate.ScreenSnapshot
-import com.wangzan101.mika.core.uistate.UiElement
+import com.wangzan101.mika.core.screen.uistate.ActionResult
+import com.wangzan101.mika.core.screen.uistate.EffectTuning
+import com.wangzan101.mika.core.screen.uistate.ScreenPort
+import com.wangzan101.mika.core.screen.uistate.ScreenSnapshot
+import com.wangzan101.mika.core.screen.uistate.UiElement
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runTest
@@ -46,6 +46,14 @@ class ToolDispatcherEffectTest {
         val r = toolDispatcher(s).execute(call("phone_tap", """{"x":500,"y":500}"""))
         assertEquals("done", r.content.kind())
         assertEquals(true, r.changed)
+    }
+
+    @Test fun actionRecordsTheSourceAppWhenTheScreenChangesApps() = runTest {
+        val s = LateScreen({ currentTime }, page("列表"), page("设置").copy(packageName = "com.android.settings"), afterMs = 0)
+        val r = toolDispatcher(s, inlineScreen = false).execute(call("phone_tap", """{"x":500,"y":500}"""))
+        assertEquals("place_changed", r.content.kind())
+        assertEquals("com.x", r.record["actionApp"]?.jsonPrimitive?.content)
+        assertEquals(null, r.content["actionApp"])
     }
 
     // 动作之后新出现「到上限了」的提示:结果里写 limitReached 和停下的提示;动作前就在屏上的说明文字不算

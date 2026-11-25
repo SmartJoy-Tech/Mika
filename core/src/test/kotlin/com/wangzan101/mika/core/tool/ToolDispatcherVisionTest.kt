@@ -1,13 +1,13 @@
 package com.wangzan101.mika.core.tool
 
 import com.wangzan101.mika.core.model.Part
-import com.wangzan101.mika.core.vision.FRAME_A
-import com.wangzan101.mika.core.vision.FRAME_B
-import com.wangzan101.mika.core.vision.JvmTestImageOps
-import com.wangzan101.mika.core.vision.LocScreen
-import com.wangzan101.mika.core.vision.VisionService
-import com.wangzan101.mika.core.vision.says
-import com.wangzan101.mika.core.vision.uiEl
+import com.wangzan101.mika.core.screen.vision.FRAME_A
+import com.wangzan101.mika.core.screen.vision.FRAME_B
+import com.wangzan101.mika.core.screen.vision.JvmTestImageOps
+import com.wangzan101.mika.core.screen.vision.LocScreen
+import com.wangzan101.mika.core.screen.vision.VisionService
+import com.wangzan101.mika.core.screen.vision.says
+import com.wangzan101.mika.core.screen.vision.uiEl
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -19,8 +19,8 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import com.wangzan101.mika.core.assembly.toolDispatcher
-import com.wangzan101.mika.core.uistate.interfaces
-import com.wangzan101.mika.core.uistate.ScreenDiagnosis
+import com.wangzan101.mika.core.screen.uistate.interfaces
+import com.wangzan101.mika.core.screen.uistate.ScreenDiagnosis
 
 class ToolDispatcherVisionTest {
     private var seq = 0
@@ -58,7 +58,7 @@ class ToolDispatcherVisionTest {
         assertEquals(4, r["box"]!!.jsonArray.size)
         val bad = dispatcher(LocScreen()).execute(call("phone_find_visually", """{"target":"x","text":"${"字".repeat(61)}"}""")).content
         assertEquals("invalid_arguments", bad.s("error"))
-        val none = dispatcher(LocScreen(), "null").execute(call("phone_find_visually", """{"target":"某个图标"}""")).content
+        val none = dispatcher(LocScreen(), "null", "null").execute(call("phone_find_visually", """{"target":"某个图标"}""")).content
         assertEquals("true", none.s("ok")); assertEquals("false", none.s("found")); assertEquals("not_found", none.s("reason"))
     }
 
